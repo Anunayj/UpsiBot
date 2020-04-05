@@ -1,4 +1,4 @@
-FROM hypriot/rpi-node:latest
+FROM arm32v7/node:latest
 COPY bin/ /usr/bin/
 RUN [ "cross-build-start" ]
 RUN mkdir -p /usr/src/bot
