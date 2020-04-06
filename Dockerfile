@@ -10,4 +10,5 @@ RUN npm install
 RUN [ "cross-build-end" ]  
 COPY . /usr/src/bot
 ARG TOKEN
-CMD ["node", "index.js",$TOKEN]
+RUN echo $TOKEN
+CMD ["node", "index.js", $TOKEN]
