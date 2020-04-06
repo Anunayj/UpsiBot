@@ -10,5 +10,4 @@ RUN npm install
 RUN [ "cross-build-end" ]  
 COPY . /usr/src/bot
 ARG TOKEN
-ENV discordToken=$TOKEN
-CMD ["node", "index.js"]
+CMD ["node", "index.js",$TOKEN]

@@ -6,16 +6,15 @@ function error(reason){
 
 
 const { Client } = require('discord.js');
-try{
-    var { disToken } = require('./env.json'); //Don't change the var to smth else: https://stackoverflow.com/a/40925135/6011878
-}catch(e){
-    var disToken = process.env.disToken;
-    if(disToken === undefined){
-        error("env.json/(disToken env variable) is missing!");
+if (process.argv.length===3){
+    disToken = process.argv[2];
+}else{
+    try{
+        var { disToken } = require('./env.json'); //Don't change the var to smth else: https://stackoverflow.com/a/40925135/6011878
+    }catch(e){
+        error("env.json/(disToken argument) is missing!");
     }
-    
 }
-
 const client = new Client();
 
 client.on('ready', () => console.log('Ready!'));
@@ -27,5 +26,4 @@ client.on('message', (msg) => {
         msg.channel.send('!gnip');
     }
 });
-console.log(disToken)
 client.login(disToken).catch(() => error("Error logging in!"));
