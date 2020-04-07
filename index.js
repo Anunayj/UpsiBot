@@ -26,5 +26,4 @@ client.on('message', (msg) => {
         msg.channel.send('!gnip');
     }
 });
-console.log(disToken);
 client.login(disToken).catch(() => error("Error logging in!"));

@@ -3,8 +3,6 @@ COPY bin/ /usr/bin/
 RUN [ "cross-build-start" ]
 RUN mkdir -p /usr/src/bot
 WORKDIR /usr/src/bot
-
-
 COPY package.json /usr/src/bot
 RUN npm install
 RUN [ "cross-build-end" ]  
