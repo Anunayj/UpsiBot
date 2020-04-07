@@ -10,5 +10,5 @@ RUN npm install
 RUN [ "cross-build-end" ]  
 COPY . /usr/src/bot
 ARG TOKEN
-ENV disToken = $TOKEN
+ENV disToken $TOKEN
 CMD node index.js $disToken
