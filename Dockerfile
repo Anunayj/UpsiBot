@@ -11,4 +11,4 @@ COPY . /usr/src/bot
 ARG TOKEN
 RUN echo $TOKEN
 RUN [ "cross-build-end" ]  
-CMD ["node", "index.js", $TOKEN]
+CMD node index.js $TOKEN
