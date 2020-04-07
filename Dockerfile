@@ -7,8 +7,8 @@ WORKDIR /usr/src/bot
 
 COPY package.json /usr/src/bot
 RUN npm install
+RUN [ "cross-build-end" ]  
 COPY . /usr/src/bot
 ARG TOKEN
-RUN echo $TOKEN
-RUN [ "cross-build-end" ]  
-CMD node index.js $TOKEN
+ENV disToken = $TOKEN
+CMD node index.js $disToken
