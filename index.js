@@ -32,7 +32,7 @@ class splashNotifier{
         let embed = bot.createEmbed(this.channel);
         embed.title('Splash!');
         embed.description(msgList.reduce((total,now) => {
-            return now.content + "\n" + total ;
+            return now.cleancontent + "\n" + total ;
         },""));
         embed.author(msgList[0].author.username,`https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}` );
@@ -44,7 +44,7 @@ class splashNotifier{
         const splashChannels = ['697514114314010684','693040475795357697','691764401878859816','688825369322586112','685965920883048523','688118738213666940','676139359216336935','675381164990529546'];
         if(splashChannels.includes(msg.channel.id)){
 
-            if(msg.mentions.roleMentions>0 || msg.mentionEveryone){
+            if(msg.mentions.roleMentions.length>0 || msg.mentionEveryone){
                 const msgList = (await scraperbot.getMessages(msg.channel.id,10)).filter((obj) => (obj.timestamp > msg.timestamp-60000) && obj.author === msg.author);
                 this.sendSplashNotification(msgList);
                 this.pastMessages[msg.author.id] = msg.id;
@@ -54,7 +54,7 @@ class splashNotifier{
                     if(arr.embeds.length > 0 && arr.embeds[0].author !== undefined) 
                         return arr.embeds[0].author.name === msg.author.username;
                 })[0]; 
-                msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description +"\n"+ msg.content;
+                msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description +"\n"+ msg.cleancontent;
                 bot.editMessage(msgtoEdit.channel.id,msgtoEdit.id,{embed:msgtoEdit.embeds[0]});
                 
             }
