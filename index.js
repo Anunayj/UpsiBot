@@ -13,8 +13,7 @@ let tokens;
 try{
     tokens = require('./env.json'); //Don't change the var to smth else: https://stackoverflow.com/a/40925135/6011878
 }catch(e){
-    tokens.main = process.env.mainToken;
-    tokens.scraper = process.env.scraperToken;
+    tokens = {main:process.env.mainToken,scraper:process.env.scraperToken};
     if(tokens.main === undefined || tokens.scraper == undefined)
     throw "Tokens are missing!";
 }
