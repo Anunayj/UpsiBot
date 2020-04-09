@@ -26,7 +26,7 @@ class splashNotifier{
         let embed = bot.createEmbed(this.channel);
         embed.title('Splash!');
         embed.description(msgList.reduce((total,now) => {
-            return now.cleancontent + "\n" + total ;
+            return now.cleanContent + "\n" + total ;
         },""));
         embed.author(msgList[0].author.username,`https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}` );
@@ -48,7 +48,7 @@ class splashNotifier{
                     if(arr.embeds.length > 0 && arr.embeds[0].author !== undefined) 
                         return arr.embeds[0].author.name === msg.author.username;
                 })[0]; 
-                msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description +"\n"+ msg.cleancontent;
+                msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description +"\n"+ msg.cleanContent;
                 bot.editMessage(msgtoEdit.channel.id,msgtoEdit.id,{embed:msgtoEdit.embeds[0]});
                 
             }
