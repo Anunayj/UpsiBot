@@ -3,12 +3,6 @@ const Eris = require("eris");
 
 
 
-// if (process.env.disToken!==undefined && process.env.leechToken!==undefined ){
-//     disToken = process.env.disToken;
-//     leechToken = process.env.leechToken;
-// }else{
-    
-// }
 let tokens;
 try{
     tokens = require('./env.json'); //Don't change the var to smth else: https://stackoverflow.com/a/40925135/6011878
@@ -36,7 +30,7 @@ class splashNotifier{
         },""));
         embed.author(msgList[0].author.username,`https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}` );
-        // embed.send();
+        embed.send();
     }
 
     async scrapeHandler(msg){
