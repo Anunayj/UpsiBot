@@ -7,6 +7,8 @@ COPY package.json /usr/src/bot
 RUN npm install
 RUN [ "cross-build-end" ]  
 COPY . /usr/src/bot
-ARG TOKEN
-ENV disToken $TOKEN
-CMD node index.js $disToken
+ARG mainToken
+ARG scraperToken
+ENV mainToken $mainToken
+ENV scraperToken $scraperToken
+CMD node index.js
