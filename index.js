@@ -36,7 +36,7 @@ class splashNotifier{
         },""));
         embed.author(msgList[0].author.username,`https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}` );
-        embed.send();
+        // embed.send();
     }
 
     async scrapeHandler(msg){
@@ -44,11 +44,11 @@ class splashNotifier{
         const splashChannels = ['697514114314010684','693040475795357697','691764401878859816','688825369322586112','685965920883048523','688118738213666940','676139359216336935','675381164990529546'];
         if(splashChannels.includes(msg.channel.id)){
 
-            if(msg.mentions.roleMentions.length>0 || msg.mentionEveryone){
+            if(msg.roleMentions.length>0 || msg.mentionEveryone){
                 const msgList = (await scraperbot.getMessages(msg.channel.id,10)).filter((obj) => (obj.timestamp > msg.timestamp-60000) && obj.author === msg.author);
                 this.sendSplashNotification(msgList);
                 this.pastMessages[msg.author.id] = msg.id;
-                setTimeout((that,id) =>{delete that.pastMessages[id];},1000*600,this,msg.id);
+                setTimeout((that,id) =>{delete that.pastMessages[id];},1000*300,this,msg.author.id);
             }else if(Object.keys(this.pastMessages).includes(msg.author.id)){
                 let msgtoEdit = (await bot.getMessages(this.channel)).filter((arr) => {
                     if(arr.embeds.length > 0 && arr.embeds[0].author !== undefined) 
