@@ -35,7 +35,6 @@ class splashNotifier{
         if(title!==null) embed.title(title[0]);
         else embed.title("Splash");
         embed.description(totalmsg);
-        embed.title('Splash!');
         embed.author(msgList[0].author.username,`https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}` );
         embed.send();
