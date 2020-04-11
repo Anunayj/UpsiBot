@@ -61,6 +61,17 @@ class splashNotifier{
                 if(title!==null) msgtoEdit.embeds[0].title = title[0];
                 bot.editMessage(msgtoEdit.channel.id,msgtoEdit.id,{embed:msgtoEdit.embeds[0]});
                 
+                // TODO FIX THIS
+                let othermsgtoEdit = (await bot.getMessages("682665951002755164")).filter((arr) => {
+                    if(arr.embeds.length > 0 && arr.embeds[0].author !== undefined) 
+                        return arr.embeds[0].author.name === msg.author.username;
+                })[0]; 
+                othermsgtoEdit.embeds[0].description = othermsgtoEdit.embeds[0].description +"\n"+ msg.cleanContent;
+                if(title!==null) othermsgtoEdit.embeds[0].title = title[0];
+                bot.editMessage(othermsgtoEdit.channel.id,othermsgtoEdit.id,{embed:othermsgtoEdit.embeds[0]});
+
+
+
             }
 
 
