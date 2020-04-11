@@ -25,7 +25,7 @@ class splashNotifier{
     sendSplashNotification(msgList){
 
 
-        totalmsg = msgList.reduce((total,now) => {
+        const totalmsg = msgList.reduce((total,now) => {
             return now.cleanContent + "\n" + total ;
         },"");
         if(totalmsg.match(/\d+\s?K/i)!==null) return;
