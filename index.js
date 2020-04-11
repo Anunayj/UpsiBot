@@ -23,11 +23,19 @@ class splashNotifier{
     }
 
     sendSplashNotification(msgList){
-        let embed = bot.createEmbed(this.channel);
-        embed.title('Splash!');
-        embed.description(msgList.reduce((total,now) => {
+
+
+        totalmsg = msgList.reduce((total,now) => {
             return now.cleanContent + "\n" + total ;
-        },""));
+        },"");
+        if(totalmsg.match(/\d+\s?K/i)!==null) return;
+
+        let embed = bot.createEmbed(this.channel);
+        const title = totalmsg.match(/(party join \w+|HUB\s?\d+)/i);
+        if(title===null) embed.title(title);
+        else embed.title("Splash");
+        embed.description(totalmsg);
+        embed.title('Splash!');
         embed.author(msgList[0].author.username,`https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}` );
         embed.send();
