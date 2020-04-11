@@ -58,6 +58,8 @@ class splashNotifier{
                         return arr.embeds[0].author.name === msg.author.username;
                 })[0]; 
                 msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description +"\n"+ msg.cleanContent;
+                const title = totalmsg.match(/(party|p join \w+|HUB\s?\d+)/i);
+                if(title!==null) msgtoEdit.embeds[0].title = title;
                 bot.editMessage(msgtoEdit.channel.id,msgtoEdit.id,{embed:msgtoEdit.embeds[0]});
                 
             }
