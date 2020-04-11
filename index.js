@@ -31,8 +31,8 @@ class splashNotifier{
         if(totalmsg.match(/\d+\s?K/i)!==null) return;
 
         let embed = bot.createEmbed(this.channel);
-        const title = totalmsg.match(/(party join \w+|HUB\s?\d+)/i);
-        if(title===null) embed.title(title);
+        const title = totalmsg.match(/(party|p join \w+|HUB\s?\d+)/i);
+        if(title!==null) embed.title(title);
         else embed.title("Splash");
         embed.description(totalmsg);
         embed.title('Splash!');
