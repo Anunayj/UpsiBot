@@ -86,7 +86,7 @@ scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
 
 bot.on("messageCreate",(msg) => {
     if(msg.author.bot) return;
-    content = msg.cleanContent.match(/(I'm|I am|I\s?m)(.*)/i);
+    content = msg.cleanContent.match(/(I'm|I am|I\s?m)\s(.*)/i);
     if(content!==null) bot.createMessage(msg.channel.id, `Hi${content[2]}, I am ᴉsd∩`);
    
 });
