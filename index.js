@@ -82,8 +82,11 @@ class splashNotifier{
 }
 
 let splashHandler = new splashNotifier('697783449909461012');
-
-
-//bot.on("messageCreate",(msg) => console.log(msg));
 scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
+
+bot.on("messageCreate",(msg) => {
+   content = msg.cleanContent.match(/(I'm|I am|I\s?m)(.*)/i);
+   if(content!==null) bot.createMessage(msg.channel.id, `Hi${content[2]}, I am ᴉsd∩`);
+   
+});
 
