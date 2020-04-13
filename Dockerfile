@@ -9,6 +9,9 @@ RUN [ "cross-build-end" ]
 COPY . /usr/src/bot
 ARG mainToken
 ARG scraperToken
+ARG hypixelToken
 ENV mainToken $mainToken
 ENV scraperToken $scraperToken
+ENV hypixelToken $hypixelToken
+
 CMD node index.js

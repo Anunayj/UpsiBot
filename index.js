@@ -1,18 +1,22 @@
 EmbedBuilder = require('eris-embed-builder');
 const Eris = require("eris");
+const hypixel = require("./api");
 
-
-
-let tokens;
 try{
     tokens = require('./env.json'); //Don't change the var to smth else: https://stackoverflow.com/a/40925135/6011878
 }catch(e){
-    tokens = {main:process.env.mainToken,scraper:process.env.scraperToken};
-    if(tokens.main === undefined || tokens.scraper == undefined)
+    tokens = {main:process.env.mainToken,scraper:process.env.scraperToken,hypixel:process.env.hypixelToken};
+    if(tokens.main === undefined || tokens.scraper === undefined || process.env.hypixelToken === undefined)
     throw "Tokens are missing!";
 }
+const api = new hypixel.Client(tokens.hypixel);
 
-const [bot,scraperbot] = [new Eris(tokens.main), new Eris(tokens.scraper)];
+
+const [bot,scraperbot] = [new Eris.CommandClient(tokens.main,{},{
+    description: "A bot.....",
+    owner: "Anunay",
+    prefix: "~"
+}), new Eris(tokens.scraper)];
 bot.connect().catch(() => {throw "Unable to connect";});
 scraperbot.connect().catch(() => {throw "Unable to connect";});
 
@@ -91,3 +95,77 @@ bot.on("messageCreate",(msg) => {
    
 });
 
+
+bot.registerCommand("ping", "Pong!", { // Make a ping command
+    // Responds with "Pong!" when someone says "!ping"
+        description: "Pong!",
+        fullDescription: "This command could be used to check if the bot is up. Or entertainment when you're bored."
+    });
+bot.registerCommand("req", checkRequirements, { // Make a ping command
+        // Responds with "Pong!" when someone says "!ping"
+            description: "Check Requirements!!",
+            fullDescription: "Dude that literally ^"
+    },{argsRequired:true,usage:"rep <username>"});
+
+
+
+async function checkRequirements(msg,args){
+    let last = await bot.createMessage(msg.channel.id,"Checking Minion Slots... ");
+    let player,hyplayer;
+    try{
+        player = await api.getPlayer(args[0]);
+        hyplayer = await api.gethypixelPlayer(player.id);
+    }catch{
+        return("Invalid username!");
+    }
+    if(hyplayer.player.achievements.skyblock_minion_lover>275) bot.editMessage(last.channel.id,last.id,last.content+=":green_circle:");
+    else bot.editMessage(last.channel.id,last.id,last.content+=`:red_circle: Unique Crafts = ${skyblock_minion_lover}`);
+    last = await bot.createMessage(msg.channel.id,"Checking Skills... ");
+
+    total = hyplayer.player.achievements.skyblock_combat+hyplayer.player.achievements.skyblock_angler+hyplayer.player.achievements.skyblock_gatherer+hyplayer.player.achievements.skyblock_excavator+hyplayer.player.achievements.skyblock_harvester+hyplayer.player.achievements.skyblock_augmentation+hyplayer.player.achievements.skyblock_concoctor;
+    if(total>=7*18) bot.editMessage(last.channel.id,last.id,last.content+=":green_circle:");
+    else bot.editMessage(last.channel.id,last.id,last.content+=`:red_circle: Average Skill = ${total/7}`);
+    // profile_ids = Object.values(hyplayer.player.stats.SkyBlock.profiles)[0].profile_id;
+    // res = await api.getProfile(proid);
+    for(const profile of Object.values(hyplayer.player.stats.SkyBlock.profiles)){
+        let fail = false;
+        last = await bot.createMessage(msg.channel.id,`Checking Slayer on Profile ${profile.cute_name} ... `);
+        let ProObj = await api.getProfile(profile.profile_id);
+        const slayerxp = ProObj.profile.members[player.id].slayer_bosses.wolf.xp + 
+        ProObj.profile.members[player.id].slayer_bosses.wolf.xp + 
+        ProObj.profile.members[player.id].slayer_bosses.spider.xp;
+        if( (slayerxp > 30000) && 
+            (ProObj.profile.members[player.id].slayer_bosses.wolf.xp > 20000 || 
+            ProObj.profile.members[player.id].slayer_bosses.wolf.xp > 20000 || 
+            ProObj.profile.members[player.id].slayer_bosses.spider.xp > 20000))
+            bot.editMessage(last.channel.id,last.id,last.content+=":green_circle:");
+        else {bot.editMessage(last.channel.id,last.id,last.content+=`:red_circle: Slayer XP  = ${slayerxp}`); fail = true;}
+        
+        // const weights = {"REAPER_SWORD":9001};
+    
+        // let totalWorth=0;
+        // for(const inv of [res.profile.members[player.id].inv_contents.data,res.profile.members[player.id].ender_chest_contents.data]){
+        //     for(const name of itr(api.parseInventory(inv))){
+        //         if(weights[name]!==undefined) totalWorth+=weights[name];
+        //     }
+        // }
+        // if(totalWorth>=100)
+        if(!fail) break;
+    }
+
+}
+function* itr(inv){
+    const backpackid = ["GREATER_BACKPACK","LARGE_BACKPACK","MEDIUM_BACKPACK","SMALL_BACKPACK"];
+    for(const item of inv){
+        if(item.tag === undefined || item.tag.ExtraAttributes === undefined) continue;
+        const id = item.tag.ExtraAttributes.id;
+        // Or do you like: if(backpacks.includes(id)) for (let j of itr(api.parseInventory(item.tag.ExtraAttributes[id.toLowerCase()+"_data"]))) yield j;
+        if(backpackid.includes(id)){
+            const back = itr(api.parseInventory(item.tag.ExtraAttributes[id.toLowerCase()+"_data"]));
+            for (let j of back){
+                yield j;
+            }
+        }else yield id;
+    }
+
+}

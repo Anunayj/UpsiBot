@@ -1,3 +1,2 @@
 #!/bin/bash
-echo $TOKEN
-docker build --build-arg mainToken=$mainToken --build-arg scraperToken=$scraperToken -f $DOCKERFILE_PATH -t $IMAGE_NAME .
+docker build --build-arg mainToken=$mainToken --build-arg scraperToken=$scraperToken --build-arg hypixelToken=$hypixelToken -f $DOCKERFILE_PATH -t $IMAGE_NAME .
