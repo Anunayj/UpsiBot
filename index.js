@@ -105,7 +105,7 @@ bot.registerCommand("req", checkRequirements, { // Make a ping command
         // Responds with "Pong!" when someone says "!ping"
             description: "Check Requirements!!",
             fullDescription: "Dude that literally ^"
-    },{argsRequired:true,usage:"rep <username>",cooldown:7000});
+    },{argsRequired:true,usage:`rep <username>`,cooldown:7000});
 
 
 
@@ -122,15 +122,15 @@ async function checkRequirements(msg,args){
         }
         try{
         if(hyplayer.player.achievements.skyblock_minion_lover>275) await bot.editMessage(last.channel.id,last.id,last.content+=":green_circle:");
-        else await bot.editMessage(last.channel.id,last.id,last.content+=`:red_circle: Unique Crafts = ${skyblock_minion_lover}`);
+        else await last.edit(last.content+=`:red_circle: Unique Crafts = ${skyblock_minion_lover}`);
         last = await bot.createMessage(msg.channel.id,"Checking Skills... ");
 
         total = hyplayer.player.achievements.skyblock_combat+hyplayer.player.achievements.skyblock_angler+hyplayer.player.achievements.skyblock_gatherer+hyplayer.player.achievements.skyblock_excavator+hyplayer.player.achievements.skyblock_harvester+hyplayer.player.achievements.skyblock_augmentation+hyplayer.player.achievements.skyblock_concoctor;
-        if(total>=7*18) await bot.editMessage(last.channel.id,last.id,last.content+=":green_circle:");
-        else await bot.editMessage(last.channel.id,last.id,last.content+=`:red_circle: Average Skill = ${(total/7).toFixed(2)}`);
+        if(total>=7*18) await last.edit(last.content+=":green_circle:");
+        else await last.edit(last.content+=`:red_circle: Average Skill = ${(total/7).toFixed(2)}`);
     
         }catch(e){
-            await bot.editMessage(last.channel.id,last.id,last.content+="Has this dude even played SkyBlock ever?");
+            await last.edit(last.content+="Has this dude even played SkyBlock ever?");
             
             return;
         }
@@ -147,8 +147,8 @@ async function checkRequirements(msg,args){
                 (ProObj.profile.members[player.id].slayer_bosses.wolf.xp > 20000 || 
                 ProObj.profile.members[player.id].slayer_bosses.wolf.xp > 20000 || 
                 ProObj.profile.members[player.id].slayer_bosses.spider.xp > 20000))
-                await bot.editMessage(last.channel.id,last.id,last.content+=":green_circle:");
-            else { await bot.editMessage(last.channel.id,last.id,last.content+=`:red_circle: Slayer XP  = ${slayerxp}`); fail = true;}
+                await last.edit(last.content+=":green_circle:");
+            else { await last.edit(last.content+=`:red_circle: Slayer XP  = ${slayerxp}`); fail = true;}
             
             last = await bot.createMessage(msg.channel.id,`Checking Wealth on Profile ${profile.cute_name} ... `);
 
@@ -164,10 +164,10 @@ async function checkRequirements(msg,args){
                         if(totalWorth>=20) break outside;
                     }
                 }
-                if(totalWorth>=20) await bot.editMessage(last.channel.id,last.id,last.content+=":green_circle:");
-                else {await bot.editMessage(last.channel.id,last.id,last.content+=`:red_circle: Worth = ${totalWorth}, if you did not have stuff in inevntory, try again.`); fail = true;}
+                if(totalWorth>=20) await last.edit(last.content+=":green_circle:");
+                else {await last.edit(last.content+=`:red_circle: Worth = ${totalWorth}, if you did not have stuff in inevntory, try again.`); fail = true;}
             }else{
-               await  bot.editMessage(last.channel.id,last.id,last.content+=`:yellow_circle: API access is disabled.`); fail = true;
+               await  last.edit(last.content+=`:yellow_circle: API access is disabled.`); fail = true;
             }
             if(!fail) break;
             // await new Promise(r => setTimeout(r, 1000)); //possible cooldown for rate limiting
