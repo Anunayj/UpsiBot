@@ -112,7 +112,7 @@ bot.registerCommand("req", checkRequirements, { // Make a ping command
 async function checkRequirements(msg,args){
     if(args[0]===undefined) return "Invalid Usage! do req <username>";
     try{
-        const last = await bot.createMessage(msg.channel.id,"Checking Minion Slots... ");
+        let last = await bot.createMessage(msg.channel.id,"Checking Minion Slots... ");
         let player,hyplayer;
         try{
             player = await api.getPlayer(args[0]);
@@ -123,7 +123,7 @@ async function checkRequirements(msg,args){
         try{
         if(hyplayer.player.achievements.skyblock_minion_lover>275) await bot.editMessage(last.channel.id,last.id,last.content+=":green_circle:");
         else await last.edit(last.content+=`:red_circle: Unique Crafts = ${skyblock_minion_lover}`);
-        await last.edit(last.content+="\nChecking Skills... ");
+        last = await bot.createMessage(msg.channel.id,"Checking Skills... ");
 
         total = hyplayer.player.achievements.skyblock_combat+hyplayer.player.achievements.skyblock_angler+hyplayer.player.achievements.skyblock_gatherer+hyplayer.player.achievements.skyblock_excavator+hyplayer.player.achievements.skyblock_harvester+hyplayer.player.achievements.skyblock_augmentation+hyplayer.player.achievements.skyblock_concoctor;
         if(total>=7*18) await last.edit(last.content+=":green_circle:");
@@ -138,7 +138,7 @@ async function checkRequirements(msg,args){
         // res = await api.getProfile(proid);
         for(const profile of Object.values(hyplayer.player.stats.SkyBlock.profiles)){
             let fail = false;
-            await last.edit(last.content+=`\nChecking Slayer on Profile ${profile.cute_name} ... `);
+            last = await bot.createMessage(msg.channel.id,`Checking Slayer on Profile ${profile.cute_name} ... `);
             let ProObj = await api.getProfile(profile.profile_id);
             if(ProObj.profile.members[player.id].slayer_bosses===undefined){
                 await last.edit(last.content+=`:yellow_circle: API access is disabled.`);
@@ -154,21 +154,19 @@ async function checkRequirements(msg,args){
                 await last.edit(last.content+=":green_circle:");
             else { await last.edit(last.content+=`:red_circle: Slayer XP  = ${slayerxp}`); fail = true;}
             
-            await last.edit(last.content+=`\nChecking Wealth on Profile ${profile.cute_name} ... `);
+            last = await bot.createMessage(msg.channel.id,`Checking Wealth on Profile ${profile.cute_name} ... `);
 
                 
             if(ProObj.profile.members[player.id].inv_contents!==undefined){ 
                 
                 let totalWorth=0;
-                let totalTalisman=0;
-                outside: //HOLY SHIT This is useful
+                outside: //HOLY SHIT
                 for(const inv of [ProObj.profile.members[player.id].inv_armor.data,ProObj.profile.members[player.id].inv_contents.data,ProObj.profile.members[player.id].ender_chest_contents.data]){
                     for(const item of itr(api.parseInventory(inv))){
-                        if(weights[item.ExtraAttributes.id]!==undefined) totalWorth+=weights[item.ExtraAttributes.id];
-                        if(item.ExtraAttributes.id=="MIDAS_SWORD")totalWorth+=item.ExtraAttributes.winning_bid/1000000;
-                        if(item.ExtraAttributes.id=="SCORPION_FOIL")totalWorth+=5+item.ExtraAttributes.wood_singularity_count*2;
-                        if(item.ExtraAttributes.id=="TACTICIAN_SWORD")totalWorth+=item.ExtraAttributes.wood_singularity_count*2;
-                        
+                        if(weights[item.id]!==undefined) totalWorth+=weights[item.id];
+                        if(item.id=="MIDAS_SWORD")totalWorth+=item.winning_bid/1000000;
+                        if(item.id=="SCORPION_FOIL")totalWorth+=5+item.wood_singularity_count*2;
+                        if(item.id=="TACTICIAN_SWORD")totalWorth+=item.wood_singularity_count*2;
                         if(totalWorth>=20) break outside;
                     }
                 }
@@ -196,7 +194,7 @@ function* itr(inv){
             for (let j of back){
                 yield j;
             }
-        }else yield item.tag;
+        }else yield item.tag.ExtraAttributes;
     }
 
 }
