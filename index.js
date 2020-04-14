@@ -140,6 +140,10 @@ async function checkRequirements(msg,args){
             let fail = false;
             last = await bot.createMessage(msg.channel.id,`Checking Slayer on Profile ${profile.cute_name} ... `);
             let ProObj = await api.getProfile(profile.profile_id);
+            if(profile.members[player.id].slayer_bosses===undefined){
+                await last.edit(last.content+=`:yellow_circle: API access is disabled.`);
+                continue;
+            }
             const slayerxp = ProObj.profile.members[player.id].slayer_bosses.wolf.xp + 
             ProObj.profile.members[player.id].slayer_bosses.wolf.xp + 
             ProObj.profile.members[player.id].slayer_bosses.spider.xp;
@@ -153,7 +157,8 @@ async function checkRequirements(msg,args){
             last = await bot.createMessage(msg.channel.id,`Checking Wealth on Profile ${profile.cute_name} ... `);
 
                 
-            if(ProObj.profile.members[player.id].inv_contents!==undefined){
+            if(ProObj.profile.members[player.id].inv_contents!==undefined){ 
+                
                 let totalWorth=0;
                 outside: //HOLY SHIT
                 for(const inv of [ProObj.profile.members[player.id].inv_armor.data,ProObj.profile.members[player.id].inv_contents.data,ProObj.profile.members[player.id].ender_chest_contents.data]){
