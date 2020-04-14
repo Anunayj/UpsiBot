@@ -145,11 +145,11 @@ async function checkRequirements(msg,args){
                 continue;
             }
             const slayerxp = ProObj.profile.members[player.id].slayer_bosses.wolf.xp + 
-            ProObj.profile.members[player.id].slayer_bosses.wolf.xp + 
+            ProObj.profile.members[player.id].slayer_bosses.zombie.xp + 
             ProObj.profile.members[player.id].slayer_bosses.spider.xp;
             if( (slayerxp > 30000) && 
                 (ProObj.profile.members[player.id].slayer_bosses.wolf.xp > 20000 || 
-                ProObj.profile.members[player.id].slayer_bosses.wolf.xp > 20000 || 
+                ProObj.profile.members[player.id].slayer_bosses.zombie.xp > 20000 || 
                 ProObj.profile.members[player.id].slayer_bosses.spider.xp > 20000))
                 await last.edit(last.content+=":green_circle:");
             else { await last.edit(last.content+=`:red_circle: Slayer XP  = ${slayerxp}`); fail = true;}
