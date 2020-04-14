@@ -140,7 +140,7 @@ async function checkRequirements(msg,args){
             let fail = false;
             last = await bot.createMessage(msg.channel.id,`Checking Slayer on Profile ${profile.cute_name} ... `);
             let ProObj = await api.getProfile(profile.profile_id);
-            if(profile.members[player.id].slayer_bosses===undefined){
+            if(ProObj.profile.members[player.id].slayer_bosses===undefined){
                 await last.edit(last.content+=`:yellow_circle: API access is disabled.`);
                 continue;
             }
