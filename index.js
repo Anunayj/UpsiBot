@@ -165,7 +165,8 @@ async function checkRequirements(msg,args){
                     for(const item of itr(api.parseInventory(inv))){
                         if(weights[item.id]!==undefined) totalWorth+=weights[item.id];
                         if(item.id=="MIDAS_SWORD")totalWorth+=item.winning_bid/1000000;
-                        if(item.id=="SCORPION_FOIL") totalWorth+=3+item.wood_singularity_count*4;
+                        if(item.id=="SCORPION_FOIL")totalWorth+=5+item.wood_singularity_count*2;
+                        if(item.id=="TACTICIAN_SWORD")totalWorth+=item.wood_singularity_count*2;
                         if(totalWorth>=20) break outside;
                     }
                 }
