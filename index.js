@@ -122,7 +122,7 @@ async function checkRequirements(msg,args){
         }
         try{
         if(hyplayer.player.achievements.skyblock_minion_lover>275) await bot.editMessage(last.channel.id,last.id,last.content+=":green_circle:");
-        else await last.edit(last.content+=`:red_circle: Unique Crafts = ${skyblock_minion_lover}`);
+        else await last.edit(last.content+=`:red_circle: Unique Crafts = ${hyplayer.player.achievements.skyblock_minion_lover}`);
         last = await bot.createMessage(msg.channel.id,"Checking Skills... ");
 
         total = hyplayer.player.achievements.skyblock_combat+hyplayer.player.achievements.skyblock_angler+hyplayer.player.achievements.skyblock_gatherer+hyplayer.player.achievements.skyblock_excavator+hyplayer.player.achievements.skyblock_harvester+hyplayer.player.achievements.skyblock_augmentation+hyplayer.player.achievements.skyblock_concoctor;
@@ -160,18 +160,23 @@ async function checkRequirements(msg,args){
             if(ProObj.profile.members[player.id].inv_contents!==undefined){ 
                 
                 let totalWorth=0;
+                let totalTalisman=0;
                 outside: //HOLY SHIT
-                for(const inv of [ProObj.profile.members[player.id].inv_armor.data,ProObj.profile.members[player.id].inv_contents.data,ProObj.profile.members[player.id].ender_chest_contents.data]){
+                for(const inv of [ProObj.profile.members[player.id].talisman_bag.data,ProObj.profile.members[player.id].inv_armor.data,ProObj.profile.members[player.id].inv_contents.data,ProObj.profile.members[player.id].ender_chest_contents.data]){
                     for(const item of itr(api.parseInventory(inv))){
-                        if(weights[item.id]!==undefined) totalWorth+=weights[item.id];
-                        if(item.id=="MIDAS_SWORD")totalWorth+=item.winning_bid/1000000;
-                        if(item.id=="SCORPION_FOIL")totalWorth+=5+item.wood_singularity_count*2;
-                        if(item.id=="TACTICIAN_SWORD")totalWorth+=item.wood_singularity_count*2;
-                        if(totalWorth>=20) break outside;
+                        if(weights[item.ExtraAttributes.id]!==undefined) totalWorth+=weights[item.ExtraAttributes.id];
+                        if(item.ExtraAttributes.id=="MIDAS_SWORD")totalWorth+=item.ExtraAttributes.winning_bid/1000000;
+                        if(item.ExtraAttributes.id=="SCORPION_FOIL")totalWorth+=5+item.ExtraAttributes.wood_singularity_count*2;
+                        if(item.ExtraAttributes.id=="TACTICIAN_SWORD")totalWorth+=item.ExtraAttributes.wood_singularity_count*2;
+                        totalTalisman+=getTalismanValue(item);
+                        if(totalWorth>=20 && totalTalisman>=200) break outside;
                     }
                 }
+
                 if(totalWorth>=20) await last.edit(last.content+=":green_circle:");
                 else {await last.edit(last.content+=`:red_circle: Worth = ${totalWorth}, if you did not have stuff in inevntory, try again.`); fail = true;}
+                if(totalTalisman>=200) await bot.createMessage(msg.channel.id,`Checking Talisman on Profile ${profile.cute_name} ... :green_circle: `);
+                else{await bot.createMessage(msg.channel.id,`Checking Talisman on Profile ${profile.cute_name} ... :red_circle: Talisman score: ${totalTalisman} `);fail=true;}
             }else{
                await  last.edit(last.content+=`:yellow_circle: API access is disabled.`); fail = true;
             }
@@ -183,6 +188,18 @@ async function checkRequirements(msg,args){
         return "Some unknown error occured, please try again.";
     }
 }
+function getTalismanValue(item){try{
+    const regex = item.display.Lore[item.display.Lore.length - 1].match(/§.§.(.*) ACCESSORY/);
+    if(regex===undefined) return 0;
+    else if(regex[1]==="COMMON") return 3;
+    else if(regex[1]==="UNCOMMON") return 5;
+    else if(regex[1]==="RARE") return 8;
+    else if(regex[1]==="EPIC") return 12;
+    else if(regex[1]==="LEGENDARY") return 15;
+    }catch(e){}
+    return 0;
+}
+
 function* itr(inv){
     const backpackid = ["GREATER_BACKPACK","LARGE_BACKPACK","MEDIUM_BACKPACK","SMALL_BACKPACK"];
     for(const item of inv){
@@ -194,7 +211,7 @@ function* itr(inv){
             for (let j of back){
                 yield j;
             }
-        }else yield item.tag.ExtraAttributes;
+        }else yield item.tag;
     }
 
 }
