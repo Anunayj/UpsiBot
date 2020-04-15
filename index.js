@@ -10,6 +10,7 @@ try {
     if (tokens.main === undefined || tokens.scraper === undefined || process.env.hypixelToken === undefined)
         throw "Tokens are missing!";
 }
+
 const api = new hypixel.Client(tokens.hypixel);
 const weights = require("./weights.json");
 
@@ -18,6 +19,7 @@ const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     owner: "Anunay",
     prefix: "~"
 }), new Eris(tokens.scraper)];
+
 bot.connect().catch(() => { throw "Unable to connect"; });
 scraperbot.connect().catch(() => { throw "Unable to connect"; });
 
@@ -27,14 +29,12 @@ class splashNotifier {
         this.pastMessages = {};
     }
 
-    sendSplashNotification(msgList) {
-
-
+    sendSplashNotification(msgList, receiveChannels) {
+        const splashReceiveChannels = receiveChannels;
         const totalmsg = msgList.reduce((total, now) => {
             return now.cleanContent + "\n" + total;
         }, "");
         if (totalmsg.match(/\d+\s?K/i) !== null) return;
-
         let embed = bot.createEmbed(this.channel);
         const title = totalmsg.match(/((party|p) join \w+|HUB\s?\d+)/i);
         if (title !== null) embed.title(title[0]);
@@ -42,51 +42,39 @@ class splashNotifier {
         embed.description(totalmsg);
         embed.author(msgList[0].author.username, `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}`);
-        embed.send();
-        embed.send(bot, '682665951002755164');
-    }
-
-    async scrapeHandler(msg) {
-
-        const splashChannels = await JSON.parse(fs.readFileSync("file.json"));
-        if (splashChannels.includes(msg.channel.id)) {
-
-            if (msg.roleMentions.length > 0 || msg.mentionEveryone) {
-                const msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
-                this.sendSplashNotification(msgList);
-                this.pastMessages[msg.author.id] = msg.id;
-                setTimeout((that, id) => { delete that.pastMessages[id]; }, 1000 * 300, this, msg.author.id);
-            } else if (Object.keys(this.pastMessages).includes(msg.author.id)) {
-                let msgtoEdit = (await bot.getMessages(this.channel)).filter((arr) => {
-                    if (arr.embeds.length > 0 && arr.embeds[0].author !== undefined)
-                        return arr.embeds[0].author.name === msg.author.username;
-                })[0];
-                msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
-                const title = msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i);
-                if (title !== null) msgtoEdit.embeds[0].title = title[0];
-                bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, { embed: msgtoEdit.embeds[0] });
-
-                // TODO FIX THIS
-                let othermsgtoEdit = (await bot.getMessages("682665951002755164")).filter((arr) => {
-                    if (arr.embeds.length > 0 && arr.embeds[0].author !== undefined)
-                        return arr.embeds[0].author.name === msg.author.username;
-                })[0];
-                othermsgtoEdit.embeds[0].description = othermsgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
-                if (title !== null) othermsgtoEdit.embeds[0].title = title[0];
-                bot.editMessage(othermsgtoEdit.channel.id, othermsgtoEdit.id, { embed: othermsgtoEdit.embeds[0] });
-
-
-
-            }
-
-
+        for (var splashSendChannel of splashReceiveChannels) {
+            embed.send(bot, splashSendChannel);
         }
     }
 
-
+    async scrapeHandler(msg) {
+        // Channels that send splash messages
+        const splashSendChannels = await JSON.parse(fs.readFileSync("splashSendChannels.json"));
+        // Channels that get sent splash messages
+        const splashReceiveChannels = await JSON.parse(fs.readFileSync("splashReceiveChannels.json"));
+        if (splashSendChannels.includes(msg.channel.id)) {
+            if (msg.roleMentions.length > 0 || msg.mentionEveryone) {
+                const msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
+                this.sendSplashNotification(msgList, splashReceiveChannels);
+                this.pastMessages[msg.author.id] = msg.id;
+                setTimeout((that, id) => { delete that.pastMessages[id]; }, 1000 * 300, this, msg.author.id);
+            } else if (Object.keys(this.pastMessages).includes(msg.author.id)) {
+                for (var splashReceiveChannel of splashReceiveChannels) {
+                    let msgtoEdit = (await bot.getMessages(splashReceiveChannel)).filter((arr) => {
+                        if (arr.embeds.length > 0 && arr.embeds[0].author !== undefined)
+                            return arr.embeds[0].author.name === msg.author.username;
+                    })[0];
+                    msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
+                    const title = msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i);
+                    if (title !== null) msgtoEdit.embeds[0].title = title[0];
+                    bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, { embed: msgtoEdit.embeds[0] });
+                }
+            }
+        }
+    }
 }
 
-let splashHandler = new splashNotifier('697783449909461012');
+let splashHandler = new splashNotifier("562615952236085258");
 scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
 
 bot.on("messageCreate", (msg) => {
@@ -95,7 +83,6 @@ bot.on("messageCreate", (msg) => {
     if (content !== null) bot.createMessage(msg.channel.id, `Hi ${content[2]}, I am ᴉsd∩`);
 
 });
-
 
 bot.registerCommand("ping", "Pong!", { // Make a ping command
     // Responds with "Pong!" when someone says "!ping"
@@ -123,6 +110,8 @@ async function checkRequirements(msg, args) {
         } catch (e) {
             return ("Invalid username!");
         }
+        let skyblock_player = hyplayer.player;
+        // TODO: Need to change this to check profile skills of current ones
         try {
             if (hyplayer.player.achievements.skyblock_minion_lover > 275) await bot.editMessage(last.channel.id, last.id, last.content += ":green_circle:");
             else await last.edit(last.content += `:red_circle: Unique Crafts = ${hyplayer.player.achievements.skyblock_minion_lover}`);
@@ -130,7 +119,7 @@ async function checkRequirements(msg, args) {
 
             total = hyplayer.player.achievements.skyblock_combat + hyplayer.player.achievements.skyblock_angler + hyplayer.player.achievements.skyblock_gatherer + hyplayer.player.achievements.skyblock_excavator + hyplayer.player.achievements.skyblock_harvester + hyplayer.player.achievements.skyblock_augmentation + hyplayer.player.achievements.skyblock_concoctor;
             if (total >= 7 * 18) await last.edit(last.content += ":green_circle:");
-            else await last.edit(last.content += `:red_circle: Average Skill = ${(total/7).toFixed(2)}`);
+            else await last.edit(last.content += `:red_circle: Average Skill = ${(total / 7).toFixed(2)}`);
 
         } catch (e) {
             await last.edit(last.content += "Has this dude even played SkyBlock ever?");
@@ -139,7 +128,7 @@ async function checkRequirements(msg, args) {
         }
         // profile_ids = Object.values(hyplayer.player.stats.SkyBlock.profiles)[0].profile_id;
         // res = await api.getProfile(proid);
-        for (const profile of Object.values(hyplayer.player.stats.SkyBlock.profiles)) {
+        for (const profile of Object.values(skyblock_player.stats.SkyBlock.profiles)) {
             let fail = false;
             last = await bot.createMessage(msg.channel.id, `Checking Slayer on Profile ${profile.cute_name} ... `);
             let ProObj = await api.getProfile(profile.profile_id);
