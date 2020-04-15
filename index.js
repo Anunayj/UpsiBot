@@ -53,6 +53,7 @@ class splashNotifier {
         // Channels that get sent splash messages
         const splashReceiveChannels = await JSON.parse(fs.readFileSync("splashReceiveChannels.json"));
         if (splashSendChannels.includes(msg.channel.id)) {
+
             if (msg.roleMentions.length > 0 || msg.mentionEveryone) {
                 const msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
                 this.sendSplashNotification(msgList, splashReceiveChannels);
