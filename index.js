@@ -48,7 +48,7 @@ class splashNotifier {
 
     async scrapeHandler(msg) {
 
-        const splashChannels = await JSON.parse(fs.readFileSync("file.json"));
+        const splashChannels = await JSON.parse(fs.readFileSync("splashSendChannels.json"));
         if (splashChannels.includes(msg.channel.id)) {
 
             if (msg.roleMentions.length > 0 || msg.mentionEveryone) {
