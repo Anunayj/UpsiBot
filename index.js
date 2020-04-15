@@ -111,6 +111,8 @@ bot.registerCommand("req", checkRequirements, { // Make a ping command
 
 async function checkRequirements(msg,args){
     if(args[0]===undefined) return "Invalid Usage! do req <username>";
+    exploit = true;
+    if(args[1]=="exploit") exploit = false;
     try{
         let last = await bot.createMessage(msg.channel.id,"Checking Minion Slots... ");
         let player,hyplayer;
@@ -161,6 +163,7 @@ async function checkRequirements(msg,args){
                 
                 let totalWorth=0;
                 let totalTalisman=0;
+                let duplicates = [];
                 outside: //HOLY SHIT
                 for(const inv of [ProObj.profile.members[player.id].talisman_bag.data,ProObj.profile.members[player.id].inv_armor.data,ProObj.profile.members[player.id].inv_contents.data,ProObj.profile.members[player.id].ender_chest_contents.data]){
                     for(const item of itr(api.parseInventory(inv))){
@@ -168,7 +171,7 @@ async function checkRequirements(msg,args){
                         if(item.ExtraAttributes.id=="MIDAS_SWORD")totalWorth+=item.ExtraAttributes.winning_bid/1000000;
                         if(item.ExtraAttributes.id=="SCORPION_FOIL")totalWorth+=5+item.ExtraAttributes.wood_singularity_count*2;
                         if(item.ExtraAttributes.id=="TACTICIAN_SWORD")totalWorth+=item.ExtraAttributes.wood_singularity_count*2;
-                        totalTalisman+=getTalismanValue(item);
+                        if((!duplicates.includes(item.ExtraAttributes.id)) || exploit) {totalTalisman+=getTalismanValue(item);duplicates.push(item.ExtraAttributes.id);}
                         if(totalWorth>=20 && totalTalisman>=200) break outside;
                     }
                 }
