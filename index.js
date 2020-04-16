@@ -13,7 +13,8 @@ try {
 
 const api = new hypixel.Client(tokens.hypixel);
 const weights = require("./weights.json");
-
+// Channels that send splash messages Moved here cause I do not want to spam my Memory with read requests.
+const splashSendChannels = await JSON.parse(fs.readFileSync("splashSendChannels.json"));
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     description: "A bot.....",
     owner: "Anunay",
@@ -48,11 +49,10 @@ class splashNotifier {
     }
 
     async scrapeHandler(msg) {
-        // Channels that send splash messages
-        const splashSendChannels = await JSON.parse(fs.readFileSync("splashSendChannels.json"));
-        // Channels that get sent splash messages
-        const splashReceiveChannels = await JSON.parse(fs.readFileSync("splashReceiveChannels.json"));
+        
         if (splashSendChannels.includes(msg.channel.id)) {
+            // Channels that get sent splash messages
+            const splashReceiveChannels = await JSON.parse(fs.readFileSync("splashReceiveChannels.json"));
 
             if (msg.roleMentions.length > 0 || msg.mentionEveryone) {
                 const msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
