@@ -13,8 +13,6 @@ try {
 
 const api = new hypixel.Client(tokens.hypixel);
 const weights = require("./weights.json");
-// Channels that send splash messages Moved here cause I do not want to spam my Memory with read requests.
-const splashSendChannels = await JSON.parse(fs.readFileSync("splashSendChannels.json"));
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     description: "A bot.....",
     owner: "Anunay",
@@ -28,10 +26,11 @@ class splashNotifier {
     constructor(channel) {
         this.channel = channel;
         this.pastMessages = {};
+        this.splashSendChannels = undefined;
+        this.splashReceiveChannels = undefined;
     }
 
-    sendSplashNotification(msgList, receiveChannels) {
-        const splashReceiveChannels = receiveChannels;
+    sendSplashNotification(msgList) {
         const totalmsg = msgList.reduce((total, now) => {
             return now.cleanContent + "\n" + total;
         }, "");
@@ -43,24 +42,26 @@ class splashNotifier {
         embed.description(totalmsg);
         embed.author(msgList[0].author.username, `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}`);
-        for (var splashSendChannel of splashReceiveChannels) {
+        for (var splashSendChannel of this.splashReceiveChannels) {
             embed.send(bot, splashSendChannel);
         }
     }
 
     async scrapeHandler(msg) {
-        
-        if (splashSendChannels.includes(msg.channel.id)) {
+        if (this.splashSendChannels === undefined || this.splashReceiveChannels === undefined) {
+            // Channels that send splash messages Moved here cause I do not want to spam my Memory with read requests.
+            this.splashSendChannels = await JSON.parse(fs.readFileSync("splashSendChannels.json"));
             // Channels that get sent splash messages
-            const splashReceiveChannels = await JSON.parse(fs.readFileSync("splashReceiveChannels.json"));
-
+            this.splashReceiveChannels = await JSON.parse(fs.readFileSync("splashReceiveChannels.json"));
+        }
+        if (this.splashSendChannels.includes(msg.channel.id)) {
             if (msg.roleMentions.length > 0 || msg.mentionEveryone) {
                 const msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
-                this.sendSplashNotification(msgList, splashReceiveChannels);
+                this.sendSplashNotification(msgList, this.splashReceiveChannels);
                 this.pastMessages[msg.author.id] = msg.id;
                 setTimeout((that, id) => { delete that.pastMessages[id]; }, 1000 * 300, this, msg.author.id);
             } else if (Object.keys(this.pastMessages).includes(msg.author.id)) {
-                for (var splashReceiveChannel of splashReceiveChannels) {
+                for (var splashReceiveChannel of this.splashReceiveChannels) {
                     let msgtoEdit = (await bot.getMessages(splashReceiveChannel)).filter((arr) => {
                         if (arr.embeds.length > 0 && arr.embeds[0].author !== undefined)
                             return arr.embeds[0].author.name === msg.author.username;
@@ -70,7 +71,14 @@ class splashNotifier {
                     if (title !== null) msgtoEdit.embeds[0].title = title[0];
                     bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, { embed: msgtoEdit.embeds[0] });
                 }
+            } else {
+                // So you don't do the bit after every time
+                return;
             }
+            // Channels that send splash messages Moved here cause I do not want to spam my Memory with read requests.
+            this.splashSendChannels = await JSON.parse(fs.readFileSync("splashSendChannels.json"));
+            // Channels that get sent splash messages
+            this.splashReceiveChannels = await JSON.parse(fs.readFileSync("splashReceiveChannels.json"));
         }
     }
 }
