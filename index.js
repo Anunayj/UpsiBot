@@ -71,6 +71,9 @@ class splashNotifier {
                     if (title !== null) msgtoEdit.embeds[0].title = title[0];
                     await bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, { embed: msgtoEdit.embeds[0] });
                 }
+            } else {
+                // So you don't do the bit after every time
+                return;
             }
             // Channels that send splash messages Moved here cause I do not want to spam my Memory with read requests.
             this.splashSendChannels = await JSON.parse(fs.readFileSync("splashSendChannels.json"));
@@ -124,10 +127,10 @@ async function checkRequirements(msg, args) {
         try {
             player = await api.getPlayer(args[0]);
             if (player === undefined || player === null)
-                throw;
+                throw "";
             hyplayer = await api.gethypixelPlayer(player.id);
             if (hyplayer === undefined || hyplayer === null)
-                throw;
+                throw "";
         } catch (e) {
             embed.description("Invalid username!");
             embed.footer("Done!");
@@ -395,3 +398,4 @@ function isInNext(json, fromJson) {
         }
     }
     return true;
+}
