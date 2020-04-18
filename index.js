@@ -114,6 +114,7 @@ async function checkRequirements(msg, args) {
     let exploit = true;
     if (args[1] == "exploit") exploit = false;
     try {
+        let timeStart = Date.now();
         let embed = bot.createEmbed(msg.channel.id);
         embed.title("Requirement Checker");
         embed.author(args[0]); // TODO: Get player picture
@@ -133,7 +134,9 @@ async function checkRequirements(msg, args) {
                 throw "";
         } catch (e) {
             embed.description("Invalid username!");
-            embed.footer("Done!");
+            timeTaken = new Date(Date.now() - timeStart);
+            embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
+
             await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
@@ -141,7 +144,9 @@ async function checkRequirements(msg, args) {
         let skyblock_player = hyplayer.player;
         if (skyblock_player === null || skyblock_player === undefined || !isInNext(skyblock_player, ['stats', 'SkyBlock', 'profiles'])) {
             embed.description("This user has never played SkyBlock!");
-            embed.footer("Done!");
+            timeTaken = new Date(Date.now() - timeStart);
+            embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
+
             await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
@@ -151,13 +156,13 @@ async function checkRequirements(msg, args) {
         }
         if (profileNames.length == 0) {
             embed.description("This user has never played SkyBlock!");
-            embed.footer("Done!");
+            timeTaken = new Date(Date.now() - timeStart);
+            embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
             await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
         embed._description = "Profiles:\n" + profileNames.join(', ') + "\n\n" + embed._description;
         embed.description(embed._description);
-        await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
         let cmdone = false,
             tsdone = false,
             slayerdone = false,
@@ -182,7 +187,6 @@ async function checkRequirements(msg, args) {
             embed._description = embed._description.replace(`:red_circle: on profile ${previousName} with ${prev.wealth} wealth`, `Checking Wealth...`);
             embed._description = embed._description.replace(`:red_circle: on profile ${previousName} with ${prev.talismans} talisman score`, `Checking Talismans...`);
             embed.description(embed._description);
-            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             for (const pId in ProObj.profile.members) {
                 member = ProObj.profile.members[pId];
                 if (!('crafted_generators' in member) || cmdone) continue;
@@ -201,12 +205,10 @@ async function checkRequirements(msg, args) {
                 if (crafted_minions > 275) {
                     embed._description = embed._description.replace("Checking Slots...", `:green_circle: on profile ${profile.cute_name}`);
                     embed.description(embed._description);
-                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                     cmdone = true;
                 } else {
                     embed._description = embed._description.replace("Checking Slots...", `:red_circle: on profile ${profile.cute_name} with ${crafted_minions} crafted minions`);
                     embed.description(embed._description);
-                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                     previousAttempts[profile.cute_name].slots = crafted_minions;
                 }
             }
@@ -214,12 +216,10 @@ async function checkRequirements(msg, args) {
                 if (total_skill >= 7 * 18) {
                     embed._description = embed._description.replace("Checking Average Skill...", `:green_circle: on profile ${profile.cute_name}`);
                     embed.description(embed._description);
-                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                     tsdone = true;
                 } else {
                     embed._description = embed._description.replace("Checking Average Skill...", `:red_circle: on profile ${profile.cute_name} with ${(total_skill / 7).toFixed(2)} average skill`);
                     embed.description(embed._description);
-                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                     previousAttempts[profile.cute_name].average_skill = (total_skill / 7).toFixed(2);
                 }
             }
@@ -227,7 +227,6 @@ async function checkRequirements(msg, args) {
                 if (member.slayer_bosses === undefined || member.slayer_bosses.zombie.xp === undefined) {
                     embed._description = embed._description.replace("Checking Slayer...", `:yellow_circle: API access is disabled on profile ${profile.cute_name} for slayer checks`);
                     embed.description(embed._description);
-                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                 } else {
                     const wolfxp = member.slayer_bosses.wolf.xp || 0;
                     const spidxp = member.slayer_bosses.spider.xp || 0;
@@ -239,7 +238,6 @@ async function checkRequirements(msg, args) {
                             member.slayer_bosses.spider.xp > 20000)) {
                         embed._description = embed._description.replace(`Checking Slayer...`, `:green_circle: on profile ${profile.cute_name} with ${slayerxp} slayer xp (Z:${zombxp} S:${spidxp} W:${wolfxp})`);
                         embed.description(embed._description);
-                        await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                         slayerdone = true;
                     } else {
                         embed._description = embed._description.replace(`Checking Slayer...`, `:red_circle: on profile ${profile.cute_name} with ${slayerxp} slayer xp (Z:${zombxp} S:${spidxp} W:${wolfxp})`);
@@ -248,10 +246,10 @@ async function checkRequirements(msg, args) {
                         previousAttempts[profile.cute_name].spider = spidxp;
                         previousAttempts[profile.cute_name].zombie = zombxp;
                         embed.description(embed._description);
-                        await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                     }
                 }
             }
+            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             if (!wealthdone || !talidone) {
                 if (member.inv_contents !== undefined) {
                     let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
@@ -270,7 +268,6 @@ async function checkRequirements(msg, args) {
                         }
                     }
                     if (!talidone) {
-                        await new Promise(r => setTimeout(r, 1000));
                         if (totals[1] >= 200) {
                             embed._description = embed._description.replace(`Checking Talismans...`, `:green_circle: on profile ${profile.cute_name} with ${totals[1]} talisman score`);
                             embed.description(embed._description);
@@ -304,7 +301,8 @@ async function checkRequirements(msg, args) {
             embed._description = embed._description.replace(`profile ${previousName} with ${prev.wealth} wealth`, `all profiles`);
             embed._description = embed._description.replace(`profile ${previousName} with ${prev.talismans} talisman score`, `all profiles`);
         }
-        embed.footer("Done!");
+        timeTaken = new Date(Date.now() - timeStart);
+        embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
         if (embed._description.includes(":red_circle:")) {
             embed.color('#FF0000');
         } else if (embed._description.includes(":yellow_circle:")) {
