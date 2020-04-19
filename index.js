@@ -43,7 +43,7 @@ class splashNotifier {
         embed.author(msgList[0].author.username, `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}`);
         for (var splashReceiveChannel of this.splashReceiveChannels) {
-            embed.send(bot, splashReceiveChannel);
+            embed.send(bot, splashReceiveChannel).catch(error => console.log(error));
         }
     }
 
@@ -98,19 +98,19 @@ bot.registerCommand("ping", "Pong!", { // Make a ping command
     description: "Pong!",
     fullDescription: "This command could be used to check if the bot is up. Or entertainment when you're bored."
 });
-bot.registerCommand("req", checkRequirements, { // Make a ping command
-    // Responds with "Pong!" when someone says "!ping"
+bot.registerCommand("req", checkRequirements, {
     description: "Check Requirements!!",
     fullDescription: "Dude that literally ^",
     argsRequired: true,
     usage: `rep <username>`,
-    cooldown: 7000
+    cooldown: 7000,
+    cooldownMessage: "Chill bitch!"
 });
 
 
 
 async function checkRequirements(msg, args) {
-    if (args[0] === undefined) return "Invalid Usage! do req <username>";
+    // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     let exploit = true;
     if (args[1] == "exploit") exploit = false;
     try {
@@ -121,8 +121,9 @@ async function checkRequirements(msg, args) {
         embed.color('#0000FF');
         embed.footer(`Working...`);
         embed.description("Minion Slots:\nChecking Slots...\nAverage Skill:\nChecking Average Skill...\nSlayer XP:\nChecking Slayer...\nWealth:\nChecking Wealth...\nTalismans:\nChecking Talismans...");
-        let msg2 = await embed.send();
-        let embedid = msg2.id;
+        let msg2;
+        // let msg2 = await embed.send();
+        // let embedid = msg2.id;
         let previousName = "";
         let player, hyplayer;
         try {
@@ -136,8 +137,8 @@ async function checkRequirements(msg, args) {
             embed.description("Invalid username!");
             timeTaken = new Date(Date.now() - timeStart);
             embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
-
-            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+            msg2 = await embed.send();
+            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
         embed.author(player.name, `https://crafatar.com/avatars/${player.id}?overlay`);
@@ -146,8 +147,8 @@ async function checkRequirements(msg, args) {
             embed.description("This user has never played SkyBlock!");
             timeTaken = new Date(Date.now() - timeStart);
             embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
-
-            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+            msg2 = await embed.send();
+            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
         let profileNames = [];
@@ -158,11 +159,14 @@ async function checkRequirements(msg, args) {
             embed.description("This user has never played SkyBlock!");
             timeTaken = new Date(Date.now() - timeStart);
             embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
-            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+            msg2 = await embed.send();
+            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
         embed._description = "Profiles:\n" + profileNames.join(', ') + "\n\n" + embed._description;
         embed.description(embed._description);
+        msg2 = await embed.send();
+        let embedid = msg2.id;
         let cmdone = false,
             tsdone = false,
             slayerdone = false,
@@ -170,7 +174,6 @@ async function checkRequirements(msg, args) {
             talidone = false;
         let previousAttempts = {};
         for (const profile of Object.values(skyblock_player.stats.SkyBlock.profiles)) {
-            if (cmdone && tsdone && slayerdone && wealthdone && talidone) break;
             let ProObj = await api.getProfile(profile.profile_id);
             if (ProObj === undefined || ProObj === null) break;
             let member = ProObj.profile.members[player.id];
@@ -249,7 +252,7 @@ async function checkRequirements(msg, args) {
                     }
                 }
             }
-            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             if (!wealthdone || !talidone) {
                 if (member.inv_contents !== undefined) {
                     let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
@@ -257,7 +260,6 @@ async function checkRequirements(msg, args) {
                     if (!wealthdone) {
                         if (totals[0] >= 20) {
                             embed._description = embed._description.replace(`Checking Wealth...`, `:green_circle: on profile ${profile.cute_name} with ${totals[0]} wealth`);
-                            embed.description(embed._description);
                             wealthdone = true;
                         } else {
                             embed._description = embed._description.replace(`Checking Wealth...`, `:red_circle: on profile ${profile.cute_name} with ${totals[0]} wealth`);
@@ -285,6 +287,7 @@ async function checkRequirements(msg, args) {
                 }
             }
             previousName = profile.cute_name;
+            if (cmdone && tsdone && slayerdone && wealthdone && talidone) break;
             await new Promise(r => setTimeout(r, 1000)); //possible cooldown for rate limiting
         }
         if (embed._description.includes(":red_circle:")) {
@@ -338,7 +341,7 @@ async function checkWealthAndTalis(items, exploit) {
 function getTalismanValue(item) {
     try {
         const regex = item.display.Lore[item.display.Lore.length - 1].match(/§.§.(.*) ACCESSORY/);
-        if (regex === undefined) return 0;
+        if (regex === null) return 0;
         else if (regex[1] === "COMMON") return 3;
         else if (regex[1] === "UNCOMMON") return 5;
         else if (regex[1] === "RARE") return 8;
