@@ -3,7 +3,6 @@ const Eris = require("eris");
 const hypixel = require("./api");
 const fs = require("fs");
 
-let tokens;
 try {
     tokens = require('./env.json');
 } catch (e) {
@@ -121,8 +120,8 @@ async function checkRequirements(msg, args) {
         embed.color('#0000FF');
         embed.footer(`Working...`);
         embed.description("Minion Slots:\nChecking Slots...\nAverage Skill:\nChecking Average Skill...\nSlayer XP:\nChecking Slayer...\nWealth:\nChecking Wealth...\nTalismans:\nChecking Talismans...");
-        let msg2;        // let msg2 = await embed.send();
-        // let embedid = msg2.id;
+        let msg2 = await embed.send();
+        let embedid = msg2.id;
         let previousName = "";
         let player, hyplayer;
         try {
@@ -135,7 +134,7 @@ async function checkRequirements(msg, args) {
         } catch (e) {
             embed.description("Invalid username!");
             embed.footer("Done!");
-            msg2 = await embed.send();            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
         embed.author(player.name, `https://crafatar.com/avatars/${player.id}?overlay`);
@@ -143,8 +142,7 @@ async function checkRequirements(msg, args) {
         if (skyblock_player === null || skyblock_player === undefined || !isInNext(skyblock_player, ['stats', 'SkyBlock', 'profiles'])) {
             embed.description("This user has never played SkyBlock!");
             embed.footer("Done!");
-            msg2 = await embed.send();
-            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
         let profileNames = [];
@@ -154,15 +152,12 @@ async function checkRequirements(msg, args) {
         if (profileNames.length == 0) {
             embed.description("This user has never played SkyBlock!");
             embed.footer("Done!");
-            msg2 = await embed.send();
-            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
         embed._description = "Profiles:\n" + profileNames.join(', ') + "\n\n" + embed._description;
         embed.description(embed._description);
-        msg2 = await embed.send();
-        let embedid = msg2.id;
-        // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+        await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
         let cmdone = false,
             tsdone = false,
             slayerdone = false,
@@ -206,12 +201,12 @@ async function checkRequirements(msg, args) {
                 if (crafted_minions > 275) {
                     embed._description = embed._description.replace("Checking Slots...", `:green_circle: on profile ${profile.cute_name}`);
                     embed.description(embed._description);
-                    // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                     cmdone = true;
                 } else {
                     embed._description = embed._description.replace("Checking Slots...", `:red_circle: on profile ${profile.cute_name} with ${crafted_minions} crafted minions`);
                     embed.description(embed._description);
-                    // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                     previousAttempts[profile.cute_name].slots = crafted_minions;
                 }
             }
@@ -219,12 +214,12 @@ async function checkRequirements(msg, args) {
                 if (total_skill >= 7 * 18) {
                     embed._description = embed._description.replace("Checking Average Skill...", `:green_circle: on profile ${profile.cute_name}`);
                     embed.description(embed._description);
-                    // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                     tsdone = true;
                 } else {
                     embed._description = embed._description.replace("Checking Average Skill...", `:red_circle: on profile ${profile.cute_name} with ${(total_skill / 7).toFixed(2)} average skill`);
                     embed.description(embed._description);
-                    // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                     previousAttempts[profile.cute_name].average_skill = (total_skill / 7).toFixed(2);
                 }
             }
@@ -232,7 +227,7 @@ async function checkRequirements(msg, args) {
                 if (member.slayer_bosses === undefined || member.slayer_bosses.zombie.xp === undefined) {
                     embed._description = embed._description.replace("Checking Slayer...", `:yellow_circle: API access is disabled on profile ${profile.cute_name} for slayer checks`);
                     embed.description(embed._description);
-                    // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                 } else {
                     const wolfxp = member.slayer_bosses.wolf.xp || 0;
                     const spidxp = member.slayer_bosses.spider.xp || 0;
@@ -244,7 +239,7 @@ async function checkRequirements(msg, args) {
                             member.slayer_bosses.spider.xp > 20000)) {
                         embed._description = embed._description.replace(`Checking Slayer...`, `:green_circle: on profile ${profile.cute_name} with ${slayerxp} slayer xp (Z:${zombxp} S:${spidxp} W:${wolfxp})`);
                         embed.description(embed._description);
-                        // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+                        await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                         slayerdone = true;
                     } else {
                         embed._description = embed._description.replace(`Checking Slayer...`, `:red_circle: on profile ${profile.cute_name} with ${slayerxp} slayer xp (Z:${zombxp} S:${spidxp} W:${wolfxp})`);
@@ -253,7 +248,7 @@ async function checkRequirements(msg, args) {
                         previousAttempts[profile.cute_name].spider = spidxp;
                         previousAttempts[profile.cute_name].zombie = zombxp;
                         embed.description(embed._description);
-                        // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+                        await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                     }
                 }
             }
@@ -265,12 +260,12 @@ async function checkRequirements(msg, args) {
                         if (totals[0] >= 20) {
                             embed._description = embed._description.replace(`Checking Wealth...`, `:green_circle: on profile ${profile.cute_name} with ${totals[0]} wealth`);
                             embed.description(embed._description);
-                            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+                            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                             wealthdone = true;
                         } else {
                             embed._description = embed._description.replace(`Checking Wealth...`, `:red_circle: on profile ${profile.cute_name} with ${totals[0]} wealth`);
                             embed.description(embed._description);
-                            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+                            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                             previousAttempts[profile.cute_name].wealth = totals[0];
                         }
                     }
@@ -348,7 +343,7 @@ async function checkWealthAndTalis(items, exploit) {
 function getTalismanValue(item) {
     try {
         const regex = item.display.Lore[item.display.Lore.length - 1].match(/§.§.(.*) ACCESSORY/);
-        if (regex === null) return 0;
+        if (regex === undefined) return 0;
         else if (regex[1] === "COMMON") return 3;
         else if (regex[1] === "UNCOMMON") return 5;
         else if (regex[1] === "RARE") return 8;
