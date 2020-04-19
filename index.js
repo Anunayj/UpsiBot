@@ -120,7 +120,7 @@ async function checkRequirements(msg, args) {
         embed.author(args[0]); // TODO: Get player picture
         embed.color('#0000FF');
         embed.footer(`Working...`);
-        embed.description("Minion Slots:\nChecking Slots...\nAverage Skill:\nChecking Average Skill...\nSlayer XP:\nChecking Slayer...\nWealth:\nChecking Wealth...\nTalismans:\nChecking Talismans...");
+        embed.description("**Minion Slots:**\nChecking Slots...\n**Average Skill:**\nChecking Average Skill...\n**Slayer XP:**\nChecking Slayer...\n**Wealth:**\nChecking Wealth...\n**Talismans:**\nChecking Talismans...");
         let msg2;
         // let msg2 = await embed.send();
         // let embedid = msg2.id;
@@ -163,7 +163,7 @@ async function checkRequirements(msg, args) {
             // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
-        embed._description = "Profiles:\n" + profileNames.join(', ') + "\n\n" + embed._description;
+        embed._description = "**Profiles:**;\n" + profileNames.join(', ') + "\n\n" + embed._description;
         embed.description(embed._description);
         msg2 = await embed.send();
         let embedid = msg2.id;
@@ -290,7 +290,7 @@ async function checkRequirements(msg, args) {
             if (cmdone && tsdone && slayerdone && wealthdone && talidone) break;
             await new Promise(r => setTimeout(r, 1000)); //possible cooldown for rate limiting
         }
-        if (embed._description.includes(":red_circle:")) {
+        if (embed._description.includes(":red_circle:") || embed._description.includes(":yellow_circle:")) {
             let prev = previousAttempts[previousName];
             embed._description = embed._description.replace(`profile ${previousName} with ${prev.slots} crafted minions`, `all profiles`);
             embed._description = embed._description.replace(`profile ${previousName} with ${prev.average_skill} average skill`, `all profiles`);
