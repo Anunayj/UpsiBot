@@ -258,12 +258,10 @@ async function checkRequirements(msg, args) {
                         if (totals[0] >= 20) {
                             embed._description = embed._description.replace(`Checking Wealth...`, `:green_circle: on profile ${profile.cute_name} with ${totals[0]} wealth`);
                             embed.description(embed._description);
-                            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                             wealthdone = true;
                         } else {
                             embed._description = embed._description.replace(`Checking Wealth...`, `:red_circle: on profile ${profile.cute_name} with ${totals[0]} wealth`);
                             embed.description(embed._description);
-                            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                             previousAttempts[profile.cute_name].wealth = totals[0];
                         }
                     }
@@ -271,15 +269,14 @@ async function checkRequirements(msg, args) {
                         if (totals[1] >= 200) {
                             embed._description = embed._description.replace(`Checking Talismans...`, `:green_circle: on profile ${profile.cute_name} with ${totals[1]} talisman score`);
                             embed.description(embed._description);
-                            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                             talidone = true;
                         } else {
                             embed._description = embed._description.replace(`Checking Talismans...`, `:red_circle: on profile ${profile.cute_name} with ${totals[1]} talisman score`);
                             embed.description(embed._description);
-                            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                             previousAttempts[profile.cute_name].talismans = totals[1];
                         }
                     }
+                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                 } else {
                     embed._description = embed._description.replace(`Checking Wealth...`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for wealth checks`);
                     embed._description = embed._description.replace(`Checking Talismans...`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for talisman checks`);
