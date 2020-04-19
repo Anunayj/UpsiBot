@@ -115,3 +115,4 @@ np_push/
 .yarn/build-state.yml
 .pnp.*
 .vscode/launch.json
+env1.json
