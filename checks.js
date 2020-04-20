@@ -32,6 +32,11 @@ module.exports = {
                 utils.fromExp(member.experience_skill_fishing) +
                 utils.fromExp(member.experience_skill_foraging) +
                 utils.fromExp(member.experience_skill_mining);
+        } else {
+            return {
+                val: 0,
+                done: utils.Unable
+            }
         }
         if (total_skill >= 7 * 18) {
             //utils.replaceEmbed(embed, "Average Skill:", `:green_circle: on profile ${profile.cute_name} (${(total_skill / 7).toFixed(2)} average skill)`);
