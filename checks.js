@@ -3,8 +3,7 @@ const utils = require("./utils");
 module.exports = {
     minions: function(embed, members, profile) {
         let crafted_minions = 0;
-        for (const pId in members) {
-            member = members[pId];
+        for (const member of Object.values(members)) {
             if (!('crafted_generators' in member)) continue;
             crafted_minions += member.crafted_generators.length;
         }
@@ -33,6 +32,11 @@ module.exports = {
                 utils.fromExp(member.experience_skill_fishing) +
                 utils.fromExp(member.experience_skill_foraging) +
                 utils.fromExp(member.experience_skill_mining);
+        } else {
+            return {
+                val: 0,
+                done: utils.Unable
+            }
         }
         if (total_skill >= 7 * 18) {
             //utils.replaceEmbed(embed, "Average Skill:", `:green_circle: on profile ${profile.cute_name} (${(total_skill / 7).toFixed(2)} average skill)`);

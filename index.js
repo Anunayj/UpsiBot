@@ -231,44 +231,32 @@ async function checkRequirements(msg, args) {
             previousAttempts[profile.cute_name] = { minions: 0, skills: 0, slayer: { xp: 0, z: 0, s: 0, w: 0 }, wealth: 0, talismans: 0 };
             if (ProObj === undefined || ProObj === null) break;
             let member = ProObj.profile.members[player.id];
-            if (pfChecks[previousName].minions != 1 || showAll) {
-                check = checks.minions(embed, ProObj.profile.members, profile);
-                previousAttempts[profile.cute_name].minions = check.val;
-                pfChecks[profile.cute_name].minions = check.done;
-            }
-            if (pfChecks[previousName].skills != 1 || showAll) {
-                check = checks.skills(embed, member, profile);
-                previousAttempts[profile.cute_name].skills = check.val;
-                pfChecks[profile.cute_name].skills = check.done;
-            }
-            if (pfChecks[previousName].slayer != 1 || showAll) {
-                check = checks.slayer(embed, member, profile);
-                previousAttempts[profile.cute_name].slayer = check.val;
-                pfChecks[profile.cute_name].slayer = check.done;
-            }
-            if (pfChecks[previousName].wealth != 1 || pfChecks[previousName].talismans != 1 || showAll) {
-                if (member.inv_contents !== undefined) {
-                    let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
-                    totals = await utils.checkWealthAndTalis(items, exploit, api);
-                    // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
-                    if (pfChecks[previousName].wealth != 1 || showAll) {
-                        check = checks.wealth(embed, totals[0], profile);
-                        previousAttempts[profile.cute_name].wealth = check.val;
-                        pfChecks[profile.cute_name].wealth = check.done;
-                    }
-                    if (pfChecks[previousName].talismans != 1 || showAll) {
-                        check = checks.talismans(embed, totals[1], profile);
-                        previousAttempts[profile.cute_name].talismans = check.val;
-                        pfChecks[profile.cute_name].talismans = check.done;
-                    }
-                } else {
-                    // utils.replaceEmbed(embed, `Wealth:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for wealth checks`);
-                    // utils.replaceEmbed(embed, `Talismans:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for talisman checks`);
-                    previousAttempts[profile.cute_name].wealth = 0;
-                    pfChecks[profile.cute_name].wealth = utils.Unable;
-                    previousAttempts[profile.cute_name].talismans = 0;
-                    pfChecks[profile.cute_name].talismans = utils.Unable;
-                }
+            check = checks.minions(embed, ProObj.profile.members, profile);
+            previousAttempts[profile.cute_name].minions = check.val;
+            pfChecks[profile.cute_name].minions = check.done;
+            check = checks.skills(embed, member, profile);
+            previousAttempts[profile.cute_name].skills = check.val;
+            pfChecks[profile.cute_name].skills = check.done;
+            check = checks.slayer(embed, member, profile);
+            previousAttempts[profile.cute_name].slayer = check.val;
+            pfChecks[profile.cute_name].slayer = check.done;
+            if (member.inv_contents !== undefined) {
+                let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
+                totals = await utils.checkWealthAndTalis(items, exploit, api);
+                // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+                check = checks.wealth(embed, totals[0], profile);
+                previousAttempts[profile.cute_name].wealth = check.val;
+                pfChecks[profile.cute_name].wealth = check.done;
+                check = checks.talismans(embed, totals[1], profile);
+                previousAttempts[profile.cute_name].talismans = check.val;
+                pfChecks[profile.cute_name].talismans = check.done;
+            } else {
+                // utils.replaceEmbed(embed, `Wealth:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for wealth checks`);
+                // utils.replaceEmbed(embed, `Talismans:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for talisman checks`);
+                previousAttempts[profile.cute_name].wealth = 0;
+                pfChecks[profile.cute_name].wealth = utils.Unable;
+                previousAttempts[profile.cute_name].talismans = 0;
+                pfChecks[profile.cute_name].talismans = utils.Unable;
             }
             //await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             previousName = profile.cute_name;
