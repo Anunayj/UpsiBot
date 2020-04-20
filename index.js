@@ -7,6 +7,7 @@ const utils = require("./utils");
 
 try {
     tokens = require('./env.json');
+    console.log("Got tokens");
 } catch (e) {
     tokens = { main: process.env.mainToken, scraper: process.env.scraperToken, hypixel: process.env.hypixelToken };
     if (tokens.main === undefined || tokens.scraper === undefined || process.env.hypixelToken === undefined)
@@ -20,7 +21,7 @@ const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     prefix: "~"
 }), new Eris(tokens.scraper)];
 
-bot.connect().catch(() => { throw "Unable to connect"; });
+bot.connect().then(() => { console.log("Logged in!"); }).catch(() => { throw "Unable to connect"; });
 scraperbot.connect().catch(() => { throw "Unable to connect"; });
 
 class splashNotifier {
@@ -113,7 +114,9 @@ bot.registerCommand("req", checkRequirements, {
 async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     let exploit = true;
-    if (args[1] == "exploit") exploit = false;
+    let showAll = false;
+    if (args[1] == "exploit" || args[2] == "exploit") exploit = false;
+    if (args[1] == "all" || args[2] == "all") showAll = true;
     try {
         let timeStart = Date.now();
         let embed = bot.createEmbed(msg.channel.id);
@@ -151,7 +154,7 @@ async function checkRequirements(msg, args) {
         }
         embed.author(player.name, `https://crafatar.com/avatars/${player.id}?overlay`);
         let skyblock_player = hyplayer.player;
-        if (skyblock_player === null || skyblock_player === undefined || !isInNext(skyblock_player, ['stats', 'SkyBlock', 'profiles'])) {
+        if (skyblock_player === null || skyblock_player === undefined || !utils.isInNext(skyblock_player, ['stats', 'SkyBlock', 'profiles'])) {
             embed._fields = [];
             embed.description("This user has never played SkyBlock!");
             timeTaken = new Date(Date.now() - timeStart);
@@ -162,10 +165,10 @@ async function checkRequirements(msg, args) {
         }
         let pfChecks = {};
         let profileNames = [];
-        pfChecks[""] = { minions: Failed, skills: Failed, slayer: Failed, wealth: Failed, talismans: Failed };
+        pfChecks[""] = { minions: utils.Failed, skills: utils.Failed, slayer: utils.Failed, wealth: utils.Failed, talismans: utils.Failed };
         for (let pf of Object.values(skyblock_player.stats.SkyBlock.profiles)) {
             profileNames.push(pf.cute_name);
-            pfChecks[pf.cute_name] = { minions: Failed, skills: Failed, slayer: Failed, wealth: Failed, talismans: Failed };
+            pfChecks[pf.cute_name] = { minions: utils.Failed, skills: utils.Failed, slayer: utils.Failed, wealth: utils.Failed, talismans: utils.Failed };
         }
         if (profileNames.length == 0) {
             embed._fields = [];
@@ -177,96 +180,89 @@ async function checkRequirements(msg, args) {
             return;
         }
         //embed._description = "**Profiles:**;\n" + profileNames.join(', ') + "\n\n" + embed._description;
-        embed.description(embed._description);
+        utils.replaceEmbed(embed, "Profiles:", profileNames.join(', '));
         msg2 = await embed.send();
         let embedid = msg2.id;
         let completed = [];
         let previousAttempts = {};
         for (const profile of Object.values(skyblock_player.stats.SkyBlock.profiles)) {
             let ProObj = await api.getProfile(profile.profile_id);
+            previousAttempts[profile.cute_name] = { minions: 0, skills: 0, slayer: { xp: 0, z: 0, s: 0, w: 0 }, wealth: 0, talismans: 0 };
+            utils.replaceEmbed(embed, "Minion Slots:", `Checking Slots...`);
+            utils.replaceEmbed(embed, "Average Skill:", `Checking Average Skill...`);
+            utils.replaceEmbed(embed, "Slayer XP:", `Checking Slayer...`);
+            utils.replaceEmbed(embed, "Wealth:", `Checking Wealth...`);
+            utils.replaceEmbed(embed, "Talismans:", `Checking Talismans...`);
+            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+            await new Promise(r => setTimeout(r, 1000));
             if (ProObj === undefined || ProObj === null) break;
             let member = ProObj.profile.members[player.id];
-            previousAttempts[profile.cute_name] = {};
-            let prev = getIn(previousAttempts, [previousName], { "slots": 0, "average_skill": 0, "slayer_xp": 0, "zombie": 0, "spider": 0, "wolf": 0, "wealth": 0, "talismans": 0 });
-            embed._description = embed._description.replace(`:red_circle: on profile ${previousName} (${prev.slots})`, `Checking Slots...`);
-            embed._description = embed._description.replace(`:red_circle: on profile ${previousName} (${prev.average_skill})`, `Checking Average Skill...`);
-            embed._description = embed._description.replace(`:red_circle: on profile ${previousName} (${prev.slayer_xp} | ${prev.zombie}/${prev.spider}/${prev.wolf})`, `Checking Slayer...`);
-            embed._description = embed._description.replace(`:yellow_circle: API access is disabled on profile ${previousName} for slayer checks`, `Checking Slayer...`);
-            embed._description = embed._description.replace(`:yellow_circle: API access is disabled on profile ${previousName} for wealth checks`, `Checking Wealth...`);
-            embed._description = embed._description.replace(`:yellow_circle: API access is disabled on profile ${previousName} for talisman checks`, `Checking Talismans...`);
-            embed._description = embed._description.replace(`:red_circle: on profile ${previousName} (${prev.wealth})`, `Checking Wealth...`);
-            embed._description = embed._description.replace(`:red_circle: on profile ${previousName} (${prev.talismans})`, `Checking Talismans...`);
-            embed.description(embed._description);
-            if (pfChecks[previousName].minions != 1) {
+            if (pfChecks[previousName].minions != 1 || showAll) {
                 check = checks.minions(embed, ProObj.profile.members, profile);
                 previousAttempts[profile.cute_name].minions = check.val;
                 pfChecks[profile.cute_name].minions = check.done;
             }
-            if (pfChecks[previousName].skill != 1) {
-                check = checks.skills(embed, ProObj.profile.members, profile);
-                previousAttempts[profile.cute_name].skill = check.val;
+            if (pfChecks[previousName].skills != 1 || showAll) {
+                check = checks.skills(embed, member, profile);
+                previousAttempts[profile.cute_name].skills = check.val;
                 pfChecks[profile.cute_name].skills = check.done;
             }
-            if (pfChecks[previousName].slayer != 1) {
-                pfChecks[profile.cute_name].slayer = checks.slayer(embed, member, profile);
+            if (pfChecks[previousName].slayer != 1 || showAll) {
+                check = checks.slayer(embed, member, profile);
+                previousAttempts[profile.cute_name].slayer = check.val;
+                pfChecks[profile.cute_name].slayer = check.done;
             }
-            if (pfChecks[previousName].wealth != 1 || pfChecks[previousName].talismans != 1) {
+            if (pfChecks[previousName].wealth != 1 || pfChecks[previousName].talismans != 1 || showAll) {
                 if (member.inv_contents !== undefined) {
                     let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
-                    totals = await utils.checkWealthAndTalis(items, exploit);
+                    totals = await utils.checkWealthAndTalis(items, exploit, api);
                     // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
-                    if (!wealthdone) {
+                    if (pfChecks[previousName].wealth != 1 || showAll) {
                         check = checks.wealth(embed, totals[0], profile);
-                        previousAttempts[previousName].wealth = check.val;
+                        previousAttempts[profile.cute_name].wealth = check.val;
                         pfChecks[profile.cute_name].wealth = check.done;
                     }
-                    if (!talidone) {
+                    if (pfChecks[previousName].talismans != 1 || showAll) {
                         check = checks.talismans(embed, totals[1], profile);
-                        previousAttempts[previousName].talismans = check.val;
+                        previousAttempts[profile.cute_name].talismans = check.val;
                         pfChecks[profile.cute_name].talismans = check.done;
                     }
-                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                 } else {
-                    embed._description = embed._description.replace(`Checking Wealth...`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for wealth checks`);
-                    embed._description = embed._description.replace(`Checking Talismans...`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for talisman checks`);
-                    embed.description(embed._description);
-                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
-                    previousAttempts[previousName].wealth = 0;
-                    pfChecks[profile.cute_name].wealth = Unable;
-                    previousAttempts[previousName].talismans = 0;
-                    pfChecks[profile.cute_name].talismans = Unable;
+                    utils.replaceEmbed(embed, `Wealth:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for wealth checks`);
+                    utils.replaceEmbed(embed, `Talismans:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for talisman checks`);
+                    previousAttempts[profile.cute_name].wealth = 0;
+                    pfChecks[profile.cute_name].wealth = utils.Unable;
+                    previousAttempts[profile.cute_name].talismans = 0;
+                    pfChecks[profile.cute_name].talismans = utils.Unable;
                 }
             }
+            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             previousName = profile.cute_name;
-            if (check(pfChecks[profile.cute_name]) == Success) break;
-            await new Promise(r => setTimeout(r, 1000)); //possible cooldown for rate limiting
+            if (utils.check(pfChecks[profile.cute_name]) == utils.Success && !showAll) break;
+            await new Promise(r => setTimeout(r, 2000)); //possible cooldown for rate limiting
         }
-        // if (embed._description.includes(":red_circle:") || embed._description.includes(":yellow_circle:")) {
-        //     let prev = previousAttempts[previousName];
-        //     embed._description = embed._description.replace(`profile ${previousName} with ${prev.slots} crafted minions`, `all profiles`);
-        //     embed._description = embed._description.replace(`profile ${previousName} with ${prev.average_skill} average skill`, `all profiles`);
-        //     embed._description = embed._description.replace(`profile ${previousName} with ${prev.slayer_xp} slayer xp (Z:${prev.zombie} S:${prev.spider} W:${prev.wolf})`, `all profiles`);
-        //     embed._description = embed._description.replace(`:yellow_circle: API access is disabled on profile ${previousName} for slayer checks`, `:red_circle: on all profiles`);
-        //     embed._description = embed._description.replace(`:yellow_circle: API access is disabled on profile ${previousName} for wealth checks`, `:red_circle: on all profiles`);
-        //     embed._description = embed._description.replace(`:yellow_circle: API access is disabled on profile ${previousName} for talisman checks`, `:red_circle: on all profiles`);
-        //     embed._description = embed._description.replace(`profile ${previousName} with ${prev.wealth} wealth`, `all profiles`);
-        //     embed._description = embed._description.replace(`profile ${previousName} with ${prev.talismans} talisman score`, `all profiles`);
-        // }
+        delete pfChecks[""];
+        embed._fields = [];
         embed._description = "";
-        let profiles = [];
-        for (var prof of previousAttempts) {
-            embed.description = utils.color(prof.minions) +
+        let mainColor = "#FF0000";
+        for (var profId in pfChecks) {
+            let prof = pfChecks[profId];
+            embed.field(`${profId}`, utils.colorC(prof.minions) + utils.colorC(prof.skills) + utils.colorC(prof.slayer) + utils.colorC(prof.wealth) + utils.colorC(prof.talismans));
+            color = utils.colorFromProf(prof);
+            if (color == "green") {
+                mainColor = "#00FF00";
+            } else if (color == "yellow" && mainColor != "#00FF00") {
+                mainColor = "#FFFF00";
+            }
+            if (mainColor == "#FFFF00") {
+                embed.field("TODO:", "Enable API to access the full power of this bot");
+            } else if (mainColor == "#FF0000") {
+                embed.field("TODO:", utils.todo(pfChecks, previousAttempts));
+            }
         }
         timeTaken = new Date(Date.now() - timeStart);
         embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
-        if (embed._description.includes(":red_circle:")) {
-            embed.color('#FF0000');
-        } else if (embed._description.includes(":yellow_circle:")) {
-            embed.color('#FFFF00');
-        } else {
-            embed.color('#00FF00');
-        }
-        embed.description(embed._description);
+        embed.color(mainColor);
         await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
         return;
     } catch (e) {
