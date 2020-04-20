@@ -286,6 +286,7 @@ async function checkRequirements(msg, args) {
             color = utils.colorFromProf(prof);
             if (color == "green") {
                 mainColor = "#00FF00";
+                if (!showAll) break;
             } else if (color == "yellow" && mainColor != "#00FF00") {
                 mainColor = "#FFFF00";
             }
