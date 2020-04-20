@@ -3,8 +3,7 @@ const utils = require("./utils");
 module.exports = {
     minions: function(embed, members, profile) {
         let crafted_minions = 0;
-        for (const pId in members) {
-            member = members[pId];
+        for (const member of Object.values(members)) {
             if (!('crafted_generators' in member)) continue;
             crafted_minions += member.crafted_generators.length;
         }
