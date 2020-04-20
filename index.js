@@ -275,8 +275,6 @@ async function checkRequirements(msg, args) {
             if (utils.check(pfChecks[profile.cute_name]) == utils.Success && !showAll) break;
             //await new Promise(r => setTimeout(r, 2000)); //possible cooldown for rate limiting
         }
-        console.log(pfChecks);
-        console.log(previousAttempts);
         delete pfChecks[""];
         embed._fields = [];
         embed._description = "";
