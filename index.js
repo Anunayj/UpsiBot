@@ -16,7 +16,7 @@ const api = new hypixel.Client(tokens.hypixel);
 const weights = require("./weights.json");
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     description: "A bot.....",
-    owner: "Anunay",
+    owner: "Anunay (and Refusings for those lovely embeds)",
     prefix: "~"
 }), new Eris(tokens.scraper)];
 
@@ -133,7 +133,7 @@ bot.registerCommand("ping", "Pong!", { // Make a ping command
     description: "Pong!",
     fullDescription: "This command could be used to check if the bot is up. Or entertainment when you're bored."
 });
-bot.registerCommand("req", checkRequirements, { 
+bot.registerCommand("req", checkRequirements, {
     description: "Check Requirements!!",
     fullDescription: "Dude that literally ^",
     argsRequired: true,
@@ -155,7 +155,7 @@ async function checkRequirements(msg, args) {
         embed.author(args[0]); // TODO: Get player picture
         embed.color('#0000FF');
         embed.footer(`Working...`);
-        embed.description("Minion Slots:\nChecking Slots...\nAverage Skill:\nChecking Average Skill...\nSlayer XP:\nChecking Slayer...\nWealth:\nChecking Wealth...\nTalismans:\nChecking Talismans...");
+        embed.description("**Minion Slots:**\nChecking Slots...\n**Average Skill:**\nChecking Average Skill...\n**Slayer XP:**\nChecking Slayer...\n**Wealth:**\nChecking Wealth...\n**Talismans:**\nChecking Talismans...");
         let msg2;
         // let msg2 = await embed.send();
         // let embedid = msg2.id;
@@ -198,7 +198,7 @@ async function checkRequirements(msg, args) {
             // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             return;
         }
-        embed._description = "Profiles:\n" + profileNames.join(', ') + "\n\n" + embed._description;
+        embed._description = "**Profiles:**;\n" + profileNames.join(', ') + "\n\n" + embed._description;
         embed.description(embed._description);
         msg2 = await embed.send();
         let embedid = msg2.id;
@@ -209,7 +209,6 @@ async function checkRequirements(msg, args) {
             talidone = false;
         let previousAttempts = {};
         for (const profile of Object.values(skyblock_player.stats.SkyBlock.profiles)) {
-            if (cmdone && tsdone && slayerdone && wealthdone && talidone) break;
             let ProObj = await api.getProfile(profile.profile_id);
             if (ProObj === undefined || ProObj === null) break;
             let member = ProObj.profile.members[player.id];
@@ -296,13 +295,10 @@ async function checkRequirements(msg, args) {
                     if (!wealthdone) {
                         if (totals[0] >= 20) {
                             embed._description = embed._description.replace(`Checking Wealth...`, `:green_circle: on profile ${profile.cute_name} with ${totals[0]} wealth`);
-                            embed.description(embed._description);
-                            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                             wealthdone = true;
                         } else {
                             embed._description = embed._description.replace(`Checking Wealth...`, `:red_circle: on profile ${profile.cute_name} with ${totals[0]} wealth`);
                             embed.description(embed._description);
-                            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                             previousAttempts[profile.cute_name].wealth = totals[0];
                         }
                     }
@@ -310,15 +306,14 @@ async function checkRequirements(msg, args) {
                         if (totals[1] >= 200) {
                             embed._description = embed._description.replace(`Checking Talismans...`, `:green_circle: on profile ${profile.cute_name} with ${totals[1]} talisman score`);
                             embed.description(embed._description);
-                            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                             talidone = true;
                         } else {
                             embed._description = embed._description.replace(`Checking Talismans...`, `:red_circle: on profile ${profile.cute_name} with ${totals[1]} talisman score`);
                             embed.description(embed._description);
-                            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                             previousAttempts[profile.cute_name].talismans = totals[1];
                         }
                     }
+                    await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
                 } else {
                     embed._description = embed._description.replace(`Checking Wealth...`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for wealth checks`);
                     embed._description = embed._description.replace(`Checking Talismans...`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for talisman checks`);
@@ -327,9 +322,10 @@ async function checkRequirements(msg, args) {
                 }
             }
             previousName = profile.cute_name;
+            if (cmdone && tsdone && slayerdone && wealthdone && talidone) break;
             await new Promise(r => setTimeout(r, 1000)); //possible cooldown for rate limiting
         }
-        if (embed._description.includes(":red_circle:")) {
+        if (embed._description.includes(":red_circle:") || embed._description.includes(":yellow_circle:")) {
             let prev = previousAttempts[previousName];
             embed._description = embed._description.replace(`profile ${previousName} with ${prev.slots} crafted minions`, `all profiles`);
             embed._description = embed._description.replace(`profile ${previousName} with ${prev.average_skill} average skill`, `all profiles`);
