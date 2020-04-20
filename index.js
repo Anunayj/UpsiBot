@@ -27,7 +27,7 @@ scraperbot.connect().catch(() => { throw "Unable to connect"; });
 
 async function runInVm(msg) {
     // TODO Ask refusings to make this look better.
-    reg = msg.content.match(/```(.*?)```/);
+    let reg = msg.content.match(/```(.*?)```/s);
     if (reg === null) reg = msg.content.match(`${msg.prefix}run (.*)`);
     if (reg === null) return "Cannot Read Code";
     const vm = new NodeVM({
