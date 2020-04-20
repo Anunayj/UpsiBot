@@ -157,15 +157,15 @@ async function checkRequirements(msg, args) {
         let embed = bot.createEmbed(msg.channel.id);
         embed.title("Requirement Checker");
         embed.author(args[0]); // TODO: Get player picture
-        embed.color('#0000FF');
-        embed.footer(`Working...`);
-        embed
-            .field("Profiles:", "Getting Profiles...")
-            .field("Minion Slots:", "Checking Slots...")
-            .field("Average Skill:", "Checking Average Skill...")
-            .field("Slayer XP:", "Checking Slayer...")
-            .field("Wealth:", "Checking Wealth...")
-            .field("Talismans:", "Checking Talismans...");
+        //embed.color('#0000FF');
+        //embed.footer(`Working...`);
+        // embed
+        //     .field("Profiles:", "Getting Profiles...")
+        //     .field("Minion Slots:", "Checking Slots...")
+        //     .field("Average Skill:", "Checking Average Skill...")
+        //     .field("Slayer XP:", "Checking Slayer...")
+        //     .field("Wealth:", "Checking Wealth...")
+        //     .field("Talismans:", "Checking Talismans...");
         let msg2;
         // let msg2 = await embed.send();
         // let embedid = msg2.id;
@@ -215,21 +215,20 @@ async function checkRequirements(msg, args) {
             return;
         }
         //embed._description = "**Profiles:**;\n" + profileNames.join(', ') + "\n\n" + embed._description;
-        utils.replaceEmbed(embed, "Profiles:", profileNames.join(', '));
-        msg2 = await embed.send();
-        let embedid = msg2.id;
-        let completed = [];
+        //utils.replaceEmbed(embed, "Profiles:", profileNames.join(', '));
+        //msg2 = await embed.send();
+        //let embedid = msg2.id;
         let previousAttempts = {};
         for (const profile of Object.values(skyblock_player.stats.SkyBlock.profiles)) {
+            // utils.replaceEmbed(embed, "Minion Slots:", `Checking Slots...`);
+            // utils.replaceEmbed(embed, "Average Skill:", `Checking Average Skill...`);
+            // utils.replaceEmbed(embed, "Slayer XP:", `Checking Slayer...`);
+            // utils.replaceEmbed(embed, "Wealth:", `Checking Wealth...`);
+            // utils.replaceEmbed(embed, "Talismans:", `Checking Talismans...`);
+            //await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+            //await new Promise(r => setTimeout(r, 1000));
             let ProObj = await api.getProfile(profile.profile_id);
             previousAttempts[profile.cute_name] = { minions: 0, skills: 0, slayer: { xp: 0, z: 0, s: 0, w: 0 }, wealth: 0, talismans: 0 };
-            utils.replaceEmbed(embed, "Minion Slots:", `Checking Slots...`);
-            utils.replaceEmbed(embed, "Average Skill:", `Checking Average Skill...`);
-            utils.replaceEmbed(embed, "Slayer XP:", `Checking Slayer...`);
-            utils.replaceEmbed(embed, "Wealth:", `Checking Wealth...`);
-            utils.replaceEmbed(embed, "Talismans:", `Checking Talismans...`);
-            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
-            await new Promise(r => setTimeout(r, 1000));
             if (ProObj === undefined || ProObj === null) break;
             let member = ProObj.profile.members[player.id];
             if (pfChecks[previousName].minions != 1 || showAll) {
@@ -263,24 +262,26 @@ async function checkRequirements(msg, args) {
                         pfChecks[profile.cute_name].talismans = check.done;
                     }
                 } else {
-                    utils.replaceEmbed(embed, `Wealth:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for wealth checks`);
-                    utils.replaceEmbed(embed, `Talismans:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for talisman checks`);
+                    // utils.replaceEmbed(embed, `Wealth:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for wealth checks`);
+                    // utils.replaceEmbed(embed, `Talismans:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for talisman checks`);
                     previousAttempts[profile.cute_name].wealth = 0;
                     pfChecks[profile.cute_name].wealth = utils.Unable;
                     previousAttempts[profile.cute_name].talismans = 0;
                     pfChecks[profile.cute_name].talismans = utils.Unable;
                 }
             }
-            await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+            //await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
             previousName = profile.cute_name;
             if (utils.check(pfChecks[profile.cute_name]) == utils.Success && !showAll) break;
-            await new Promise(r => setTimeout(r, 2000)); //possible cooldown for rate limiting
+            //await new Promise(r => setTimeout(r, 2000)); //possible cooldown for rate limiting
         }
+        console.log(pfChecks);
+        console.log(previousAttempts);
         delete pfChecks[""];
         embed._fields = [];
         embed._description = "";
         let mainColor = "#FF0000";
-        for (var profId in pfChecks) {
+        for (var profId in previousAttempts) {
             let prof = pfChecks[profId];
             embed.field(`${profId}`, utils.colorC(prof.minions) + utils.colorC(prof.skills) + utils.colorC(prof.slayer) + utils.colorC(prof.wealth) + utils.colorC(prof.talismans));
             color = utils.colorFromProf(prof);
@@ -289,17 +290,24 @@ async function checkRequirements(msg, args) {
                 if (!showAll) break;
             } else if (color == "yellow" && mainColor != "#00FF00") {
                 mainColor = "#FFFF00";
+            } else if (color == "red") {
+                mainColor = "#FF0000";
+            } else if (color == "blue") {
+                mainColor == "#0000FF";
             }
-            if (mainColor == "#FFFF00") {
-                embed.field("TODO:", "Enable API to access the full power of this bot");
-            } else if (mainColor == "#FF0000") {
-                embed.field("TODO:", utils.todo(pfChecks, previousAttempts));
+            let todo = utils.todo(pfChecks[profId], previousAttempts[profId]);
+            if (color == "yellow") {
+                embed.field("TODO:", todo + ", Enable API");
+            } else if (color == "red") {
+                embed.field("TODO:", todo);
+            } else if (color == blue) {
+                embed.field("TODO:", "Slayer (Current: 0 | 0/0/0)");
             }
         }
         timeTaken = new Date(Date.now() - timeStart);
         embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
         embed.color(mainColor);
-        await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
+        embed.send();
         return;
     } catch (e) {
         console.log(e);

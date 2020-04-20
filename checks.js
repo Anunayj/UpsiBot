@@ -9,13 +9,13 @@ module.exports = {
             crafted_minions += member.crafted_generators.length;
         }
         if (crafted_minions > 275) {
-            utils.replaceEmbed(embed, "Minion Slots:", `:green_circle: on profile ${profile.cute_name} (${crafted_minions} crafted minions)`);
+            //utils.replaceEmbed(embed, "Minion Slots:", `:green_circle: on profile ${profile.cute_name} (${crafted_minions} crafted minions)`);
             return {
                 val: crafted_minions,
                 done: utils.Success
             };
         } else {
-            utils.replaceEmbed(embed, "Minion Slots:", `:red_circle: on profile ${profile.cute_name} (${crafted_minions} crafted minions)`);
+            //utils.replaceEmbed(embed, "Minion Slots:", `:red_circle: on profile ${profile.cute_name} (${crafted_minions} crafted minions)`);
             return {
                 val: crafted_minions,
                 done: utils.Failed
@@ -35,13 +35,13 @@ module.exports = {
                 utils.fromExp(member.experience_skill_mining);
         }
         if (total_skill >= 7 * 18) {
-            utils.replaceEmbed(embed, "Average Skill:", `:green_circle: on profile ${profile.cute_name} (${(total_skill / 7).toFixed(2)} average skill)`);
+            //utils.replaceEmbed(embed, "Average Skill:", `:green_circle: on profile ${profile.cute_name} (${(total_skill / 7).toFixed(2)} average skill)`);
             return {
                 val: (total_skill / 7).toFixed(2),
                 done: utils.Success
             };
         } else {
-            utils.replaceEmbed(embed, "Average Skill:", `:red_circle: on profile ${profile.cute_name} (${(total_skill / 7).toFixed(2)} average skill)`);
+            //utils.replaceEmbed(embed, "Average Skill:", `:red_circle: on profile ${profile.cute_name} (${(total_skill / 7).toFixed(2)} average skill)`);
             return {
                 val: (total_skill / 7).toFixed(2),
                 done: utils.Failed
@@ -50,7 +50,7 @@ module.exports = {
     },
     slayer: function(embed, member, profile) {
         if (member.slayer_bosses === undefined || member.slayer_bosses.zombie.xp === undefined) {
-            utils.replaceEmbed(embed, "Slayer XP:", `:red_circle: No slayers done on profile ${profile.cute_name} for slayer checks`);
+            //utils.replaceEmbed(embed, "Slayer XP:", `:red_circle: No slayers done on profile ${profile.cute_name} for slayer checks`);
             return {
                 val: { xp: 0, z: 0, s: 0, w: 0 },
                 done: utils.Unable
@@ -64,13 +64,13 @@ module.exports = {
                 (member.slayer_bosses.wolf.xp > 20000 ||
                     member.slayer_bosses.zombie.xp > 20000 ||
                     member.slayer_bosses.spider.xp > 20000)) {
-                utils.replaceEmbed(embed, `Slayer XP:`, `:green_circle: on profile ${profile.cute_name} (${slayerxp} | ${zombxp}/${spidxp}/${wolfxp})`);
+                //utils.replaceEmbed(embed, `Slayer XP:`, `:green_circle: on profile ${profile.cute_name} (${slayerxp} | ${zombxp}/${spidxp}/${wolfxp})`);
                 return {
                     val: { xp: slayerxp, z: zombxp, s: spidxp, w: wolfxp },
                     done: utils.Success
                 };
             } else {
-                utils.replaceEmbed(embed, `Slayer XP:`, `:red_circle: on profile ${profile.cute_name} (${slayerxp} | ${zombxp}/${spidxp}/${wolfxp})`);
+                //utils.replaceEmbed(embed, `Slayer XP:`, `:red_circle: on profile ${profile.cute_name} (${slayerxp} | ${zombxp}/${spidxp}/${wolfxp})`);
                 return {
                     val: { xp: slayerxp, z: zombxp, s: spidxp, w: wolfxp },
                     done: utils.Failed
@@ -80,13 +80,13 @@ module.exports = {
     },
     wealth: function(embed, total, profile) {
         if (total >= 20) {
-            utils.replaceEmbed(embed, `Wealth:`, `:green_circle: on profile ${profile.cute_name} (${total} wealth)`);
+            //utils.replaceEmbed(embed, `Wealth:`, `:green_circle: on profile ${profile.cute_name} (${total} wealth)`);
             return {
                 val: total,
                 done: utils.Success
             };
         } else {
-            utils.replaceEmbed(embed, `Wealth:`, `:red_circle: on profile ${profile.cute_name} (${total} wealth)`);
+            //utils.replaceEmbed(embed, `Wealth:`, `:red_circle: on profile ${profile.cute_name} (${total} wealth)`);
             return {
                 val: total,
                 done: utils.Failed
@@ -95,13 +95,13 @@ module.exports = {
     },
     talismans: function(embed, total, profile) {
         if (total >= 200) {
-            utils.replaceEmbed(embed, `Talismans:`, `:green_circle: on profile ${profile.cute_name} (${total} talisman score)`);
+            //utils.replaceEmbed(embed, `Talismans:`, `:green_circle: on profile ${profile.cute_name} (${total} talisman score)`);
             return {
                 val: total,
                 done: utils.Success
             };
         } else {
-            utils.replaceEmbed(embed, `Talismans:`, `:red_circle: on profile ${profile.cute_name} (${total} talisman score)`);
+            //utils.replaceEmbed(embed, `Talismans:`, `:red_circle: on profile ${profile.cute_name} (${total} talisman score)`);
             return {
                 val: total,
                 done: utils.Failed

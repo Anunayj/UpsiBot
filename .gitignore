@@ -116,3 +116,4 @@ np_push/
 .pnp.*
 .vscode/launch.json
 env1.json
+test.js
