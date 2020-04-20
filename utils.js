@@ -140,7 +140,7 @@ module.exports = {
     },
     check: function(pfChecks) {
         let res = this.Success;
-        for (let key in Object.keys(pfChecks)) {
+        for (let key of Object.keys(pfChecks)) {
             val = pfChecks[key];
             if (val == 0 && res != this.Failed) {
                 res = this.Unable;
@@ -164,9 +164,10 @@ module.exports = {
         return `:${this.color(col)}_circle:`;
     },
     colorFromProf: function(prof) {
-        num = prof.minions + prof.skills + prof.slayer + prof.wealth + prof.talismans;
-        if (prof.minions == 0 || prof.skills == 0 || prof.slayer == 0 || prof.wealth == 0 || prof.talismans == 0) {
+        if (prof.minions == 0 || prof.skills == 0 || prof.wealth == 0 || prof.talismans == 0) {
             return "yellow";
+        } else if (prof.slayer == 0) {
+            return "blue";
         } else if (prof.minions == -1 || prof.skills == -1 || prof.slayer == -1 || prof.wealth == -1 || prof.talismans == -1) {
             return "red";
         } else {
@@ -198,16 +199,14 @@ module.exports = {
     },
     todo: function(pfChecks, prevAtt) {
         var res = [];
-        for (var attId in pfChecks) {
-            for (var key in pfChecks[attId]) {
-                val = pfChecks[attId][key];
-                if (val == -1) {
-                    if (key == "slayer")
-                        current = `${prevAtt[attId][key].xp} | ${prevAtt[attId][key].z}/${prevAtt[attId][key].s}/${prevAtt[attId][key].w}`;
-                    else
-                        current = prevAtt[attId][key];
-                    res.push(key.substring(0, 1).toUpperCase() + key.substring(1) + ` (Current: ${current})`);
-                }
+        for (var key in pfChecks) {
+            val = pfChecks[key];
+            if (val == -1) {
+                if (key == "slayer")
+                    current = `${prevAtt[key].xp} | ${prevAtt[key].z}/${prevAtt[key].s}/${prevAtt[key].w}`;
+                else
+                    current = prevAtt[key];
+                res.push(key.substring(0, 1).toUpperCase() + key.substring(1) + ` (Current: ${current})`);
             }
         }
         return (res == [] ? "Something..." : res.join(', '));
