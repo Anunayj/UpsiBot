@@ -3,9 +3,11 @@ const zlib = require('zlib');
 const baseURL = 'https://api.hypixel.net/';
 const nbt = require('prismarine-nbt');
 
+
 class Client{
+    #key;
     constructor(key){
-        this.key = key;
+        this.#key = key;
     }
     async getPlayer(username){
         let res = await c("https://api.mojang.com").path(`/users/profiles/minecraft/${username}`).send();
@@ -13,12 +15,12 @@ class Client{
         else throw "Invalid Username";
     }
     async gethypixelPlayer(uuid){
-        let res = await c(baseURL).path("/player").query({key:this.key,uuid}).send();
+        let res = await c(baseURL).path("/player").query({key:this.#key,uuid}).send();
         if(res.statusCode===200) return (await res.json());
         else throw "Something bad";
     }
     async getProfile(profile){
-        let res = await c(baseURL).path("skyblock/profile").query({key:this.key,profile}).send();
+        let res = await c(baseURL).path("skyblock/profile").query({key:this.#key,profile}).send();
         if(res.statusCode===200) return (await res.json());
         else throw "Invalid Username";
     }
@@ -32,11 +34,5 @@ class Client{
     
 
 }
-
-
-
-
-
-
 module.exports.Client = Client;
 
