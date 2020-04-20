@@ -4,6 +4,7 @@ const hypixel = require("./api");
 const fs = require("fs");
 const checks = require("./checks");
 const utils = require("./utils");
+const { NodeVM } = require('vm2');
 
 try {
     tokens = require('./env.json');
@@ -17,12 +18,46 @@ try {
 const api = new hypixel.Client(tokens.hypixel);
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     description: "A bot.....",
-    owner: "Anunay",
+    owner: "Anunay (and Refusings for those lovely embeds)",
     prefix: "~"
 }), new Eris(tokens.scraper)];
 
 bot.connect().then(() => { console.log("Logged in!"); }).catch(() => { throw "Unable to connect"; });
 scraperbot.connect().catch(() => { throw "Unable to connect"; });
+
+async function runInVm(msg) {
+    // TODO Ask refusings to make this look better.
+    reg = msg.content.match(/```(.*?)```/);
+    if (reg === null) reg = msg.content.match(`${msg.prefix}run (.*)`);
+    if (reg === null) return "Cannot Read Code";
+    const vm = new NodeVM({
+        console: 'redirect',
+        timeout: 30000,
+        sandbox: {}
+    });
+    vm.freeze(api, 'api');
+    output = await bot.createMessage(msg.channel.id, "Output:");
+    vm.on('console.log', (data) => {
+        output.edit(output.content += `\n${JSON.stringify(data)}`);
+    });
+    try {
+        vm.run(reg[1]);
+    } catch (err) {
+        output.edit(output.content += `\nERROR: ${JSON.stringify(err)}`);
+    }
+
+}
+
+bot.registerCommand("run", runInVm, {
+    description: "Run code, badly..",
+    fullDescription: "Arbitary Code execution hehehe",
+    requirements: {
+        userIDs: ["213612539483914240", "260470661732892672"]
+    },
+    permissionMessage: "BOOOOOO!",
+    argsRequired: true,
+    usage: "run <code>"
+});
 
 class splashNotifier {
     constructor(channel) {
