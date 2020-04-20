@@ -15,7 +15,7 @@ const api = new hypixel.Client(tokens.hypixel);
 const weights = require("./weights.json");
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     description: "A bot.....",
-    owner: "Anunay",
+    owner: "Anunay (and Refusings for those lovely embeds)",
     prefix: "~"
 }), new Eris(tokens.scraper)];
 
