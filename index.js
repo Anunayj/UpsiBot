@@ -123,12 +123,13 @@ class splashNotifier {
 let splashHandler = new splashNotifier("562615952236085258");
 scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
 
-bot.on("messageCreate", (msg) => {
-    if (msg.author.bot) return;
-    let content = msg.cleanContent.match(/\b(I'm|I am|I\s?m)\s(.*)/i);
-    if (content !== null) bot.createMessage(msg.channel.id, `Hi ${content[2]}, I am ᴉsd∩`);
+//SAD You will be missed
+// bot.on("messageCreate", (msg) => {
+//     if (msg.author.bot) return;
+//     let content = msg.cleanContent.match(/\b(I'm|I am|I\s?m)\s(.*)/i);
+//     if (content !== null) bot.createMessage(msg.channel.id, `Hi ${content[2]}, I am ᴉsd∩`);
 
-});
+// });
 
 bot.registerCommand("ping", "Pong!", { // Make a ping command
     // Responds with "Pong!" when someone says "!ping"
@@ -153,6 +154,7 @@ async function checkRequirements(msg, args) {
     if (args[1] == "exploit" || args[2] == "exploit") exploit = false;
     if (args[1] == "all" || args[2] == "all") showAll = true;
     try {
+        bot.sendChannelTyping(msg.channel.id);
         let timeStart = Date.now();
         let embed = bot.createEmbed(msg.channel.id);
         embed.title("Requirement Checker");
@@ -286,9 +288,22 @@ async function checkRequirements(msg, args) {
                 embed.field("TODO:", todo + ", Enable API");
             } else if (color == "red") {
                 embed.field("TODO:", todo);
-            } else if (color == blue) {
+            } else if (color == "blue") {
                 embed.field("TODO:", "Slayer (Current: 0 | 0/0/0)");
             }
+        }
+        if(mainColor==="#FFFF00"){ //If API is disabled
+            const skill = (hyplayer.player.achievements.skyblock_combat+
+                hyplayer.player.achievements.skyblock_angler+
+                hyplayer.player.achievements.skyblock_gatherer+
+                hyplayer.player.achievements.skyblock_excavator+
+                hyplayer.player.achievements.skyblock_harvester+
+                hyplayer.player.achievements.skyblock_augmentation+
+                hyplayer.player.achievements.skyblock_concoctor)/7;
+            const crafts = hyplayer.player.achievements.skyblock_minion_lover;
+            embed.field("Achievements API:",
+            `Skills: ${skill.toFixed(2)} ${skill>=18 ? ":green_circle:" : ":red_circle:"}`+
+            `, Minions: ${crafts} ${crafts>=275 ? ":green_circle:" : ":red_circle:"}`)
         }
         timeTaken = new Date(Date.now() - timeStart);
         embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
