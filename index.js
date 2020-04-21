@@ -153,6 +153,7 @@ async function checkRequirements(msg, args) {
     if (args[1] == "exploit" || args[2] == "exploit") exploit = false;
     if (args[1] == "all" || args[2] == "all") showAll = true;
     try {
+        bot.sendChannelTyping(msg.channel.id);
         let timeStart = Date.now();
         let embed = bot.createEmbed(msg.channel.id);
         embed.title("Requirement Checker");
