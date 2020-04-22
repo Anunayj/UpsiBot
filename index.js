@@ -142,7 +142,7 @@ bot.registerCommand("req", checkRequirements, {
     argsRequired: true,
     usage: `rep <username>`,
     cooldown: 7000,
-    cooldownMessage: "Chill bitch!"
+    cooldownMessage: "Chill b*tch!"
 });
 
 
@@ -151,8 +151,10 @@ async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     let exploit = true;
     let showAll = false;
-    if (args[1] == "exploit" || args[2] == "exploit") exploit = false;
-    if (args[1] == "all" || args[2] == "all") showAll = true;
+    let simple = false;
+    if (args.join("").includes("explot")) exploit = false;
+    if (args.join("").includes("all")) showAll = true;
+    if (args.join("").includes("simple")) simple = true;
     try {
         bot.sendChannelTyping(msg.channel.id);
         let timeStart = Date.now();
@@ -268,10 +270,22 @@ async function checkRequirements(msg, args) {
         delete pfChecks[""];
         embed._fields = [];
         embed._description = "";
+	if (simple) {
+	    for (var profId in previousAttempts) {
+		let prof = pfChecks[profId];
+		let vals = previousAttempts[profId];
+		embed.field(profId, `${utils.colorC(prof.minions)} - Minions: ${vals.minions}/275 ${(vals.minions<275 ? "Craft them ~~slaves~~minions" : "")}\n${utils.colorC(prof.skills)} - Skill Average: ${parseFloat(vals.skills).toFixed(2)}/18 ${(vals.skills<18 ? "Less talky talky, more grindy grindy" : (parseFloat(vals.skills - 18).toFixed(2)) + " higher skill average")}\n${utils.colorC(prof.slayer, vals.slayer.xp == 0)} - Slayer XP: ${vals.slayer.xp}/30k ${vals.slayer.xp < 30000 ? "Noob, do " + (30000-vals.slayer.xp)/500 + " more t4s" : ""}\n${utils.colorC(prof.wealth)} - Wealth: ${vals.wealth}/20 ${vals.wealth < 20 ? "Haha u broke kid" : ""}\n${utils.colorC(prof.talismans)} - Talismans: ${vals.talismans}/200 ${vals.talismans < 200 ? "Talismans. Now. U bot." : ""}`);
+	    }
+	    embed.color("#FFFFFF");
+	    timeTaken = new Date(Date.now() - timeStart);
+	    embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
+	    await embed.send();
+	    return;
+	}
         let mainColor = "#FF0000";
         for (var profId in previousAttempts) {
             let prof = pfChecks[profId];
-            embed.field(`${profId}`, utils.colorC(prof.minions) + utils.colorC(prof.skills) + utils.colorC(prof.slayer) + utils.colorC(prof.wealth) + utils.colorC(prof.talismans));
+            embed.field(`${profId}`, utils.colorC(prof.minions) + utils.colorC(prof.skills) + utils.colorC(prof.slayer, previousAttempts[profId].slayer.xp == 0) + utils.colorC(prof.wealth) + utils.colorC(prof.talismans));
             color = utils.colorFromProf(prof);
             if (color == "green") {
                 mainColor = "#00FF00";
