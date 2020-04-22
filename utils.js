@@ -150,18 +150,19 @@ module.exports = {
         }
         return res;
     },
-    color: function(success) {
+    color: function(success, slayer) {
         switch (success) {
             case this.Success:
                 return "green";
             case this.Unable:
+		if (slayer) return "blue";
                 return "yellow";
             case this.Failed:
                 return "red";
         }
     },
-    colorC: function(col) {
-        return `:${this.color(col)}_circle:`;
+    colorC: function(col, slayer) {
+        return `:${this.color(col, slayer)}_circle:`;
     },
     colorFromProf: function(prof) {
         if (prof.minions == 0 || prof.skills == 0 || prof.wealth == 0 || prof.talismans == 0) {
