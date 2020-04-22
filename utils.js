@@ -79,7 +79,7 @@ module.exports = {
                     totalTalisman += this.getTalismanValue(item);
                     duplicates.push(item.ExtraAttributes.id);
                 }
-                if (totalWorth >= 20 && totalTalisman >= 200) break;
+                // if (totalWorth >= 20 && totalTalisman >= 200) break;
             }
         }
         return Array.of(totalWorth, totalTalisman);
