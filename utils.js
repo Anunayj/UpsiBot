@@ -155,7 +155,7 @@ module.exports = {
             case this.Success:
                 return "green";
             case this.Unable:
-		if (slayer) return "blue";
+                if (slayer) return "blue";
                 return "yellow";
             case this.Failed:
                 return "red";
@@ -192,7 +192,7 @@ module.exports = {
         var i = 0;
         for (var xp of Object.values(this.leveling_xp)) {
             if (exp < xp) {
-                return i;
+                return i - 1;
             }
             i++;
         }
