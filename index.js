@@ -152,9 +152,9 @@ async function checkRequirements(msg, args) {
     let exploit = true;
     let showAll = false;
     let simple = false;
-    if (args.join("").includes("explot")) exploit = false;
-    if (args.join("").includes("all")) showAll = true;
-    if (args.join("").includes("simple")) simple = true;
+    if (args.join(" ").includes("exploit")) exploit = false;
+    if (args.join(" ").includes("all")) showAll = true;
+    if (args.join(" ").includes("simple")) simple = true;
     try {
         bot.sendChannelTyping(msg.channel.id);
         let timeStart = Date.now();
