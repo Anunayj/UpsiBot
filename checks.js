@@ -7,7 +7,7 @@ module.exports = {
             if (!('crafted_generators' in member)) continue;
             crafted_minions += member.crafted_generators.length;
         }
-        if (crafted_minions > 275) {
+        if (crafted_minions >= 275) {
             //utils.replaceEmbed(embed, "Minion Slots:", `:green_circle: on profile ${profile.cute_name} (${crafted_minions} crafted minions)`);
             return {
                 val: crafted_minions,
