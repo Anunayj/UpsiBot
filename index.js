@@ -299,7 +299,11 @@ async function checkRequirements(msg, args) {
             }
             let todo = utils.todo(pfChecks[profId], previousAttempts[profId]);
             if (color == "yellow") {
-                embed.field("TODO:", todo + ", Enable API");
+		if (todo=="")
+		    todo = "Enable API"
+		else
+		    todo += ", Enable API"
+                embed.field("TODO:", todo);
             } else if (color == "red") {
                 embed.field("TODO:", todo);
             } else if (color == "blue") {
