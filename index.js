@@ -310,7 +310,7 @@ async function checkRequirements(msg, args) {
                 embed.field("TODO:", "Slayer (Current: 0 | 0/0/0)");
             }
         }
-        if(mainColor==="#FFFF00"){ //If API is disabled
+        if(mainColor==="#FFFF00" || showAll){ //If API is disabled
             const skill = (hyplayer.player.achievements.skyblock_combat+
                 hyplayer.player.achievements.skyblock_angler+
                 hyplayer.player.achievements.skyblock_gatherer+
