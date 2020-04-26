@@ -337,8 +337,16 @@ async function updateOnlineStatus() {
     for (let member of guildMembers) {
         const status = await api.getStatus(member);
         const player = await api.getPlayerByUUID(member);
-        embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
+        // embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
+        statusArray.push({
+            uuid:player.id,
+            name:player.name,
+            online:status.online,
+            game:status.gameType
+        })
     }
+    for (status of statusArray )
+        embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
     embed.description(embed._description);
-    bot.editMessage("700686304962281472", "704023871556157602", { content: "", embed: embed.sendable })
+    bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable })
 }
