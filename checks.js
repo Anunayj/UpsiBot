@@ -7,7 +7,7 @@ module.exports = {
             if (!('crafted_generators' in member)) continue;
             crafted_minions += member.crafted_generators.length;
         }
-        if (crafted_minions > 275) {
+        if (crafted_minions >= 275) {
             //utils.replaceEmbed(embed, "Minion Slots:", `:green_circle: on profile ${profile.cute_name} (${crafted_minions} crafted minions)`);
             return {
                 val: crafted_minions,
@@ -83,7 +83,7 @@ module.exports = {
         }
     },
     wealth: function(embed, total, profile) {
-        if (total >= 20) {
+        if (total >= 19) {
             //utils.replaceEmbed(embed, `Wealth:`, `:green_circle: on profile ${profile.cute_name} (${total} wealth)`);
             return {
                 val: total,
@@ -98,7 +98,7 @@ module.exports = {
         }
     },
     talismans: function(embed, total, profile) {
-        if (total >= 200) {
+        if (total >= 235) {
             //utils.replaceEmbed(embed, `Talismans:`, `:green_circle: on profile ${profile.cute_name} (${total} talisman score)`);
             return {
                 val: total,

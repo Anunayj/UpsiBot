@@ -274,7 +274,7 @@ async function checkRequirements(msg, args) {
 	    for (var profId in previousAttempts) {
 		let prof = pfChecks[profId];
 		let vals = previousAttempts[profId];
-		embed.field(profId, `${utils.colorC(prof.minions)} - Minions: ${vals.minions}/275 ${(vals.minions<275 ? "Craft them ~~slaves~~minions" : "")}\n${utils.colorC(prof.skills)} - Skill Average: ${parseFloat(vals.skills).toFixed(2)}/18 ${(vals.skills<18 ? "Less talky talky, more grindy grindy" : (parseFloat(vals.skills - 18).toFixed(2)) + " higher skill average")}\n${utils.colorC(prof.slayer, vals.slayer.xp == 0)} - Slayer XP: ${vals.slayer.xp}/30k ${vals.slayer.xp < 30000 ? "Noob, do " + (30000-vals.slayer.xp)/500 + " more t4s" : ""}\n${utils.colorC(prof.wealth)} - Wealth: ${vals.wealth}/20 ${vals.wealth < 20 ? "Haha u broke kid" : ""}\n${utils.colorC(prof.talismans)} - Talismans: ${vals.talismans}/200 ${vals.talismans < 200 ? "Talismans. Now. U bot." : ""}`);
+		embed.field(profId, `${utils.colorC(prof.minions)} - Minions: ${vals.minions}/275 ${(vals.minions<275 ? "Craft them ~~slaves~~minions" : "")}\n${utils.colorC(prof.skills)} - Skill Average: ${parseFloat(vals.skills).toFixed(2)}/18 ${(vals.skills<18 ? "Less talky talky, more grindy grindy" : (parseFloat(vals.skills - 18).toFixed(2)) + " higher skill average")}\n${utils.colorC(prof.slayer, vals.slayer.xp == 0)} - Slayer XP: ${vals.slayer.xp}/30k ${vals.slayer.xp < 30000 ? "Noob, do " + (30000-vals.slayer.xp)/500 + " more t4s" : ""}\n${utils.colorC(prof.wealth)} - Wealth: ${vals.wealth}/19 ${vals.wealth < 19 ? "Haha u broke kid" : ""}\n${utils.colorC(prof.talismans)} - Talismans: ${vals.talismans}/239 ${vals.talismans < 239 ? "Talismans. Now. U bot." : ""}`);
 	    }
 	    embed.color("#FFFFFF");
 	    timeTaken = new Date(Date.now() - timeStart);
@@ -299,14 +299,18 @@ async function checkRequirements(msg, args) {
             }
             let todo = utils.todo(pfChecks[profId], previousAttempts[profId]);
             if (color == "yellow") {
-                embed.field("TODO:", todo + ", Enable API");
+		if (todo=="")
+		    todo = "Enable API"
+		else
+		    todo += ", Enable API"
+                embed.field("TODO:", todo);
             } else if (color == "red") {
                 embed.field("TODO:", todo);
             } else if (color == "blue") {
                 embed.field("TODO:", "Slayer (Current: 0 | 0/0/0)");
             }
         }
-        if(mainColor==="#FFFF00"){ //If API is disabled
+        if(mainColor==="#FFFF00" || showAll){ //If API is disabled
             const skill = (hyplayer.player.achievements.skyblock_combat+
                 hyplayer.player.achievements.skyblock_angler+
                 hyplayer.player.achievements.skyblock_gatherer+
