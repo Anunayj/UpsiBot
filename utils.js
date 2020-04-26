@@ -1,4 +1,5 @@
 const weights = require("./weights.json");
+const vals = require("./check_values.json");
 
 module.exports = {
     leveling_xp: {
@@ -79,7 +80,7 @@ module.exports = {
                     totalTalisman += this.getTalismanValue(item);
                     duplicates.push(item.ExtraAttributes.id);
                 }
-                if (totalWorth >= 20 && totalTalisman >= 200) break;
+                if (totalWorth >= vals.wealth && totalTalisman >= vals.talismans) break;
             }
         }
         return Array.of(totalWorth, totalTalisman);
@@ -150,19 +151,27 @@ module.exports = {
         }
         return res;
     },
-    color: function(success, slayer) {
-        switch (success) {
-            case this.Success:
-                return "green";
-            case this.Unable:
-                if (slayer) return "blue";
-                return "yellow";
-            case this.Failed:
-                return "red";
+    color: function(check, val, fail, success) {
+        if (check >= val) {
+            return success || "green";
+        } else {
+            return fail;
         }
     },
-    colorC: function(col, slayer) {
-        return `:${this.color(col, slayer)}_circle:`;
+    circle: function(val) {
+        if (typeof(val) == typeof(true)) {
+            return val ? ":green_circle:" : ":red_circle:";
+        } else {
+            switch (val) {
+                case 0:
+                    return ":green_circle:";
+                default:
+                case 1:
+                    return ":red_circle:";
+                case 2:
+                    return ":blue_circle:";
+            }
+        }
     },
     colorFromProf: function(prof) {
         if (prof.minions == 0 || prof.skills == 0 || prof.wealth == 0 || prof.talismans == 0) {

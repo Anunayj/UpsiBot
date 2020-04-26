@@ -2,8 +2,8 @@ const EmbedBuilder = require('eris-embed-builder');
 const Eris = require("eris");
 const hypixel = require("./api");
 const fs = require("fs");
-const checks = require("./checks");
 const utils = require("./utils");
+const vals = require("./check_values.json");
 const { NodeVM } = require('vm2');
 
 try {
@@ -141,191 +141,186 @@ bot.registerCommand("req", checkRequirements, {
     fullDescription: "Dude that literally ^",
     argsRequired: true,
     usage: `rep <username>`,
-    cooldown: 7000,
-    cooldownMessage: "Chill b*tch!"
+    cooldown: 1000,
+    cooldownMessage: "Try using ~stats instead!"
 });
 
 
 
 async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
+    let timeStart = Date.now();
     let exploit = true;
     let showAll = false;
     let simple = false;
     if (args.join("").includes("explot")) exploit = false;
     if (args.join("").includes("all")) showAll = true;
     if (args.join("").includes("simple")) simple = true;
-    try {
-        bot.sendChannelTyping(msg.channel.id);
-        let timeStart = Date.now();
-        let embed = bot.createEmbed(msg.channel.id);
-        embed.title("Requirement Checker");
-        embed.author(args[0]); // TODO: Get player picture
-        //embed.color('#0000FF');
-        //embed.footer(`Working...`);
-        // embed
-        //     .field("Profiles:", "Getting Profiles...")
-        //     .field("Minion Slots:", "Checking Slots...")
-        //     .field("Average Skill:", "Checking Average Skill...")
-        //     .field("Slayer XP:", "Checking Slayer...")
-        //     .field("Wealth:", "Checking Wealth...")
-        //     .field("Talismans:", "Checking Talismans...");
-        let msg2;
-        // let msg2 = await embed.send();
-        // let embedid = msg2.id;
-        let previousName = "";
-        let player, hyplayer;
-        try {
-            player = await api.getPlayer(args[0]);
-            if (player === undefined || player === null)
-                throw "";
-            hyplayer = await api.gethypixelPlayer(player.id);
-            if (hyplayer === undefined || hyplayer === null)
-                throw "";
-        } catch (e) {
-            embed._fields = [];
-            embed.description("Invalid username!");
-            timeTaken = new Date(Date.now() - timeStart);
-            embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
-            msg2 = await embed.send();
-            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
-            return;
+    let embed = bot.createEmbed(msg.channel.id);
+    let res = await getStats(api, args[0]);
+    if (typeof(res) !== typeof({})) {
+        let timeTaken = new Date(Date.now() - timeStart);
+        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+        return;
+    }
+    if (simple) {
+        for (var profId in res.stats) {
+            let prof = res.stats[profId];
+            embed.field(profId, `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle"} - Minions: ${prof.minions}/${vals.minions} ${(prof.minions < vals.minions ? "Craft them ~~slaves~~minions" : "")}\n${prof.skill >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${parseFloat(prof.skills).toFixed(2)}/${vals.skills} ${(prof.skills < 18 ? "Less talky talky, more grindy grindy" : (parseFloat(prof.skills - vals.skills).toFixed(2)) + " higher skill average")}\n${prof.slayer.xp >= vals.slayer.xp ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} ${prof.slayer.xp < vals.slayer.xp ? "Noob, do " + (vals.slayer.xp - prof.slayer.xp) / 500 + " more t4s" : ""}\n${prof.wealth >= 19 ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth}/${vals.wealth} ${vals.wealth < 19 ? "Haha u broke kid" : ""}\n${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans} ${prof.talismans < vals.talismans ? "Talismans. Now. U bot." : ""}`);
         }
-        embed.author(player.name, `https://crafatar.com/avatars/${player.id}?overlay`);
-        let skyblock_player = hyplayer.player;
-        if (skyblock_player === null || skyblock_player === undefined || !utils.isInNext(skyblock_player, ['stats', 'SkyBlock', 'profiles'])) {
-            embed._fields = [];
-            embed.description("This user has never played SkyBlock!");
-            timeTaken = new Date(Date.now() - timeStart);
-            embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
-            msg2 = await embed.send();
-            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
-            return;
-        }
-        let pfChecks = {};
-        let profileNames = [];
-        pfChecks[""] = { minions: utils.Failed, skills: utils.Failed, slayer: utils.Failed, wealth: utils.Failed, talismans: utils.Failed };
-        for (let pf of Object.values(skyblock_player.stats.SkyBlock.profiles)) {
-            profileNames.push(pf.cute_name);
-            pfChecks[pf.cute_name] = { minions: utils.Failed, skills: utils.Failed, slayer: utils.Failed, wealth: utils.Failed, talismans: utils.Failed };
-        }
-        if (profileNames.length == 0) {
-            embed._fields = [];
-            embed.description("This user has never played SkyBlock!");
-            timeTaken = new Date(Date.now() - timeStart);
-            embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
-            msg2 = await embed.send();
-            // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
-            return;
-        }
-        //embed._description = "**Profiles:**;\n" + profileNames.join(', ') + "\n\n" + embed._description;
-        //utils.replaceEmbed(embed, "Profiles:", profileNames.join(', '));
-        //msg2 = await embed.send();
-        //let embedid = msg2.id;
-        let previousAttempts = {};
-        for (const profile of Object.values(skyblock_player.stats.SkyBlock.profiles)) {
-            // utils.replaceEmbed(embed, "Minion Slots:", `Checking Slots...`);
-            // utils.replaceEmbed(embed, "Average Skill:", `Checking Average Skill...`);
-            // utils.replaceEmbed(embed, "Slayer XP:", `Checking Slayer...`);
-            // utils.replaceEmbed(embed, "Wealth:", `Checking Wealth...`);
-            // utils.replaceEmbed(embed, "Talismans:", `Checking Talismans...`);
-            //await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
-            //await new Promise(r => setTimeout(r, 1000));
-            let ProObj = await api.getProfile(profile.profile_id);
-            previousAttempts[profile.cute_name] = { minions: 0, skills: 0, slayer: { xp: 0, z: 0, s: 0, w: 0 }, wealth: 0, talismans: 0 };
-            if (ProObj === undefined || ProObj === null) break;
-            let member = ProObj.profile.members[player.id];
-            check = checks.minions(embed, ProObj.profile.members, profile);
-            previousAttempts[profile.cute_name].minions = check.val;
-            pfChecks[profile.cute_name].minions = check.done;
-            check = checks.skills(embed, member, profile);
-            previousAttempts[profile.cute_name].skills = check.val;
-            pfChecks[profile.cute_name].skills = check.done;
-            check = checks.slayer(embed, member, profile);
-            previousAttempts[profile.cute_name].slayer = check.val;
-            pfChecks[profile.cute_name].slayer = check.done;
-            if (member.inv_contents !== undefined) {
-                let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
-                totals = await utils.checkWealthAndTalis(items, exploit, api);
-                // await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
-                check = checks.wealth(embed, totals[0], profile);
-                previousAttempts[profile.cute_name].wealth = check.val;
-                pfChecks[profile.cute_name].wealth = check.done;
-                check = checks.talismans(embed, totals[1], profile);
-                previousAttempts[profile.cute_name].talismans = check.val;
-                pfChecks[profile.cute_name].talismans = check.done;
-            } else {
-                // utils.replaceEmbed(embed, `Wealth:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for wealth checks`);
-                // utils.replaceEmbed(embed, `Talismans:`, `:yellow_circle: API access is disabled on profile ${profile.cute_name} for talisman checks`);
-                previousAttempts[profile.cute_name].wealth = 0;
-                pfChecks[profile.cute_name].wealth = utils.Unable;
-                previousAttempts[profile.cute_name].talismans = 0;
-                pfChecks[profile.cute_name].talismans = utils.Unable;
-            }
-            //await bot.editMessage(msg.channel.id, embedid, { embed: embed.sendable });
-            previousName = profile.cute_name;
-            if (utils.check(pfChecks[profile.cute_name]) == utils.Success && !showAll) break;
-            //await new Promise(r => setTimeout(r, 2000)); //possible cooldown for rate limiting
-        }
-        delete pfChecks[""];
-        embed._fields = [];
-        embed._description = "";
-	if (simple) {
-	    for (var profId in previousAttempts) {
-		let prof = pfChecks[profId];
-		let vals = previousAttempts[profId];
-		embed.field(profId, `${utils.colorC(prof.minions)} - Minions: ${vals.minions}/275 ${(vals.minions<275 ? "Craft them ~~slaves~~minions" : "")}\n${utils.colorC(prof.skills)} - Skill Average: ${parseFloat(vals.skills).toFixed(2)}/18 ${(vals.skills<18 ? "Less talky talky, more grindy grindy" : (parseFloat(vals.skills - 18).toFixed(2)) + " higher skill average")}\n${utils.colorC(prof.slayer, vals.slayer.xp == 0)} - Slayer XP: ${vals.slayer.xp}/30k ${vals.slayer.xp < 30000 ? "Noob, do " + (30000-vals.slayer.xp)/500 + " more t4s" : ""}\n${utils.colorC(prof.wealth)} - Wealth: ${vals.wealth}/20 ${vals.wealth < 20 ? "Haha u broke kid" : ""}\n${utils.colorC(prof.talismans)} - Talismans: ${vals.talismans}/200 ${vals.talismans < 200 ? "Talismans. Now. U bot." : ""}`);
-	    }
-	    embed.color("#FFFFFF");
-	    timeTaken = new Date(Date.now() - timeStart);
-	    embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
-	    await embed.send();
-	    return;
-	}
+        embed.color("#FFFFFF");
+        timeTaken = new Date(Date.now() - timeStart);
+        embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
+        await embed.send();
+        return;
+    } else {
         let mainColor = "#FF0000";
-        for (var profId in previousAttempts) {
-            let prof = pfChecks[profId];
-            embed.field(`${profId}`, utils.colorC(prof.minions) + utils.colorC(prof.skills) + utils.colorC(prof.slayer, previousAttempts[profId].slayer.xp == 0) + utils.colorC(prof.wealth) + utils.colorC(prof.talismans));
-            color = utils.colorFromProf(prof);
-            if (color == "green") {
-                mainColor = "#00FF00";
-                if (!showAll) break;
-            } else if (color == "yellow" && mainColor != "#00FF00") {
-                mainColor = "#FFFF00";
-            } else if (color == "red") {
-                mainColor = "#FF0000";
-            } else if (color == "blue") {
-                mainColor == "#0000FF";
+        for (var profId in res.stats) {
+            let prof = res.stats[profId];
+            let text = utils.circle(prof.minions >= vals.minions) + utils.circle(prof.skills >= vals.skills) + utils.circle(prof.slayer.xp >= vals.slayer.xp && ((prof.slayer.z >= vals.slayer.minimumHighestSlayer) || (prof.slayer.s >= vals.slayer.minimumHighestSlayer) || (prof.slayer.w >= vals.slayer.minimumHighestSlayer)) ? 0 : prof.slayer.xp == 0 ? 2 : 1) + utils.circle(prof.wealth >= vals.wealth) + utils.circle(prof.talismans >= vals.talismans);
+            embed.field(`${profId}`, text);
+            if (mainColor != "#00FF00") {
+                if (text.includes("yellow")) {
+                    mainColor = "#FFFF00";
+                } else if (text.includes("red")) {
+                    mainColor = "#FF0000";
+                } else if (text.includes("blue")) {
+                    mainColor = "#0000FF";
+                } else {
+                    mainColor = "#00FF00";
+                }
             }
-            let todo = utils.todo(pfChecks[profId], previousAttempts[profId]);
-            if (color == "yellow") {
-                embed.field("TODO:", todo + ", Enable API");
-            } else if (color == "red") {
-                embed.field("TODO:", todo);
-            } else if (color == "blue") {
-                embed.field("TODO:", "Slayer (Current: 0 | 0/0/0)");
+            let todo = [];
+            if (text.includes("yellow")) {
+                todo.push("Enable API");
+            }
+            let types = ["Minions", "Skills", "Slayer", "Wealth", "Talismans"];
+            let colors = text.replace(/_circle:/g, ",").replace(/:/g, '').split(",");
+            for (var i = 0; i < colors.length; i++) {
+                if (colors[i] == "red" || colors[i] == "blue") {
+                    if (types[i] == "Slayer") {
+                        todo.push(`${types[i]} (${prof.slayer.xp} | ${prof.slayer.z}/${prof.slayer.s}/${prof.slayer.w})`);
+                    } else {
+                        todo.push(`${types[i]} (${prof[types[i].toLowerCase()]})`);
+                    }
+                }
+            }
+            if (todo.length != 0) {
+                embed.field(`TODO:`, todo.join(", "));
             }
         }
-        if(mainColor==="#FFFF00"){ //If API is disabled
-            const skill = (hyplayer.player.achievements.skyblock_combat+
-                hyplayer.player.achievements.skyblock_angler+
-                hyplayer.player.achievements.skyblock_gatherer+
-                hyplayer.player.achievements.skyblock_excavator+
-                hyplayer.player.achievements.skyblock_harvester+
-                hyplayer.player.achievements.skyblock_augmentation+
-                hyplayer.player.achievements.skyblock_concoctor)/7;
+        if (mainColor === "#FFFF00") { //If API is disabled
+            const skill = (hyplayer.player.achievements.skyblock_combat +
+                hyplayer.player.achievements.skyblock_angler +
+                hyplayer.player.achievements.skyblock_gatherer +
+                hyplayer.player.achievements.skyblock_excavator +
+                hyplayer.player.achievements.skyblock_harvester +
+                hyplayer.player.achievements.skyblock_augmentation +
+                hyplayer.player.achievements.skyblock_concoctor) / 7;
             const crafts = hyplayer.player.achievements.skyblock_minion_lover;
             embed.field("Achievements API:",
-            `Skills: ${skill.toFixed(2)} ${skill>=18 ? ":green_circle:" : ":red_circle:"}`+
-            `, Minions: ${crafts} ${crafts>=275 ? ":green_circle:" : ":red_circle:"}`)
+                `Skills: ${skill.toFixed(2)} ${skill >= vals.skills ? ":green_circle:" : ":red_circle:"}` +
+                `, Minions: ${crafts} ${crafts >= vals.minions ? ":green_circle:" : ":red_circle:"}`);
         }
+        embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
+        embed.color(mainColor);
         timeTaken = new Date(Date.now() - timeStart);
         embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
         embed.color(mainColor);
         embed.send();
-        return;
-    } catch (e) {
-        console.log(e);
-        return "Some unknown error occured, please try again.";
     }
+}
+
+bot.registerCommand("stats", stats, {
+    description: "Get Player Stats!!",
+    fullDescription: "Dude that literally ^",
+    argsRequired: true,
+    usage: `stats <username>`,
+    cooldown: 3000,
+    cooldownMessage: "Chill b*tch!"
+});
+
+async function stats(msg, args) {
+    bot.sendChannelTyping(msg.channel.id);
+    let timeStart = Date.now();
+    let res = await getStats(api, args[0]);
+    if (typeof(res) !== typeof({})) {
+        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+        return;
+    }
+    let embed = bot.createEmbed(msg.channel.id);
+    embed.title("Stats");
+    embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
+    for (var profile in res.stats) {
+        let pf = res.stats[profile];
+        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills}\n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth}\n**Talismans:**\n${pf.talismans}`);
+    }
+    timeTaken = new Date(Date.now() - timeStart);
+    embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
+    await embed.send();
+    return;
+}
+
+async function getStats(api, username) {
+    let res = {};
+    try {
+        player = await api.getPlayer(username);
+        res.player = player;
+        hyplayer = await api.gethypixelPlayer(player.id);
+        res.hyplayer = hyplayer;
+        sbp = hyplayer.player;
+        res.sbp = sbp;
+    } catch (err) {
+        return "Invalid username!";
+    }
+    if (sbp === null || sbp === undefined || !utils.isInNext(sbp, ['stats', 'SkyBlock', 'profiles'])) {
+        return "This user has never played SkyBlock!";
+    }
+    let profiles = {};
+    for (const pf of Object.values(sbp.stats.SkyBlock.profiles)) {
+        let prof = await api.getProfile(pf.profile_id);
+        if (prof === undefined || prof === null) break;
+        let member = prof.profile.members[player.id];
+        let minions = 0;
+        let skill = 0;
+        let slayer = { xp: 0, z: 0, s: 0, w: 0 };
+        for (const member of Object.values(prof.profile.members)) {
+            if (!('crafted_generators' in member)) continue;
+            minions += member.crafted_generators.length;
+        }
+        if (utils.isIn(member, ['experience_skill_alchemy'])) {
+            skill =
+                utils.fromExp(member.experience_skill_alchemy) +
+                utils.fromExp(member.experience_skill_combat) +
+                utils.fromExp(member.experience_skill_enchanting) +
+                utils.fromExp(member.experience_skill_farming) +
+                utils.fromExp(member.experience_skill_fishing) +
+                utils.fromExp(member.experience_skill_foraging) +
+                utils.fromExp(member.experience_skill_mining);
+            skill = (skill / 7).toFixed(2);
+        }
+        if (member.slayer_bosses !== undefined && member.slayer_bosses.zombie.xp !== undefined) {
+            slayer.w = member.slayer_bosses.wolf.xp || 0;
+            slayer.s = member.slayer_bosses.spider.xp || 0;
+            slayer.z = member.slayer_bosses.zombie.xp || 0;
+            slayer.xp = slayer.z + slayer.s + slayer.w;
+        } else {
+            slayer.w = 0;
+            slayer.s = 0;
+            slayer.z = 0;
+            slayer.xp = 0;
+        }
+        profiles[pf.cute_name] = { minions: minions, skills: skill, slayer: slayer };
+        if (member.inv_contents !== undefined) {
+            let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
+            totals = await utils.checkWealthAndTalis(items, true, api);
+            profiles[pf.cute_name].wealth = totals[0];
+            profiles[pf.cute_name].talismans = totals[1];
+        } else {
+            profiles[pf.cute_name].wealth = 0;
+            profiles[pf.cute_name].talismans = 0;
+        }
+    }
+    res.stats = profiles;
+    return res;
 }

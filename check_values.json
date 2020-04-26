@@ -1,0 +1,10 @@
+{
+    "minions": 275,
+    "skills": 18,
+    "slayer": {
+        "xp": 30000,
+        "minimumHighestSlayer": 20000
+    },
+    "wealth": 19,
+    "talismans": 235
+}
