@@ -80,7 +80,8 @@ module.exports = {
                     totalTalisman += this.getTalismanValue(item);
                     duplicates.push(item.ExtraAttributes.id);
                 }
-                if (totalWorth >= vals.wealth && totalTalisman >= vals.talismans) break;
+                // Uncomment this if it becomes too laggy
+                // if (totalWorth >= vals.wealth && totalTalisman >= vals.talismans) break;
             }
         }
         return Array.of(totalWorth, totalTalisman);

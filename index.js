@@ -136,6 +136,7 @@ bot.registerCommand("ping", "Pong!", { // Make a ping command
     description: "Pong!",
     fullDescription: "This command could be used to check if the bot is up. Or entertainment when you're bored."
 });
+
 bot.registerCommand("req", checkRequirements, {
     description: "Check Requirements!!",
     fullDescription: "Dude that literally ^",
@@ -209,7 +210,7 @@ async function checkRequirements(msg, args) {
                 embed.field(`TODO:`, todo.join(", "));
             }
         }
-        if (mainColor === "#FFFF00") { //If API is disabled
+        if (mainColor === "#FFFF00" || showAll) { //If API is disabled
             const skill = (hyplayer.player.achievements.skyblock_combat +
                 hyplayer.player.achievements.skyblock_angler +
                 hyplayer.player.achievements.skyblock_gatherer +
@@ -323,4 +324,30 @@ async function getStats(api, username) {
     }
     res.stats = profiles;
     return res;
+}
+setInterval(updateOnlineStatus, 1000 * 60 * 5);
+async function updateOnlineStatus() {
+    const guild = await api.getGuild("5e7761818ea8c93927ad570a");
+    const guildMembers = guild.members.map(members => members.uuid);
+    let embed = bot.createEmbed();
+    embed.title("Online Status");
+    embed.color("#00FF00")
+    let statusArray = [];
+    for (member of guildMembers) {
+        const status = await api.getStatus(member);
+        const player = await api.getPlayerByUUID(member);
+        statusArray.push({
+            name: player.name,
+            online: status.online,
+            game: status.gameType
+        })
+    }
+    embed.field("Username", statusArray.map(obj => obj.name.replace("_", "\\_")).join("\n"), true);
+    embed.field("Online", statusArray.map(obj => obj.online).reduce(
+        (total, online) => total + (online ? ":green_circle:" : ":red_circle:") + "\n", ""
+    ), true);
+    embed.field("Game Mode", statusArray.map(obj => obj.game).reduce(
+        (total, game) => total + (game === undefined ? "Offline" : game) + "\n", ""
+    ), true);
+    bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable })
 }
