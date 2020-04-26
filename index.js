@@ -5,7 +5,7 @@ const fs = require("fs");
 const utils = require("./utils");
 const vals = require("./check_values.json");
 const { NodeVM } = require('vm2');
-
+let tokens = {};
 try {
     tokens = require('./env.json');
     console.log("Got tokens");
@@ -20,7 +20,7 @@ const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     description: "A bot.....",
     owner: "Anunay (and Refusings for those lovely embeds)",
     prefix: "~"
-}), new Eris(tokens.scraper)];
+}), Eris(tokens.scraper)];
 
 bot.connect().then(() => { console.log("Logged in!"); }).catch(() => { throw "Unable to connect"; });
 scraperbot.connect().catch(() => { throw "Unable to connect"; });
@@ -36,7 +36,7 @@ async function runInVm(msg) {
         sandbox: {}
     });
     vm.freeze(api, 'api');
-    output = await bot.createMessage(msg.channel.id, "Output:");
+    let output = await bot.createMessage(msg.channel.id, "Output:");
     vm.on('console.log', (data) => {
         output.edit(output.content += `\n${JSON.stringify(data)}`);
     });
@@ -151,6 +151,7 @@ bot.registerCommand("req", checkRequirements, {
 async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     let timeStart = Date.now();
+    let timeTaken = new Date();
     let exploit = true;
     let showAll = false;
     let simple = false;
@@ -158,10 +159,10 @@ async function checkRequirements(msg, args) {
     if (args.join("").includes("all")) showAll = true;
     if (args.join("").includes("simple")) simple = true;
     let embed = bot.createEmbed(msg.channel.id);
-    let res = await getStats(api, args[0]);
+    let res = await getStats(args[0]);
     if (typeof(res) !== typeof({})) {
         let timeTaken = new Date(Date.now() - timeStart);
-        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000).toFixed(2)}!`).send();
         return;
     }
     if (simple) {
@@ -171,7 +172,7 @@ async function checkRequirements(msg, args) {
         }
         embed.color("#FFFFFF");
         timeTaken = new Date(Date.now() - timeStart);
-        embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
+        embed.footer(`Done in ${timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000).toFixed(2)}s!`);
         await embed.send();
         return;
     } else {
@@ -211,14 +212,14 @@ async function checkRequirements(msg, args) {
             }
         }
         if (mainColor === "#FFFF00" || showAll) { //If API is disabled
-            const skill = (hyplayer.player.achievements.skyblock_combat +
-                hyplayer.player.achievements.skyblock_angler +
-                hyplayer.player.achievements.skyblock_gatherer +
-                hyplayer.player.achievements.skyblock_excavator +
-                hyplayer.player.achievements.skyblock_harvester +
-                hyplayer.player.achievements.skyblock_augmentation +
-                hyplayer.player.achievements.skyblock_concoctor) / 7;
-            const crafts = hyplayer.player.achievements.skyblock_minion_lover;
+            const skill = (res.hyplayer.player.achievements.skyblock_combat +
+                res.hyplayer.player.achievements.skyblock_angler +
+                res.hyplayer.player.achievements.skyblock_gatherer +
+                res.hyplayer.player.achievements.skyblock_excavator +
+                res.hyplayer.player.achievements.skyblock_harvester +
+                res.hyplayer.player.achievements.skyblock_augmentation +
+                res.hyplayer.player.achievements.skyblock_concoctor) / 7;
+            const crafts = res.hyplayer.player.achievements.skyblock_minion_lover;
             embed.field("Achievements API:",
                 `Skills: ${skill.toFixed(2)} ${skill >= vals.skills ? ":green_circle:" : ":red_circle:"}` +
                 `, Minions: ${crafts} ${crafts >= vals.minions ? ":green_circle:" : ":red_circle:"}`);
@@ -226,7 +227,7 @@ async function checkRequirements(msg, args) {
         embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
         embed.color(mainColor);
         timeTaken = new Date(Date.now() - timeStart);
-        embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
+        embed.footer(`Done in ${timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000).toFixed(2)}s!`);
         embed.color(mainColor);
         embed.send();
     }
@@ -244,9 +245,10 @@ bot.registerCommand("stats", stats, {
 async function stats(msg, args) {
     bot.sendChannelTyping(msg.channel.id);
     let timeStart = Date.now();
-    let res = await getStats(api, args[0]);
+    let timeTaken = new Date();
+    let res = await getStats(args[0]);
     if (typeof(res) !== typeof({})) {
-        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000).toFixed(2)}!`).send();
         return;
     }
     let embed = bot.createEmbed(msg.channel.id);
@@ -257,23 +259,23 @@ async function stats(msg, args) {
         embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills}\n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth}\n**Talismans:**\n${pf.talismans}`);
     }
     timeTaken = new Date(Date.now() - timeStart);
-    embed.footer(`Done in ${parseFloat(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
+    embed.footer(`Done in ${timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000).toFixed(2)}!`);
     await embed.send();
     return;
 }
 
-async function getStats(api, username) {
-    let res = {};
+async function getStats(username) {
+    let player = null,
+        hyplayer = null,
+        sbp = null;
     try {
         player = await api.getPlayer(username);
-        res.player = player;
         hyplayer = await api.gethypixelPlayer(player.id);
-        res.hyplayer = hyplayer;
         sbp = hyplayer.player;
-        res.sbp = sbp;
     } catch (err) {
         return "Invalid username!";
     }
+    let res = { player: player, hyplayer: hyplayer, sbp: sbp };
     if (sbp === null || sbp === undefined || !utils.isInNext(sbp, ['stats', 'SkyBlock', 'profiles'])) {
         return "This user has never played SkyBlock!";
     }
@@ -291,14 +293,13 @@ async function getStats(api, username) {
         }
         if (utils.isIn(member, ['experience_skill_alchemy'])) {
             skill =
-                utils.fromExp(member.experience_skill_alchemy) +
-                utils.fromExp(member.experience_skill_combat) +
-                utils.fromExp(member.experience_skill_enchanting) +
-                utils.fromExp(member.experience_skill_farming) +
-                utils.fromExp(member.experience_skill_fishing) +
-                utils.fromExp(member.experience_skill_foraging) +
-                utils.fromExp(member.experience_skill_mining);
-            skill = (skill / 7).toFixed(2);
+                parseInt((utils.fromExp(member.experience_skill_alchemy) +
+                    utils.fromExp(member.experience_skill_combat) +
+                    utils.fromExp(member.experience_skill_enchanting) +
+                    utils.fromExp(member.experience_skill_farming) +
+                    utils.fromExp(member.experience_skill_fishing) +
+                    utils.fromExp(member.experience_skill_foraging) +
+                    utils.fromExp(member.experience_skill_mining) / 7).toFixed(2));
         }
         if (member.slayer_bosses !== undefined && member.slayer_bosses.zombie.xp !== undefined) {
             slayer.w = member.slayer_bosses.wolf.xp || 0;
@@ -314,7 +315,7 @@ async function getStats(api, username) {
         profiles[pf.cute_name] = { minions: minions, skills: skill, slayer: slayer };
         if (member.inv_contents !== undefined) {
             let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
-            totals = await utils.checkWealthAndTalis(items, true, api);
+            let totals = await utils.checkWealthAndTalis(items, true, api);
             profiles[pf.cute_name].wealth = totals[0];
             profiles[pf.cute_name].talismans = totals[1];
         } else {
@@ -330,24 +331,14 @@ async function updateOnlineStatus() {
     const guild = await api.getGuild("5e7761818ea8c93927ad570a");
     const guildMembers = guild.members.map(members => members.uuid);
     let embed = bot.createEmbed();
+    embed._description = "";
     embed.title("Online Status");
-    embed.color("#00FF00")
-    let statusArray = [];
-    for (member of guildMembers) {
+    embed.color("#00FF00");
+    for (let member of guildMembers) {
         const status = await api.getStatus(member);
         const player = await api.getPlayerByUUID(member);
-        statusArray.push({
-            name: player.name,
-            online: status.online,
-            game: status.gameType
-        })
+        embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
     }
-    embed.field("Username", statusArray.map(obj => obj.name.replace("_", "\\_")).join("\n"), true);
-    embed.field("Online", statusArray.map(obj => obj.online).reduce(
-        (total, online) => total + (online ? ":green_circle:" : ":red_circle:") + "\n", ""
-    ), true);
-    embed.field("Game Mode", statusArray.map(obj => obj.game).reduce(
-        (total, game) => total + (game === undefined ? "Offline" : game) + "\n", ""
-    ), true);
-    bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable })
+    embed.description(embed._description);
+    bot.editMessage("700686304962281472", "704023871556157602", { content: "", embed: embed.sendable })
 }

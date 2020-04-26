@@ -56,9 +56,6 @@ module.exports = {
         50: 55172425,
         100: Number.MAX_VALUE
     },
-    Success: Object.freeze(1),
-    Unable: Object.freeze(0),
-    Failed: Object.freeze(-1),
     replaceEmbed: function(embed, name, value) {
         for (var field of embed._fields) {
             if (field.name == name) {
@@ -140,18 +137,6 @@ module.exports = {
         }
         return true;
     },
-    check: function(pfChecks) {
-        let res = this.Success;
-        for (let key of Object.keys(pfChecks)) {
-            val = pfChecks[key];
-            if (val == 0 && res != this.Failed) {
-                res = this.Unable;
-            } else if (val == -1) {
-                return this.Failed;
-            }
-        }
-        return res;
-    },
     color: function(check, val, fail, success) {
         if (check >= val) {
             return success || "green";
@@ -174,30 +159,6 @@ module.exports = {
             }
         }
     },
-    colorFromProf: function(prof) {
-        if (prof.minions == 0 || prof.skills == 0 || prof.wealth == 0 || prof.talismans == 0) {
-            return "yellow";
-        } else if (prof.slayer == 0) {
-            return "blue";
-        } else if (prof.minions == -1 || prof.skills == -1 || prof.slayer == -1 || prof.wealth == -1 || prof.talismans == -1) {
-            return "red";
-        } else {
-            return "green";
-        }
-    },
-    isSame: function(oldE, newE) {
-        if (oldE._fields.length == newE._fields.length) {
-            for (var i in oldE._fields) {
-                var oF = oldE._fields[i];
-                var nF = newE._fields[i];
-                if (oF.name != nF.name || oF.value != nF.value || oF.inline != nF.inline) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    },
     fromExp: function(exp) {
         var i = 0;
         for (var xp of Object.values(this.leveling_xp)) {
@@ -207,19 +168,5 @@ module.exports = {
             i++;
         }
         return 0;
-    },
-    todo: function(pfChecks, prevAtt) {
-        var res = [];
-        for (var key in pfChecks) {
-            val = pfChecks[key];
-            if (val == -1) {
-                if (key == "slayer")
-                    current = `${prevAtt[key].xp} | ${prevAtt[key].z}/${prevAtt[key].s}/${prevAtt[key].w}`;
-                else
-                    current = prevAtt[key];
-                res.push(key.substring(0, 1).toUpperCase() + key.substring(1) + ` (Current: ${current})`);
-            }
-        }
-        return (res == [] ? "Something..." : res.join(', '));
     }
 };
