@@ -150,6 +150,7 @@ bot.registerCommand("req", checkRequirements, {
 
 async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
+    bot.sendChannelTyping(msg.channel.id);
     let timeStart = Date.now();
     let timeTaken = new Date();
     let exploit = true;
@@ -159,10 +160,10 @@ async function checkRequirements(msg, args) {
     if (args.join("").includes("all")) showAll = true;
     if (args.join("").includes("simple")) simple = true;
     let embed = bot.createEmbed(msg.channel.id);
-    let res = await getStats(args[0]);
+    let res = await getStats(args[0], exploit);
     if (typeof(res) !== typeof({})) {
         let timeTaken = new Date(Date.now() - timeStart);
-        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000).toFixed(2)}!`).send();
+        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
         return;
     }
     if (simple) {
@@ -172,7 +173,7 @@ async function checkRequirements(msg, args) {
         }
         embed.color("#FFFFFF");
         timeTaken = new Date(Date.now() - timeStart);
-        embed.footer(`Done in ${timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000).toFixed(2)}s!`);
+        embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
         await embed.send();
         return;
     } else {
@@ -191,6 +192,9 @@ async function checkRequirements(msg, args) {
                 } else {
                     mainColor = "#00FF00";
                 }
+            }
+            if (mainColor == "#00FF00" && !showAll) {
+                break;
             }
             let todo = [];
             if (text.includes("yellow")) {
@@ -227,7 +231,7 @@ async function checkRequirements(msg, args) {
         embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
         embed.color(mainColor);
         timeTaken = new Date(Date.now() - timeStart);
-        embed.footer(`Done in ${timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000).toFixed(2)}s!`);
+        embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
         embed.color(mainColor);
         embed.send();
     }
@@ -248,7 +252,7 @@ async function stats(msg, args) {
     let timeTaken = new Date();
     let res = await getStats(args[0]);
     if (typeof(res) !== typeof({})) {
-        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000).toFixed(2)}!`).send();
+        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
         return;
     }
     let embed = bot.createEmbed(msg.channel.id);
@@ -259,12 +263,12 @@ async function stats(msg, args) {
         embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills}\n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth}\n**Talismans:**\n${pf.talismans}`);
     }
     timeTaken = new Date(Date.now() - timeStart);
-    embed.footer(`Done in ${timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000).toFixed(2)}!`);
+    embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
     await embed.send();
     return;
 }
 
-async function getStats(username) {
+async function getStats(username, exploit = true) {
     let player = null,
         hyplayer = null,
         sbp = null;
@@ -293,13 +297,13 @@ async function getStats(username) {
         }
         if (utils.isIn(member, ['experience_skill_alchemy'])) {
             skill =
-                parseInt((utils.fromExp(member.experience_skill_alchemy) +
+                parseInt(((utils.fromExp(member.experience_skill_alchemy) +
                     utils.fromExp(member.experience_skill_combat) +
                     utils.fromExp(member.experience_skill_enchanting) +
                     utils.fromExp(member.experience_skill_farming) +
                     utils.fromExp(member.experience_skill_fishing) +
                     utils.fromExp(member.experience_skill_foraging) +
-                    utils.fromExp(member.experience_skill_mining) / 7).toFixed(2));
+                    utils.fromExp(member.experience_skill_mining)) / 7).toFixed(2));
         }
         if (member.slayer_bosses !== undefined && member.slayer_bosses.zombie.xp !== undefined) {
             slayer.w = member.slayer_bosses.wolf.xp || 0;
@@ -315,7 +319,7 @@ async function getStats(username) {
         profiles[pf.cute_name] = { minions: minions, skills: skill, slayer: slayer };
         if (member.inv_contents !== undefined) {
             let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
-            let totals = await utils.checkWealthAndTalis(items, true, api);
+            let totals = await utils.checkWealthAndTalis(items, exploit, api);
             profiles[pf.cute_name].wealth = totals[0];
             profiles[pf.cute_name].talismans = totals[1];
         } else {
@@ -340,14 +344,14 @@ async function updateOnlineStatus() {
         const player = await api.getPlayerByUUID(member);
         // embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
         statusArray.push({
-            uuid:player.id,
-            name:player.name,
-            online:status.online,
-            game:status.gameType
-        })
+            uuid: player.id,
+            name: player.name,
+            online: status.online,
+            game: status.gameType
+        });
     }
-    for (status of statusArray )
+    for (status of statusArray)
         embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
     embed.description(embed._description);
-    bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable })
+    bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable });
 }
