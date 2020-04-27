@@ -334,6 +334,7 @@ async function updateOnlineStatus() {
     embed._description = "";
     embed.title("Online Status");
     embed.color("#00FF00");
+    let statusArray;
     for (let member of guildMembers) {
         const status = await api.getStatus(member);
         const player = await api.getPlayerByUUID(member);
