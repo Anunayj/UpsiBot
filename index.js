@@ -346,7 +346,7 @@ async function updateOnlineStatus() {
         })
     }
     for (status of statusArray )
-        embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
+        embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
     embed.description(embed._description);
     bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable })
 }
