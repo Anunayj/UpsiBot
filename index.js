@@ -297,24 +297,19 @@ async function getStats(username, exploit = true) {
         }
         if (utils.isIn(member, ['experience_skill_alchemy'])) {
             skill =
-                parseInt(((utils.fromExp(member.experience_skill_alchemy) +
+                ((utils.fromExp(member.experience_skill_alchemy) +
                     utils.fromExp(member.experience_skill_combat) +
                     utils.fromExp(member.experience_skill_enchanting) +
                     utils.fromExp(member.experience_skill_farming) +
                     utils.fromExp(member.experience_skill_fishing) +
                     utils.fromExp(member.experience_skill_foraging) +
-                    utils.fromExp(member.experience_skill_mining)) / 7).toFixed(2));
+                    utils.fromExp(member.experience_skill_mining)) / 7).toFixed(2);
         }
         if (member.slayer_bosses !== undefined && member.slayer_bosses.zombie.xp !== undefined) {
             slayer.w = member.slayer_bosses.wolf.xp || 0;
             slayer.s = member.slayer_bosses.spider.xp || 0;
             slayer.z = member.slayer_bosses.zombie.xp || 0;
             slayer.xp = slayer.z + slayer.s + slayer.w;
-        } else {
-            slayer.w = 0;
-            slayer.s = 0;
-            slayer.z = 0;
-            slayer.xp = 0;
         }
         profiles[pf.cute_name] = { minions: minions, skills: skill, slayer: slayer };
         if (member.inv_contents !== undefined) {
