@@ -284,7 +284,7 @@ async function stats(msg, args) {
     embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
     for (var profile in res.stats) {
         let pf = res.stats[profile];
-        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills}\n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.talismans}`);
+        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills.toFixed(2)}\n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.talismans}`);
     }
     timeTaken = new Date(Date.now() - timeStart);
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
