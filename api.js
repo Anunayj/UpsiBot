@@ -31,13 +31,11 @@ class Client{
         else throw "Invalid Username";
     }
     async getGuild(uuid){
-        //https://api.hypixel.net/guild?key=&id=5e7761818ea8c93927ad570a
         let res = await c(baseURL).path("guild").query({key:this.#key,id:uuid}).send();
         if(res.statusCode===200) return (await res.json()).guild;
         else throw "Invalid UUID";
     }
     async getStatus(uuid){
-        //https://api.hypixel.net/guild?key=&id=5e7761818ea8c93927ad570a
         let res = await c(baseURL).path("status").query({key:this.#key,uuid}).send();
         if(res.statusCode===200) return (await res.json()).session;
         else throw "Invalid UUID";

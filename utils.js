@@ -71,8 +71,8 @@ module.exports = {
             for (const item of this.itr(api.parseInventory(inv), api)) {
                 if (weights[item.ExtraAttributes.id] !== undefined) totalWorth += weights[item.ExtraAttributes.id];
                 if (item.ExtraAttributes.id == "MIDAS_SWORD") totalWorth += item.ExtraAttributes.winning_bid / 1000000;
-                if (item.ExtraAttributes.id == "SCORPION_FOIL") totalWorth += 5 + item.ExtraAttributes.wood_singularity_count * 2;
-                if (item.ExtraAttributes.id == "TACTICIAN_SWORD") totalWorth += item.ExtraAttributes.wood_singularity_count * 2;
+                if (item.ExtraAttributes.id == "SCORPION_FOIL") totalWorth += 5 + (item.ExtraAttributes.wood_singularity_count ? 2 : 0);
+                if (item.ExtraAttributes.id == "TACTICIAN_SWORD") totalWorth += (item.ExtraAttributes.wood_singularity_count ? 2 : 0);
                 if ((!duplicates.includes(item.ExtraAttributes.id)) || exploit) {
                     totalTalisman += this.getTalismanValue(item);
                     duplicates.push(item.ExtraAttributes.id);

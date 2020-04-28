@@ -152,13 +152,17 @@ async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     bot.sendChannelTyping(msg.channel.id);
     let timeStart = Date.now();
-    let timeTaken = new Date();
-    let exploit = true;
-    let showAll = false;
-    let simple = false;
-    if (args.join("").includes("explot")) exploit = false;
-    if (args.join("").includes("all")) showAll = true;
-    if (args.join("").includes("simple")) simple = true;
+    // let timeTaken = new Date();
+    // let exploit = true;
+    // let showAll = false;
+    // let simple = false;
+    // if (args.join("").includes("explot")) exploit = false;
+    // if (args.join("").includes("all")) showAll = true;
+    // if (args.join("").includes("simple")) simple = true;
+    let exploit = !args.join("").includes("explot");
+    let showAll = args.join("").includes("all");
+    let simple = args.join("").includes("simple");
+
     let embed = bot.createEmbed(msg.channel.id);
     let res = await getStats(args[0], exploit);
     if (typeof(res) !== typeof({})) {
@@ -169,10 +173,15 @@ async function checkRequirements(msg, args) {
     if (simple) {
         for (var profId in res.stats) {
             let prof = res.stats[profId];
-            embed.field(profId, `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle"} - Minions: ${prof.minions}/${vals.minions} ${(prof.minions < vals.minions ? "Craft them ~~slaves~~minions" : "")}\n${parseFloat(prof.skill) >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${parseFloat(prof.skills).toFixed(2)}/${vals.skills} ${(prof.skills < 18 ? "Less talky talky, more grindy grindy" : (parseFloat(prof.skills - vals.skills).toFixed(2)) + " higher skill average")}\n${prof.slayer.xp >= vals.slayer.xp ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} ${prof.slayer.xp < vals.slayer.xp ? "Noob, do " + (vals.slayer.xp - prof.slayer.xp) / 500 + " more t4s" : ""}\n${prof.wealth >= 19 ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth}/${vals.wealth} ${vals.wealth < 19 ? "Haha u broke kid" : ""}\n${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans} ${prof.talismans < vals.talismans ? "Talismans. Now. U bot." : ""}`);
+            embed.field(profId, 
+                `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n`+
+                `${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills}\n` +
+                `${prof.slayer.xp >= vals.slayer.xp ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n`+
+                `${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth} points/${vals.wealth} \n`+
+                `${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`);
         }
-        embed.color("#FFFFFF");
-        timeTaken = new Date(Date.now() - timeStart);
+        embed.color("#FFA500");
+        let timeTaken = new Date(Date.now() - timeStart);
         embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
         await embed.send();
         return;
@@ -228,9 +237,10 @@ async function checkRequirements(msg, args) {
                 `Skills: ${skill.toFixed(2)} ${skill >= vals.skills ? ":green_circle:" : ":red_circle:"}` +
                 `, Minions: ${crafts} ${crafts >= vals.minions ? ":green_circle:" : ":red_circle:"}`);
         }
+        // embed.field("Requirements:","")
         embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
         embed.color(mainColor);
-        timeTaken = new Date(Date.now() - timeStart);
+        let timeTaken = new Date(Date.now() - timeStart);
         embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
         embed.color(mainColor);
         embed.send();
@@ -297,13 +307,13 @@ async function getStats(username, exploit = true) {
         }
         if (utils.isIn(member, ['experience_skill_alchemy'])) {
             skill =
-                ((utils.fromExp(member.experience_skill_alchemy) +
+                (utils.fromExp(member.experience_skill_alchemy) +
                     utils.fromExp(member.experience_skill_combat) +
                     utils.fromExp(member.experience_skill_enchanting) +
                     utils.fromExp(member.experience_skill_farming) +
                     utils.fromExp(member.experience_skill_fishing) +
                     utils.fromExp(member.experience_skill_foraging) +
-                    utils.fromExp(member.experience_skill_mining)) / 7).toFixed(2);
+                    utils.fromExp(member.experience_skill_mining)) / 7;
         }
         if (member.slayer_bosses !== undefined && member.slayer_bosses.zombie.xp !== undefined) {
             slayer.w = member.slayer_bosses.wolf.xp || 0;
