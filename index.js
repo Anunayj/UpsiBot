@@ -152,13 +152,6 @@ async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     bot.sendChannelTyping(msg.channel.id);
     let timeStart = Date.now();
-    // let timeTaken = new Date();
-    // let exploit = true;
-    // let showAll = false;
-    // let simple = false;
-    // if (args.join("").includes("explot")) exploit = false;
-    // if (args.join("").includes("all")) showAll = true;
-    // if (args.join("").includes("simple")) simple = true;
     let exploit = !args.join("").includes("explot");
     let showAll = args.join("").includes("all");
     let simple = args.join("").includes("simple");
@@ -255,6 +248,27 @@ bot.registerCommand("stats", stats, {
     cooldown: 3000,
     cooldownMessage: "Chill b*tch!"
 });
+
+bot.registerCommand("online", isOnline, {
+    description: "Check Player online!",
+    fullDescription: "Chck whether a person is online",
+    argsRequired: true,
+    usage: `online <username>`,
+    cooldown: 3000,
+    cooldownMessage: "... Let me fish in Peace"
+});
+
+async function isOnline(msg,args) {
+    let player;
+    try{
+        player = await api.getPlayer(args[0]);
+    }catch{
+        return("Player not Found");
+    }
+    const status = await api.getStatus(player.id);
+    return status.online ? `:green_circle: ${args[0]} is online playing ${status.gameType.charAt(0).toUpperCase() + status.gameType.slice(1).toLowerCase()}  ` : `:red_circle: ${args[0]} is offline`;
+}
+
 
 async function stats(msg, args) {
     bot.sendChannelTyping(msg.channel.id);
