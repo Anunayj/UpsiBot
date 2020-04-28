@@ -170,7 +170,7 @@ async function checkRequirements(msg, args) {
                 `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n`+
                 `${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills}\n` +
                 `${prof.slayer.xp >= vals.slayer.xp ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n`+
-                `${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth} points/${vals.wealth} \n`+
+                `${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`+
                 `${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`);
         }
         embed.color("#FFA500");
@@ -284,7 +284,7 @@ async function stats(msg, args) {
     embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
     for (var profile in res.stats) {
         let pf = res.stats[profile];
-        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills}\n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth}\n**Talismans:**\n${pf.talismans}`);
+        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills}\n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.talismans}`);
     }
     timeTaken = new Date(Date.now() - timeStart);
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
@@ -339,7 +339,7 @@ async function getStats(username, exploit = true) {
         if (member.inv_contents !== undefined) {
             let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
             let totals = await utils.checkWealthAndTalis(items, exploit, api);
-            profiles[pf.cute_name].wealth = totals[0];
+            profiles[pf.cute_name].wealth = totals[0]+(prof.profile.banking ? (prof.profile.banking.balance)/1000000 : 0 ) + member.coin_purse/1000000;
             profiles[pf.cute_name].talismans = totals[1];
         } else {
             profiles[pf.cute_name].wealth = 0;
