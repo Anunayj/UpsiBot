@@ -371,6 +371,7 @@ async function updateOnlineStatus() {
             game: status.gameType
         });
     }
+    statusArray.sort((a,b) => !(a.online^b.online) ? (a.name>b.name ? 1 : -1) : (a.online ? -1 : 1));
     for (status of statusArray)
         embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
     embed.description(embed._description);
