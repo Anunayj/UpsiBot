@@ -208,6 +208,8 @@ async function checkRequirements(msg, args) {
                 if (colors[i] == "red" || colors[i] == "blue") {
                     if (types[i] == "Slayer") {
                         todo.push(`${types[i]} (${prof.slayer.xp} | ${prof.slayer.z}/${prof.slayer.s}/${prof.slayer.w})`);
+                    } else if(["Skills","Wealth"].includes(types[i])) {
+                        todo.push(`${types[i]} (${prof[types[i].toLowerCase()].toFixed(2)})`);
                     } else {
                         todo.push(`${types[i]} (${prof[types[i].toLowerCase()]})`);
                     }
