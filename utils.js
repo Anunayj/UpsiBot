@@ -102,6 +102,7 @@ module.exports = {
             const id = item.tag.ExtraAttributes.id;
             // Or do you like:if(backpacks.includes(id)) for (let j of itr(api.parseInventory(item.tag.ExtraAttributes[id.toLowerCase()+"_data"]))) yield j;
             if (backpackid.includes(id)) {
+                if(item.tag.ExtraAttributes[id.toLowerCase() + "_data"] === undefined) continue;
                 const back = this.itr(api.parseInventory(item.tag.ExtraAttributes[id.toLowerCase() + "_data"]));
                 for (let j of back) {
                     yield j;
