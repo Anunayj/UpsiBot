@@ -339,7 +339,8 @@ async function getStats(username, exploit = true) {
         }
         profiles[pf.cute_name] = { minions: minions, skills: skill, slayer: slayer };
         if (member.inv_contents !== undefined) {
-            let items = [member.talisman_bag.data, member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
+            let items = [member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
+            if(member.talisman_bag!==undefined) items.push(member.talisman_bag.data);
             let totals = await utils.checkWealthAndTalis(items, exploit, api);
             profiles[pf.cute_name].wealth = totals[0]+(prof.profile.banking ? (prof.profile.banking.balance)/1000000 : 0 ) + member.coin_purse/1000000;
             profiles[pf.cute_name].talismans = totals[1];
