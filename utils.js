@@ -150,6 +150,8 @@ module.exports = {
             return val ? ":green_circle:" : ":red_circle:";
         } else {
             switch (val) {
+                case -1:
+                    return ":yellow_circle:";
                 case 0:
                     return ":green_circle:";
                 default:

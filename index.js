@@ -170,8 +170,8 @@ async function checkRequirements(msg, args) {
                 `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n`+
                 `${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills}\n` +
                 `${prof.slayer.xp >= vals.slayer.xp ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n`+
-                `${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`+
-                `${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`);
+                 (prof.wealth===-1 ? ":yellow_circle: Enable API\n" : (`${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`))+
+                 (prof.wealth===-1 ? ":yellow_circle: Enable API" : (`${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`)));
         }
         embed.color("#FFA500");
         let timeTaken = new Date(Date.now() - timeStart);
@@ -182,7 +182,7 @@ async function checkRequirements(msg, args) {
         let mainColor = "#FF0000";
         for (var profId in res.stats) {
             let prof = res.stats[profId];
-            let text = utils.circle(prof.minions >= vals.minions) + utils.circle(prof.skills >= vals.skills) + utils.circle(prof.slayer.xp >= vals.slayer.xp && ((prof.slayer.z >= vals.slayer.minimumHighestSlayer) || (prof.slayer.s >= vals.slayer.minimumHighestSlayer) || (prof.slayer.w >= vals.slayer.minimumHighestSlayer)) ? 0 : prof.slayer.xp == 0 ? 2 : 1) + utils.circle(prof.wealth >= vals.wealth) + utils.circle(prof.talismans >= vals.talismans);
+            let text = utils.circle(prof.minions >= vals.minions) + utils.circle(prof.skills >= vals.skills) + utils.circle(prof.slayer.xp >= vals.slayer.xp && ((prof.slayer.z >= vals.slayer.minimumHighestSlayer) || (prof.slayer.s >= vals.slayer.minimumHighestSlayer) || (prof.slayer.w >= vals.slayer.minimumHighestSlayer)) ? 0 : prof.slayer.xp == 0 ? 2 : 1) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.wealth >= vals.wealth)) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.talismans >= vals.talismans));
             embed.field(`${profId}`, text);
             if (mainColor != "#00FF00") {
                 if (text.includes("yellow")) {
@@ -345,8 +345,8 @@ async function getStats(username, exploit = true) {
             profiles[pf.cute_name].wealth = totals[0]+(prof.profile.banking ? (prof.profile.banking.balance)/1000000 : 0 ) + member.coin_purse/1000000;
             profiles[pf.cute_name].talismans = totals[1];
         } else {
-            profiles[pf.cute_name].wealth = 0;
-            profiles[pf.cute_name].talismans = 0;
+            profiles[pf.cute_name].wealth = -1;
+            profiles[pf.cute_name].talismans = -1;
         }
     }
     res.stats = profiles;
