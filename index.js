@@ -144,10 +144,8 @@ bot.registerCommand("req", checkRequirements, {
     argsRequired: true,
     usage: `rep <username>`,
     cooldown: 1000,
-    cooldownMessage: "Try using ~stats instead!"
+    cooldownMessage: "Slow down!!"
 });
-
-
 
 async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
@@ -167,12 +165,12 @@ async function checkRequirements(msg, args) {
     if (simple) {
         for (var profId in res.stats) {
             let prof = res.stats[profId];
-            embed.field(profId, 
-                `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n`+
-                `${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills}\n` +
-                `${prof.slayer.xp >= vals.slayer.xp ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n`+
-                 (prof.wealth===-1 ? ":yellow_circle: Enable API\n" : (`${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`))+
-                 (prof.wealth===-1 ? ":yellow_circle: Enable API" : (`${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`)));
+            embed.field(profId,
+                `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n` +
+                `${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills} (${prof.skills_t.toFixed(2)} + Taming)\n` +
+                `${prof.slayer.xp >= vals.slayer.xp ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n` +
+                (prof.wealth === -1 ? ":yellow_circle: Enable API\n" : (`${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`)) +
+                (prof.wealth === -1 ? ":yellow_circle: Enable API" : (`${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`)));
         }
         embed.color("#FFA500");
         let timeTaken = new Date(Date.now() - timeStart);
@@ -209,7 +207,7 @@ async function checkRequirements(msg, args) {
                 if (colors[i] == "red" || colors[i] == "blue") {
                     if (types[i] == "Slayer") {
                         todo.push(`${types[i]} (${prof.slayer.xp} | ${prof.slayer.z}/${prof.slayer.s}/${prof.slayer.w})`);
-                    } else if(["Skills","Wealth"].includes(types[i])) {
+                    } else if (["Skills", "Wealth"].includes(types[i])) {
                         todo.push(`${types[i]} (${prof[types[i].toLowerCase()].toFixed(2)})`);
                     } else {
                         todo.push(`${types[i]} (${prof[types[i].toLowerCase()]})`);
@@ -249,7 +247,7 @@ bot.registerCommand("stats", stats, {
     argsRequired: true,
     usage: `stats <username>`,
     cooldown: 3000,
-    cooldownMessage: "Chill b*tch!"
+    cooldownMessage: "Chill b*tch!",
 });
 
 bot.registerCommand("online", isOnline, {
@@ -261,12 +259,12 @@ bot.registerCommand("online", isOnline, {
     cooldownMessage: "... Let me fish in Peace"
 });
 
-async function isOnline(msg,args) {
+async function isOnline(msg, args) {
     let player;
-    try{
+    try {
         player = await api.getPlayer(args[0]);
-    }catch{
-        return("Player not Found");
+    } catch {
+        return ("Player not Found");
     }
     const status = await api.getStatus(player.id);
     return status.online ? `:green_circle: ${args[0]} is online playing ${status.gameType.charAt(0).toUpperCase() + status.gameType.slice(1).toLowerCase()}  ` : `:red_circle: ${args[0]} is offline`;
@@ -287,7 +285,7 @@ async function stats(msg, args) {
     embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
     for (var profile in res.stats) {
         let pf = res.stats[profile];
-        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills.toFixed(2)}\n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth===-1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth===-1 ? "Enable API" : pf.talismans}`);
+        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills.toFixed(2)} (${pf.skills_t.toFixed(2)} + Taming)\n With Progress:\n${pf.skills2.toFixed(2)} (${pf.skills2_t.toFixed(2)} + Taming)\n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth === -1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth === -1 ? "Enable API" : pf.talismans}`);
     }
     timeTaken = new Date(Date.now() - timeStart);
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
@@ -317,20 +315,31 @@ async function getStats(username, exploit = true) {
         let member = prof.profile.members[player.id];
         let minions = 0;
         let skill = 0;
+        let skill_t = 0;
+        let pskill = 0;
+        let pskill_t = 0;
         let slayer = { xp: 0, z: 0, s: 0, w: 0 };
         for (const member of Object.values(prof.profile.members)) {
             if (!('crafted_generators' in member)) continue;
             minions += member.crafted_generators.length;
         }
         if (utils.isIn(member, ['experience_skill_alchemy'])) {
-            skill =
-                (utils.fromExp(member.experience_skill_alchemy) +
-                    utils.fromExp(member.experience_skill_combat) +
-                    utils.fromExp(member.experience_skill_enchanting) +
-                    utils.fromExp(member.experience_skill_farming) +
-                    utils.fromExp(member.experience_skill_fishing) +
-                    utils.fromExp(member.experience_skill_foraging) +
-                    utils.fromExp(member.experience_skill_mining)) / 7;
+            let combat = utils.fromExp(member.experience_skill_combat),
+                farming = utils.fromExp(member.experience_skill_farming),
+                fishing = utils.fromExp(member.experience_skill_fishing),
+                foraging = utils.fromExp(member.experience_skill_foraging),
+                mining = utils.fromExp(member.experience_skill_mining),
+                alchemy = utils.fromExp(member.experience_skill_alchemy),
+                enchanting = utils.fromExp(member.experience_skill_enchanting),
+                taming = utils.fromExp(member.experience_skill_taming);
+            skill = combat.a + farming.a + fishing.a + foraging.a + mining.a + alchemy.a + enchanting.a;
+            skill_t = skill + taming.a;
+            skill = skill / 7;
+            skill_t = skill_t / 8;
+            pskill = combat.b + farming.b + fishing.b + foraging.b + mining.b + alchemy.b + enchanting.b;
+            pskill_t = pskill + taming.b;
+            pskill = pskill / 7;
+            pskill_t = pskill_t / 8;
         }
         if (member.slayer_bosses !== undefined && member.slayer_bosses.zombie.xp !== undefined) {
             slayer.w = member.slayer_bosses.wolf.xp || 0;
@@ -338,12 +347,12 @@ async function getStats(username, exploit = true) {
             slayer.z = member.slayer_bosses.zombie.xp || 0;
             slayer.xp = slayer.z + slayer.s + slayer.w;
         }
-        profiles[pf.cute_name] = { minions: minions, skills: skill, slayer: slayer };
+        profiles[pf.cute_name] = { minions: minions, skills: skill, skills_t: skill_t, skills2: pskill, skills2_t: pskill_t, slayer: slayer };
         if (member.inv_contents !== undefined) {
             let items = [member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
-            if(member.talisman_bag!==undefined) items.push(member.talisman_bag.data);
+            if (member.talisman_bag !== undefined) items.push(member.talisman_bag.data);
             let totals = await utils.checkWealthAndTalis(items, exploit, api);
-            profiles[pf.cute_name].wealth = totals[0]+(prof.profile.banking ? (prof.profile.banking.balance)/1000000 : 0 ) + member.coin_purse/1000000;
+            profiles[pf.cute_name].wealth = totals[0] + (prof.profile.banking ? (prof.profile.banking.balance) / 1000000 : 0) + member.coin_purse / 1000000;
             profiles[pf.cute_name].talismans = totals[1];
         } else {
             profiles[pf.cute_name].wealth = -1;
@@ -353,29 +362,29 @@ async function getStats(username, exploit = true) {
     res.stats = profiles;
     return res;
 }
-setInterval(updateOnlineStatus, 1000 * 60 * 5);
-async function updateOnlineStatus() {
-    const guild = await api.getGuild("5e7761818ea8c93927ad570a");
-    const guildMembers = guild.members.map(members => members.uuid);
-    let embed = bot.createEmbed();
-    embed._description = "";
-    embed.title("Online Status");
-    embed.color("#00FF00");
-    let statusArray = [];
-    for (let member of guildMembers) {
-        const status = await api.getStatus(member);
-        const player = await api.getPlayerByUUID(member);
-        // embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
-        statusArray.push({
-            uuid: player.id,
-            name: player.name,
-            online: status.online,
-            game: status.gameType
-        });
-    }
-    statusArray.sort((a,b) => !(a.online^b.online) ? (a.name>b.name ? 1 : -1) : (a.online ? -1 : 1));
-    for (status of statusArray)
-        embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
-    embed.description(embed._description);
-    bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable });
-}
+// setInterval(updateOnlineStatus, 1000 * 60 * 5);
+// async function updateOnlineStatus() {
+//     const guild = await api.getGuild("5e7761818ea8c93927ad570a");
+//     const guildMembers = guild.members.map(members => members.uuid);
+//     let embed = bot.createEmbed();
+//     embed._description = "";
+//     embed.title("Online Status");
+//     embed.color("#00FF00");
+//     let statusArray = [];
+//     for (let member of guildMembers) {
+//         const status = await api.getStatus(member);
+//         const player = await api.getPlayerByUUID(member);
+//         // embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
+//         statusArray.push({
+//             uuid: player.id,
+//             name: player.name,
+//             online: status.online,
+//             game: status.gameType
+//         });
+//     }
+//     statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name > b.name ? 1 : -1) : (a.online ? -1 : 1));
+//     for (status of statusArray)
+//         embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
+//     embed.description(embed._description);
+//     bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable });
+// }

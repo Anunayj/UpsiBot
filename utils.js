@@ -102,7 +102,7 @@ module.exports = {
             const id = item.tag.ExtraAttributes.id;
             // Or do you like:if(backpacks.includes(id)) for (let j of itr(api.parseInventory(item.tag.ExtraAttributes[id.toLowerCase()+"_data"]))) yield j;
             if (backpackid.includes(id)) {
-                if(item.tag.ExtraAttributes[id.toLowerCase() + "_data"] === undefined) continue;
+                if (item.tag.ExtraAttributes[id.toLowerCase() + "_data"] === undefined) continue;
                 const back = this.itr(api.parseInventory(item.tag.ExtraAttributes[id.toLowerCase() + "_data"]));
                 for (let j of back) {
                     yield j;
@@ -163,13 +163,18 @@ module.exports = {
         }
     },
     fromExp: function(exp) {
-        var i = 0;
-        for (var xp of Object.values(this.leveling_xp)) {
+        if (exp >= this.leveling_xp[50])
+            return { a: 50, b: 50, c: exp };
+        for (var i in Object.values(this.leveling_xp)) {
+            let xp = this.leveling_xp[i];
             if (exp < xp) {
-                return i - 1;
+                return {
+                    a: (i - 1),
+                    b: (i - 1) + Math.max(0, Math.min((exp - this.leveling_xp[i - 1]) / (xp - this.leveling_xp[i - 1]), 1)),
+                    c: exp
+                };
             }
-            i++;
         }
-        return 0;
+        return { a: 0, b: 0, c: exp };
     }
 };
