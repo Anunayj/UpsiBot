@@ -362,29 +362,29 @@ async function getStats(username, exploit = true) {
     res.stats = profiles;
     return res;
 }
-// setInterval(updateOnlineStatus, 1000 * 60 * 5);
-// async function updateOnlineStatus() {
-//     const guild = await api.getGuild("5e7761818ea8c93927ad570a");
-//     const guildMembers = guild.members.map(members => members.uuid);
-//     let embed = bot.createEmbed();
-//     embed._description = "";
-//     embed.title("Online Status");
-//     embed.color("#00FF00");
-//     let statusArray = [];
-//     for (let member of guildMembers) {
-//         const status = await api.getStatus(member);
-//         const player = await api.getPlayerByUUID(member);
-//         // embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
-//         statusArray.push({
-//             uuid: player.id,
-//             name: player.name,
-//             online: status.online,
-//             game: status.gameType
-//         });
-//     }
-//     statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name > b.name ? 1 : -1) : (a.online ? -1 : 1));
-//     for (status of statusArray)
-//         embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
-//     embed.description(embed._description);
-//     bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable });
-// }
+setInterval(updateOnlineStatus, 1000 * 60 * 5);
+async function updateOnlineStatus() {
+    const guild = await api.getGuild("5e7761818ea8c93927ad570a");
+    const guildMembers = guild.members.map(members => members.uuid);
+    let embed = bot.createEmbed();
+    embed._description = "";
+    embed.title("Online Status");
+    embed.color("#00FF00");
+    let statusArray = [];
+    for (let member of guildMembers) {
+        const status = await api.getStatus(member);
+        const player = await api.getPlayerByUUID(member);
+        // embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
+        statusArray.push({
+            uuid: player.id,
+            name: player.name,
+            online: status.online,
+            game: status.gameType
+        });
+    }
+    statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name > b.name ? 1 : -1) : (a.online ? -1 : 1));
+    for (status of statusArray)
+        embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
+    embed.description(embed._description);
+    bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable });
+}
