@@ -77,6 +77,24 @@ module.exports = {
                     totalTalisman += this.getTalismanValue(item);
                     duplicates.push(item.ExtraAttributes.id);
                 }
+                const PerfectReg = item.ExtraAttributes.id.match(/PERFECT_(.*)_(\d*)/);
+                if (PerfectReg!==null){
+                    switch(PerfectReg[1]){
+                        case "BOOTS":
+                            totalWorth += 0.8196;
+                            break;
+                        case "CHESTPLATE":
+                            totalWorth += 1.6392;
+                            break;
+                        case "LEGGINGS":
+                            totalWorth += 1.4343;
+                            break;
+                        case "HELMET":
+                            totalWorth += 1.0245;
+                            break;
+                    }
+                    totalWorth+=(parseInt(PerfectReg[2])-1)*0.8196;
+                }
                 // Uncomment this if it becomes too laggy
                 // if (totalWorth >= vals.wealth && totalTalisman >= vals.talismans) break;
             }

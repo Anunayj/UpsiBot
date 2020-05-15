@@ -42,5 +42,7 @@
     "THE_SHREDDER":7,
     "LEGEND_ROD":10,
     "CHAMPION_ROD":2,
-    "INK_WAND":2
+    "INK_WAND":2,
+    "REVIVED_HEART":6,
+    "REAPER_MASK":12
 }
