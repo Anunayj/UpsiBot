@@ -3,9 +3,10 @@ const Eris = require("eris");
 const hypixel = require("./api");
 const fs = require("fs");
 const utils = require("./utils");
-const vals = require("./check_values.json");
+const vals = require("./config.json");
 const { NodeVM } = require('vm2');
 let tokens = {};
+let guildMemberList = null;
 try {
     tokens = require('./env.json');
     console.log("Got tokens");
@@ -37,7 +38,7 @@ async function runInVm(msg) {
         sandbox: {}
     });
     vm.freeze(api, 'api');
-    let output = await bot.createMessage(msg.channel.id, "Output:");
+    let output = await bot.createMessage(msg.channel.id, "Output:").catch(e => console.log(e));
     vm.on('console.log', (data) => {
         output.edit(output.content += `\n${JSON.stringify(data)}`);
     });
@@ -107,7 +108,11 @@ class splashNotifier {
                     msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
                     const title = msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i);
                     if (title !== null) msgtoEdit.embeds[0].title = title[0];
+                    try{
                     await bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, { embed: msgtoEdit.embeds[0] });
+                    }catch(e){
+                        console.error(e);
+                    }
                 }
             } else {
                 // So you don't do the bit after every time
@@ -237,7 +242,7 @@ async function checkRequirements(msg, args) {
         let timeTaken = new Date(Date.now() - timeStart);
         embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
         embed.color(mainColor);
-        embed.send();
+        embed.send().catch(e => console.error(e));
     }
 }
 
@@ -382,9 +387,51 @@ async function updateOnlineStatus() {
             game: status.gameType
         });
     }
-    statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name > b.name ? 1 : -1) : (a.online ? -1 : 1));
+    guildMemberList = utils.deepCopy(statusArray);
+    statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1) : (a.online ? -1 : 1));
     for (status of statusArray)
         embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
     embed.description(embed._description);
-    bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable });
+    bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable }).catch(e => console.error(e));
+}
+
+updateLeaderboards();
+setInterval(updateOnlineStatus, 1000 * 60 * 60);
+async function updateLeaderboards(){
+    if(guildMemberList===null){
+        try{
+            await updateOnlineStatus();
+        }catch(e){
+            console.error(e);
+            return;
+        }
+    }
+
+    for(const i in guildMemberList){
+        const hyplayer = await api.gethypixelPlayer(guildMemberList[i].uuid);
+        guildMemberList[i].minions = hyplayer.player.achievements.skyblock_minion_love;
+        guildMemberList[i].fishing = hyplayer.player.achievements.skyblock_angler;
+        guildMemberList[i].foraging = hyplayer.player.achievements.skyblock_gatherer;
+        guildMemberList[i].mining = hyplayer.player.achievements.skyblock_excavator;
+        guildMemberList[i].farming = hyplayer.player.achievements.skyblock_harvester;
+        guildMemberList[i].enchanting = hyplayer.player.achievements.skyblock_augmentation;
+        guildMemberList[i].alchemy = hyplayer.player.achievements.skyblock_concoctor;
+        guildMemberList[i].combat = hyplayer.player.achievements.skyblock_combat;
+
+    }
+    const createEmbed = (array,sortSkill) => {
+        embed = bot.createEmbed();
+        array.sort((a,b) => a[sortSkill] - b[sortSkill]);
+        //Create Embed description
+        embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1))
+        embed.description("Anunay: Over 9000")
+        return embed.sendable;
+    }
+    for(skillName of Object.keys(vals.skillMessage)){
+        bot.editMessage("710169629271785513", vals.skillMessage[skillName], { content: "", embed: createEmbed(guildMemberList,skillName) }).catch(e => console.error(e)); 
+    }
+    
+
+
+
 }

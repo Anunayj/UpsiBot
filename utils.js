@@ -1,7 +1,26 @@
 const weights = require("./weights.json");
-const vals = require("./check_values.json");
+const vals = require("./config.json");
 
 module.exports = {
+    deepCopy: function(inObject){
+        let outObject, value, key
+      
+        if (typeof inObject !== "object" || inObject === null) {
+          return inObject // Return the value if inObject is not an object
+        }
+      
+        // Create an array or object to hold the values
+        outObject = Array.isArray(inObject) ? [] : {}
+      
+        for (key in inObject) {
+          value = inObject[key]
+      
+          // Recursively (deep) copy for nested objects, including arrays
+          outObject[key] = this.deepCopy(value)
+        }
+      
+        return outObject
+      },
     leveling_xp: {
         0: 0,
         1: 50,
@@ -95,6 +114,7 @@ module.exports = {
                     }
                     totalWorth+=(parseInt(PerfectReg[2])-1)*0.8196;
                 }
+                
                 // Uncomment this if it becomes too laggy
                 // if (totalWorth >= vals.wealth && totalTalisman >= vals.talismans) break;
             }

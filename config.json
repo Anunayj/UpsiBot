@@ -1,0 +1,20 @@
+{
+    "minions": 275,
+    "skills": 18,
+    "slayer": {
+        "xp": 30000,
+        "minimumHighestSlayer": 20000
+    },
+    "wealth": 19,
+    "talismans": 235,
+    "skillMessage":{
+        "minions": "710183394000240721",
+        "fishing": "710180758467248149",
+        "foraging": "710181406738874400",
+        "mining": "710181146872250419",
+        "farming": "710180313363382355",
+        "enchanting": "710181232327262209",
+        "alchemy": "710180288172523561",
+        "combat":"710180240282091561"
+    }
+}
