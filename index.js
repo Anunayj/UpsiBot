@@ -396,7 +396,7 @@ async function updateOnlineStatus() {
 }
 
 updateLeaderboards();
-setInterval(updateOnlineStatus, 1000 * 60 * 60);
+setInterval(updateOnlineStatus, 1000 * 60 * 60 * 24);
 async function updateLeaderboards(){
     if(guildMemberList===null){
         try{
@@ -409,7 +409,7 @@ async function updateLeaderboards(){
 
     for(const i in guildMemberList){
         const hyplayer = await api.gethypixelPlayer(guildMemberList[i].uuid);
-        guildMemberList[i].minions = hyplayer.player.achievements.skyblock_minion_love;
+        guildMemberList[i].minions = hyplayer.player.achievements.skyblock_minion_lover;
         guildMemberList[i].fishing = hyplayer.player.achievements.skyblock_angler;
         guildMemberList[i].foraging = hyplayer.player.achievements.skyblock_gatherer;
         guildMemberList[i].mining = hyplayer.player.achievements.skyblock_excavator;
@@ -417,14 +417,20 @@ async function updateLeaderboards(){
         guildMemberList[i].enchanting = hyplayer.player.achievements.skyblock_augmentation;
         guildMemberList[i].alchemy = hyplayer.player.achievements.skyblock_concoctor;
         guildMemberList[i].combat = hyplayer.player.achievements.skyblock_combat;
-
+        guildMemberList[i].average = parseFloat(((guildMemberList[i].fishing + guildMemberList[i].foraging + guildMemberList[i].mining + guildMemberList[i].farming + guildMemberList[i].enchanting + guildMemberList[i].alchemy + guildMemberList[i].combat)/7).toFixed(2))
     }
     const createEmbed = (array,sortSkill) => {
         embed = bot.createEmbed();
-        array.sort((a,b) => a[sortSkill] - b[sortSkill]);
-        //Create Embed description
-        embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1))
-        embed.description("Anunay: Over 9000")
+        array.sort((a,b) => b[sortSkill] - a[sortSkill]);
+        //epic hack fix
+        if(sortSkill == "average") 
+            embed._description = "```js\n" + array.reduce((total,now) => (total + now[sortSkill].toFixed(2) + "- " + now.name + "\n") ,"") + "```";
+        else
+        embed._description = "```js\n" + array.reduce((total,now) => (total + now[sortSkill] + "- " + now.name + "\n") ,"") + "```";
+        embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
+        embed.description(embed._description);
+        embed.color("#00AAFF");
+        embed.author("Upsi","https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
         return embed.sendable;
     }
     for(skillName of Object.keys(vals.skillMessage)){
