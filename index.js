@@ -170,10 +170,15 @@ async function checkRequirements(msg, args) {
     if (simple) {
         for (var profId in res.stats) {
             let prof = res.stats[profId];
+            let slayerCheck = false;
+            if (vals.slayer.minimumAsAll) slayerCheck = (prof.slayer.z >= vals.slayer.minimumHighestSlayer && prof.slayer.s >= vals.slayer.minimumHighestSlayer && prof.slayer.w >= vals.slayer.minimumHighestSlayer);
+            else slayerCheck = (prof.slayer.z >= vals.slayer.minimumHighestSlayer || prof.slayer.s >= vals.slayer.minimumHighestSlayer || prof.slayer.w >= vals.slayer.minimumHighestSlayer);
+            if (vals.slayer.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= vals.slayer.xp);
+            else slayerCheck = (slayerCheck || prof.slayer.xp >= vals.slayer.xp);
             embed.field(profId,
                 `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n` +
-                `${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills} (${prof.skills_t.toFixed(2)} + Taming)\n` +
-                `${prof.slayer.xp >= vals.slayer.xp ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n` +
+                `${prof.skills >= vals.skills_t ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills_t.toFixed(2)}/${vals.skills}\n` +
+                `${slayerCheck ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n` +
                 (prof.wealth === -1 ? ":yellow_circle: Enable API\n" : (`${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`)) +
                 (prof.wealth === -1 ? ":yellow_circle: Enable API" : (`${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`)));
         }
@@ -186,7 +191,12 @@ async function checkRequirements(msg, args) {
         let mainColor = "#FF0000";
         for (var profId in res.stats) {
             let prof = res.stats[profId];
-            let text = utils.circle(prof.minions >= vals.minions) + utils.circle(prof.skills >= vals.skills) + utils.circle(prof.slayer.xp >= vals.slayer.xp && ((prof.slayer.z >= vals.slayer.minimumHighestSlayer) || (prof.slayer.s >= vals.slayer.minimumHighestSlayer) || (prof.slayer.w >= vals.slayer.minimumHighestSlayer)) ? 0 : prof.slayer.xp == 0 ? 2 : 1) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.wealth >= vals.wealth)) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.talismans >= vals.talismans));
+            let slayerCheck = false;
+            if (vals.slayer.minimumAsAll) slayerCheck = (prof.slayer.z >= vals.slayer.minimumHighestSlayer && prof.slayer.s >= vals.slayer.minimumHighestSlayer && prof.slayer.w >= vals.slayer.minimumHighestSlayer);
+            else slayerCheck = (prof.slayer.z >= vals.slayer.minimumHighestSlayer || prof.slayer.s >= vals.slayer.minimumHighestSlayer || prof.slayer.w >= vals.slayer.minimumHighestSlayer);
+            if (vals.slayer.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= vals.slayer.xp);
+            else slayerCheck = (slayerCheck || prof.slayer.xp >= vals.slayer.xp);
+            let text = utils.circle(prof.minions >= vals.minions) + utils.circle(prof.skills_t >= vals.skills) + utils.circle(slayerCheck) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.wealth >= vals.wealth)) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.talismans >= vals.talismans));
             embed.field(`${profId}`, text);
             if (mainColor != "#00FF00") {
                 if (text.includes("yellow")) {

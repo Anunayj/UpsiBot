@@ -1,11 +1,13 @@
 {
-    "minions": 275,
-    "skills": 18,
+    "minions": 350,
+    "skills": 20,
     "slayer": {
-        "xp": 30000,
-        "minimumHighestSlayer": 20000
+        "xpAndMinimum": false,
+        "xp": 120000,
+        "minimumHighestSlayer": 20000,
+        "minimumAsAll": true
     },
-    "wealth": 19,
+    "wealth": 50,
     "talismans": 235,
     "skillMessage":{
         "minions": "710183394000240721",

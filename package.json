@@ -13,6 +13,8 @@
     "centra": "^2.4.0",
     "eris": "^0.11.2",
     "eris-embed-builder": "^0.1.2",
+    "foreman": "^3.0.1",
+    "nodemon": "^2.0.3",
     "prismarine-nbt": "^1.2.1",
     "vm2": "^3.9.1"
   }
