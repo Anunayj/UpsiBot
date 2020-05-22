@@ -177,7 +177,7 @@ async function checkRequirements(msg, args) {
             else slayerCheck = (slayerCheck || prof.slayer.xp >= vals.slayer.xp);
             embed.field(profId,
                 `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n` +
-                `${prof.skills >= vals.skills_t ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills_t.toFixed(2)}/${vals.skills}\n` +
+                `${prof.skills_t >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills_t.toFixed(2)}/${vals.skills}\n` +
                 `${slayerCheck ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n` +
                 (prof.wealth === -1 ? ":yellow_circle: Enable API\n" : (`${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`)) +
                 (prof.wealth === -1 ? ":yellow_circle: Enable API" : (`${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`)));
