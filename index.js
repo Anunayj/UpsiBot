@@ -399,7 +399,7 @@ async function updateOnlineStatus() {
 }
 
 updateLeaderboards();
-setInterval(updateOnlineStatus, 1000 * 60 * 60 * 24);
+setInterval(updateLeaderboards, 1000 * 60 * 60 * 3);
 async function updateLeaderboards(){
     if(guildMemberList===null){
         try{
