@@ -1,0 +1,14 @@
+[Unit]
+Description=webhook
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/webhook -hooks hooks.json -ip "000.000.000.000" -port 6969
+WorkingDirectory=/home/pi/projects/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
