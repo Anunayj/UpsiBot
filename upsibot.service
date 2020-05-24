@@ -3,7 +3,11 @@ Description=UpsiBot
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/nodemon index.js
+Environment=mainToken=
+Environment=scraperToken=
+Environment=hypixelToken=
+
+ExecStart=/usr/bin/nodemon index.js --delay 15
 WorkingDirectory=/home/pi/projects/upsibot/
 StandardOutput=inherit
 StandardError=inherit
