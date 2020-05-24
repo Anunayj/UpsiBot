@@ -9,6 +9,9 @@
     },
     "wealth": 50,
     "talismans": 235,
+    "guildID":"5e7761818ea8c93927ad570a",
+    "skillChannel": "710169629271785513",
+    "onlineStatus": {"channel": "703971841643118593","message":"703972163224338532"},
     "skillMessage":{
         "minions": "710183394000240721",
         "fishing": "710180758467248149",

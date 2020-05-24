@@ -62,11 +62,10 @@ bot.registerCommand("run", runInVm, {
 });
 
 class splashNotifier {
-    constructor(channel) {
-        this.channel = channel;
+    constructor() {
         this.pastMessages = {};
-        this.splashSendChannels = undefined;
-        this.splashReceiveChannels = undefined;
+        this.splashSendChannels = require("./splashSendChannels.json");
+        this.splashReceiveChannels = require("./splashReceiveChannels.json");
     }
 
     sendSplashNotification(msgList) {
@@ -74,7 +73,7 @@ class splashNotifier {
             return now.cleanContent + "\n" + total;
         }, "");
         if (totalmsg.match(/\d+\s?K/i) !== null) return;
-        let embed = bot.createEmbed(this.channel);
+        let embed = bot.createEmbed();
         const title = totalmsg.match(/((party|p) join \w+|HUB\s?\d+)/i);
         if (title !== null) embed.title(title[0]);
         else embed.title("Splash");
@@ -87,12 +86,6 @@ class splashNotifier {
     }
 
     async scrapeHandler(msg) {
-        if (this.splashSendChannels === undefined || this.splashReceiveChannels === undefined) {
-            // Channels that send splash messages Moved here cause I do not want to spam my Memory with read requests.
-            this.splashSendChannels = await JSON.parse(fs.readFileSync("splashSendChannels.json"));
-            // Channels that get sent splash messages
-            this.splashReceiveChannels = await JSON.parse(fs.readFileSync("splashReceiveChannels.json"));
-        }
         if (this.splashSendChannels.includes(msg.channel.id)) {
             if (msg.roleMentions.length > 0 || msg.mentionEveryone) {
                 const msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
@@ -126,7 +119,7 @@ class splashNotifier {
     }
 }
 
-let splashHandler = new splashNotifier("562615952236085258");
+let splashHandler = new splashNotifier();
 scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
 
 //SAD You will be missed
@@ -379,7 +372,7 @@ async function getStats(username, exploit = true) {
 }
 setInterval(updateOnlineStatus, 1000 * 60 * 5);
 async function updateOnlineStatus() {
-    const guild = await api.getGuild("5e7761818ea8c93927ad570a");
+    const guild = await api.getGuild(vals.guildID);
     const guildMembers = guild.members.map(members => members.uuid);
     let embed = bot.createEmbed();
     embed._description = "";
@@ -402,7 +395,7 @@ async function updateOnlineStatus() {
     for (status of statusArray)
         embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
     embed.description(embed._description);
-    bot.editMessage("703971841643118593", "703972163224338532", { content: "", embed: embed.sendable }).catch(e => console.error(e));
+    bot.editMessage(vals.channel, vals.message, { content: "", embed: embed.sendable }).catch(e => console.error(e));
 }
 
 updateLeaderboards();
@@ -444,7 +437,7 @@ async function updateLeaderboards(){
         return embed.sendable;
     }
     for(skillName of Object.keys(vals.skillMessage)){
-        bot.editMessage("710169629271785513", vals.skillMessage[skillName], { content: "", embed: createEmbed(guildMemberList,skillName) }).catch(e => console.error(e)); 
+        bot.editMessage(vals.skillChannel, vals.skillMessage[skillName], { content: "", embed: createEmbed(guildMemberList,skillName) }).catch(e => console.error(e)); 
     }
     
 
