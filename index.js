@@ -111,10 +111,7 @@ class splashNotifier {
                 // So you don't do the bit after every time
                 return;
             }
-            // Channels that send splash messages Moved here cause I do not want to spam my Memory with read requests.
-            this.splashSendChannels = await JSON.parse(fs.readFileSync("splashSendChannels.json"));
-            // Channels that get sent splash messages
-            this.splashReceiveChannels = await JSON.parse(fs.readFileSync("splashReceiveChannels.json"));
+            
         }
     }
 }
@@ -170,7 +167,7 @@ async function checkRequirements(msg, args) {
             else slayerCheck = (slayerCheck || prof.slayer.xp >= vals.slayer.xp);
             embed.field(profId,
                 `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n` +
-                `${prof.skills_t >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills_t.toFixed(2)}/${vals.skills}\n` +
+                (prof.skills === -1 ? ":yellow_circle: Enable API\n": (`${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills}\n`)) +
                 `${slayerCheck ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n` +
                 (prof.wealth === -1 ? ":yellow_circle: Enable API\n" : (`${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`)) +
                 (prof.wealth === -1 ? ":yellow_circle: Enable API" : (`${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`)));
@@ -293,7 +290,7 @@ async function stats(msg, args) {
     embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
     for (var profile in res.stats) {
         let pf = res.stats[profile];
-        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills.toFixed(2)} (${pf.skills_t.toFixed(2)} + Taming)\n With Progress:\n${pf.skills2.toFixed(2)} (${pf.skills2_t.toFixed(2)} + Taming)\n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth === -1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth === -1 ? "Enable API" : pf.talismans}`);
+        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills === -1 ? "Enable API" : (`${pf.skills.toFixed(2)}\n With Progress:\n${pf.skills2.toFixed(2)}`)} \n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth === -1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth === -1 ? "Enable API" : pf.talismans}`);
     }
     timeTaken = new Date(Date.now() - timeStart);
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
@@ -322,10 +319,8 @@ async function getStats(username, exploit = true) {
         if (prof === undefined || prof === null) break;
         let member = prof.profile.members[player.id];
         let minions = 0;
-        let skill = 0;
-        let skill_t = 0;
-        let pskill = 0;
-        let pskill_t = 0;
+        let skill = -1;
+        let pskill = -1;
         let slayer = { xp: 0, z: 0, s: 0, w: 0 };
         for (const member of Object.values(prof.profile.members)) {
             if (!('crafted_generators' in member)) continue;
@@ -340,14 +335,10 @@ async function getStats(username, exploit = true) {
                 alchemy = utils.fromExp(member.experience_skill_alchemy),
                 enchanting = utils.fromExp(member.experience_skill_enchanting),
                 taming = utils.fromExp(member.experience_skill_taming);
-            skill = combat.a + farming.a + fishing.a + foraging.a + mining.a + alchemy.a + enchanting.a;
-            skill_t = skill + taming.a;
-            skill = skill / 7;
-            skill_t = skill_t / 8;
-            pskill = combat.b + farming.b + fishing.b + foraging.b + mining.b + alchemy.b + enchanting.b;
-            pskill_t = pskill + taming.b;
-            pskill = pskill / 7;
-            pskill_t = pskill_t / 8;
+            skill = combat.a + farming.a + fishing.a + foraging.a + mining.a + alchemy.a + enchanting.a + taming.a;
+            skill = skill / 8;
+            pskill = combat.b + farming.b + fishing.b + foraging.b + mining.b + alchemy.b + enchanting.b + taming.b;
+            pskill = pskill / 8;
         }
         if (member.slayer_bosses !== undefined && member.slayer_bosses.zombie.xp !== undefined) {
             slayer.w = member.slayer_bosses.wolf.xp || 0;
@@ -355,7 +346,7 @@ async function getStats(username, exploit = true) {
             slayer.z = member.slayer_bosses.zombie.xp || 0;
             slayer.xp = slayer.z + slayer.s + slayer.w;
         }
-        profiles[pf.cute_name] = { minions: minions, skills: skill, skills_t: skill_t, skills2: pskill, skills2_t: pskill_t, slayer: slayer };
+        profiles[pf.cute_name] = { minions: minions, skills: skill, skills2: pskill, slayer: slayer };
         if (member.inv_contents !== undefined) {
             let items = [member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
             if (member.talisman_bag !== undefined) items.push(member.talisman_bag.data);
@@ -395,7 +386,7 @@ async function updateOnlineStatus() {
     for (status of statusArray)
         embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
     embed.description(embed._description);
-    bot.editMessage(vals.channel, vals.message, { content: "", embed: embed.sendable }).catch(e => console.error(e));
+    bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message, { content: "", embed: embed.sendable }).catch(e => console.error(e));
 }
 
 updateLeaderboards();
