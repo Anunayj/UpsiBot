@@ -1,0 +1,16 @@
+[{
+    "id": "deploy",
+    "execute-command": "/home/pi/projects/upsibot/deploy.sh",
+    "command-working-directory": "/home/pi/projects/upsibot/",
+    "response-message": "Executing deploy script...",
+    "trigger-rule": {
+        "match": {
+            "type": "payload-hash-sha1",
+            "secret": "",
+            "parameter": {
+                "source": "header",
+                "name": "X-Hub-Signature"
+            }
+        }
+    }
+}]
