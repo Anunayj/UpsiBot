@@ -186,7 +186,7 @@ async function checkRequirements(msg, args) {
             else slayerCheck = (prof.slayer.z >= vals.slayer.minimumHighestSlayer || prof.slayer.s >= vals.slayer.minimumHighestSlayer || prof.slayer.w >= vals.slayer.minimumHighestSlayer);
             if (vals.slayer.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= vals.slayer.xp);
             else slayerCheck = (slayerCheck || prof.slayer.xp >= vals.slayer.xp);
-            let text = utils.circle(prof.minions >= vals.minions) + utils.circle(prof.skills >= vals.skills) + utils.circle(slayerCheck) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.wealth >= vals.wealth)) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.talismans >= vals.talismans));
+            let text = utils.circle(prof.minions >= vals.minions) + (prof.skills === -1 ? utils.circle(-1) : utils.circle(prof.skills >= vals.skills)) + utils.circle(slayerCheck) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.wealth >= vals.wealth)) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.talismans >= vals.talismans));
             embed.field(`${profId}`, text);
             if (mainColor != "#00FF00") {
                 if (text.includes("yellow")) {
