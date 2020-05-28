@@ -272,7 +272,7 @@ async function isOnline(msg, args) {
         return ("Player not Found");
     }
     const status = await api.getStatus(player.id);
-    return status.online ? `:green_circle: ${args[0]} is online playing ${status.gameType.charAt(0).toUpperCase() + status.gameType.slice(1).toLowerCase()}  ` : `:red_circle: ${args[0]} is offline`;
+    return status.online ? `:green_circle: ${args[0]} is online playing ${utils.gameList[status.gameType]}  ` : `:red_circle: ${args[0]} is offline`;
 }
 
 
@@ -384,7 +384,7 @@ async function updateOnlineStatus() {
     guildMemberList = utils.deepCopy(statusArray);
     statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1) : (a.online ? -1 : 1));
     for (status of statusArray)
-        embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + status.game + ")"}\n`;
+        embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
     embed.description(embed._description);
     bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message, { content: "", embed: embed.sendable }).catch(e => console.error(e));
 }

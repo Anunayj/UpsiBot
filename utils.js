@@ -2,6 +2,36 @@ const weights = require("./weights.json");
 const vals = require("./config.json");
 
 module.exports = {
+    gameList:{
+            "QUAKECRAFT": "Quake",
+            "WALLS": "Walls",
+            "PAINTBALL": "Paintball",
+            "SURVIVAL_GAMES": "Blitz Survival Games",
+            "TNTGAMES": "TNT Games",
+            "VAMPIREZ": "VampireZ",
+            "WALLS3": "Mega Walls",
+            "ARCADE": "Arcade",
+            "ARENA": "Arena",
+            "UHC": "UHC Champions",
+            "MCGO": "Cops and Crims",
+            "BATTLEGROUND": "Warlords",
+            "SUPER_SMASH": "Smash Heroes",
+            "GINGERBREAD": "Turbo Kart Racers",
+            "HOUSING": "Housing",
+            "SKYWARS": "SkyWars",
+            "TRUE_COMBAT": "Crazy Walls",
+            "SPEED_UHC": "Speed UHC",
+            "SKYCLASH": "SkyClash",
+            "LEGACY": "Classic Games",
+            "PROTOTYPE": "Prototype",
+            "BEDWARS": "Bed Wars",
+            "MURDER_MYSTERY": "Murder Mystery",
+            "BUILD_BATTLE": "Build Battle",
+            "DUELS": "Duels",
+            "SKYBLOCK": "SkyBlock",
+            "PIT": "Pit"
+        
+    },
     deepCopy: function(inObject){
         let outObject, value, key
       
