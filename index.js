@@ -265,6 +265,7 @@ bot.registerCommand("online", isOnline, {
 });
 
 async function isOnline(msg, args) {
+    bot.sendChannelTyping(msg.channel);
     let player;
     try {
         player = await api.getPlayer(args[0]);
