@@ -40,6 +40,42 @@ class Client{
         if(res.statusCode===200) return (await res.json()).session;
         else throw "Invalid UUID";
     }
+    async getBazaar(){
+        let res = await c(baseURL).path("skyblock/bazaar").query({key:this.#key}).send();
+        if(res.statusCode===200){
+            let _bazaar = (await res.json()).products;    
+            _bazaar["OAK_LOG"] = _bazaar["LOG"];
+            delete _bazaar["LOG"];
+            _bazaar["SPRUCE_LOG"] = _bazaar["LOG:1"];
+            delete _bazaar["LOG:1"];
+            _bazaar["BIRCH_LOG"] = _bazaar["LOG:2"];
+            delete _bazaar["LOG:2"];
+            _bazaar["DARK_OAK_LOG"] = _bazaar["LOG_2:1"];
+            delete _bazaar["LOG_2:1"];
+            _bazaar["ACACIA_LOG"] = _bazaar["LOG_2"];
+            delete _bazaar["LOG_2"];
+            _bazaar["JUNGLE_LOG"] = _bazaar["LOG:3"];
+            delete _bazaar["LOG_:3"];
+            _bazaar["BROWN_MUSHROOM_BLOCK"] = _bazaar["HUGE_MUSHROOM_1"];
+            delete _bazaar["HUGE_MUSHROOM_1"];
+            _bazaar["RED_MUSHROOM_BLOCK"] = _bazaar["HUGE_MUSHROOM_2"];
+            delete _bazaar["HUGE_MUSHROOM_2"];
+            _bazaar["ENCHANTED_BROWN_MUSHROOM_BLOCK"] = _bazaar["ENCHANTED_HUGE_MUSHROOM_1"];
+            delete _bazaar["ENCHANTED_HUGE_MUSHROOM_1"];
+            _bazaar["ENCHANTED_RED_MUSHROOM_BLOCK"] = _bazaar["ENCHANTED_HUGE_MUSHROOM_2"];
+            delete _bazaar["ENCHANTED_HUGE_MUSHROOM_2"];
+            _bazaar["RAW_SALMON"] = _bazaar["RAW_FISH:1"];
+            delete _bazaar["RAW_FISH:1"];
+            _bazaar["PUFFERFISH"] = _bazaar["RAW_FISH:3"];
+            delete _bazaar["RAW_FISH:3"];
+            _bazaar["COCOA_BEANS"] = _bazaar["INK_SACK:3"];
+            delete _bazaar["INK_SACK:3"];
+            _bazaar["LAPIS_LAZULI"] = _bazaar["INK_SACK:4"];
+            delete _bazaar["INK_SACK:4"];
+            return _bazaar;
+        }
+        else throw "Ummmm something bad happened";
+    }
     parseInventory(data){
         if(typeof(data) === "string") data = Buffer.from(data, 'base64');
         else data = Buffer.from(data);

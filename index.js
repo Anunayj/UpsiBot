@@ -5,8 +5,20 @@ const fs = require("fs");
 const utils = require("./utils");
 const vals = require("./config.json");
 const { NodeVM } = require('vm2');
+//Hmmmmm
+const { JsonDB } = require('node-json-db');
+const { Config } = require('node-json-db/dist/lib/JsonDBConfig');
+const stringCompare = require("fast-levenshtein");
+// The second argument is used to tell the DB to save after each push
+// If you put false, you'll have to call the save() method.
+// The third argument is to ask JsonDB to save the database in an human readable format. (default false)
+// The last argument is the separator. By default it's slash (/)
+const db = new JsonDB(new Config("upsiDatabase", true, true, '/'));
+
+
 let tokens = {};
 let guildMemberList = null;
+let bazaar = {};
 try {
     tokens = require('./env.json');
     console.log("Got tokens");
@@ -137,7 +149,7 @@ bot.registerCommand("req", checkRequirements, {
     description: "Check Requirements!!",
     fullDescription: "Dude that literally ^",
     argsRequired: true,
-    usage: `rep <username>`,
+    usage: `<username>`,
     cooldown: 1000,
     cooldownMessage: "Slow down!!"
 });
@@ -250,7 +262,7 @@ bot.registerCommand("stats", stats, {
     description: "Get Player Stats!!",
     fullDescription: "Dude that literally ^",
     argsRequired: true,
-    usage: `stats <username>`,
+    usage: `<username>`,
     cooldown: 3000,
     cooldownMessage: "Chill b*tch!",
 });
@@ -259,7 +271,7 @@ bot.registerCommand("online", isOnline, {
     description: "Check Player online!",
     fullDescription: "Chck whether a person is online",
     argsRequired: true,
-    usage: `online <username>`,
+    usage: `<username>`,
     cooldown: 3000,
     cooldownMessage: "... Let me fish in Peace"
 });
@@ -362,6 +374,48 @@ async function getStats(username, exploit = true) {
     res.stats = profiles;
     return res;
 }
+updateBazaarPrices();
+bot.registerCommand("price", price, {
+    description: "Check Price",
+    fullDescription: "",
+    argsRequired: true,
+    usage: `<item_name>`,
+    cooldown: 2500,
+    cooldownMessage: "Just sell your stuff to the merchant dood!"
+});
+setInterval(updateBazaarPrices, 1000 * 10);
+async function updateBazaarPrices(){
+    bazaar = await api.getBazaar();
+}
+
+async function price(msg,args){
+    const search = args.join(" ").toUpperCase();
+    let closest = [Infinity,null];
+    for(item of Object.keys(bazaar)){
+        const score = stringCompare.get(search,item.replace("_"," "));
+        if(score < closest[0]){
+            closest = [score,item];
+        }
+    }
+    if(closest[1]===null || closest[0] > closest[1].length*0.5){
+        return(`Ummm Are you sure that is an item? Did you mean ${closest[1]}`);
+    }
+    let embed = bot.createEmbed();
+    embed.title(closest[1]);
+    embed.color("#00AF00")
+    embed.field("Sell Price: ",bazaar[closest[1]].quick_status.sellPrice.toFixed(2));
+    embed.field("Buy Price: ",bazaar[closest[1]].quick_status.buyPrice.toFixed(2));
+
+    
+    // console.log(bazaar[closest[1]].quick_status.buyPrice);
+    return({embed:embed.sendable});
+}
+
+
+
+
+
+
 setInterval(updateOnlineStatus, 1000 * 60 * 5);
 async function updateOnlineStatus() {
     const guild = await api.getGuild(vals.guildID);
@@ -392,6 +446,7 @@ async function updateOnlineStatus() {
 
 updateLeaderboards();
 setInterval(updateLeaderboards, 1000 * 60 * 60 * 3);
+
 async function updateLeaderboards(){
     if(guildMemberList===null){
         try{
