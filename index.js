@@ -363,7 +363,7 @@ async function getStats(username, exploit = true) {
         if (member.inv_contents !== undefined) {
             let items = [member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
             if (member.talisman_bag !== undefined) items.push(member.talisman_bag.data);
-            if (member.wardrobe_contents.data !== undefined) items.push(member.wardrobe_contents.data);
+            if (member.wardrobe_contents !== undefined) items.push(member.wardrobe_contents.data);
             let totals = await utils.checkWealthAndTalis(items, exploit, api);
             profiles[pf.cute_name].wealth = totals[0] + (prof.profile.banking ? (prof.profile.banking.balance) / 1000000 : 0) + member.coin_purse / 1000000;
             profiles[pf.cute_name].talismans = totals[1];
