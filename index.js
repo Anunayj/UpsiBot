@@ -72,7 +72,7 @@ bot.registerCommand("run", runInVm, {
     argsRequired: true,
     usage: "run <code>"
 });
-
+ 
 class splashNotifier {
     constructor() {
         this.pastMessages = {};
