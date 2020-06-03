@@ -158,7 +158,7 @@ async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     bot.sendChannelTyping(msg.channel.id);
     let timeStart = Date.now();
-    let exploit = !args.join("").includes("explot");
+    let exploit = args.join("").includes("explot");
     let showAll = args.join("").includes("all");
     let simple = args.join("").includes("simple");
 
@@ -311,7 +311,7 @@ async function stats(msg, args) {
     return;
 }
 
-async function getStats(username, exploit = true) {
+async function getStats(username, exploit = false) {
     let player = null,
         hyplayer = null,
         sbp = null;
