@@ -158,7 +158,7 @@ async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     bot.sendChannelTyping(msg.channel.id);
     let timeStart = Date.now();
-    let exploit = args.join("").includes("explot");
+    let exploit = args.join("").includes("exploit");
     let showAll = args.join("").includes("all");
     let simple = args.join("").includes("simple");
 
