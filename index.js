@@ -30,7 +30,7 @@ try {
 
 const api = new hypixel.Client(tokens.hypixel);
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
-    description: "A bot.....",
+    description: "A bot.",
     owner: "Anunay (and Refusings for those lovely embeds)",
     prefix: "~"
 }), Eris(tokens.scraper)];
