@@ -30,7 +30,7 @@ try {
 
 const api = new hypixel.Client(tokens.hypixel);
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
-    description: "A bot.....",
+    description: "A bot.",
     owner: "Anunay (and Refusings for those lovely embeds)",
     prefix: "~"
 }), Eris(tokens.scraper)];
@@ -72,7 +72,7 @@ bot.registerCommand("run", runInVm, {
     argsRequired: true,
     usage: "run <code>"
 });
-
+ 
 class splashNotifier {
     constructor() {
         this.pastMessages = {};
@@ -174,7 +174,7 @@ async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     bot.sendChannelTyping(msg.channel.id);
     let timeStart = Date.now();
-    let exploit = !args.join("").includes("explot");
+    let exploit = args.join("").includes("exploit");
     let showAll = args.join("").includes("all");
     let simple = args.join("").includes("simple");
 
@@ -328,7 +328,7 @@ async function stats(msg, args) {
     return;
 }
 
-async function getStats(username, exploit = true) {
+async function getStats(username, exploit = false) {
     let player = null,
         hyplayer = null,
         sbp = null;
@@ -380,6 +380,7 @@ async function getStats(username, exploit = true) {
         if (member.inv_contents !== undefined) {
             let items = [member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
             if (member.talisman_bag !== undefined) items.push(member.talisman_bag.data);
+            if (member.wardrobe_contents !== undefined) items.push(member.wardrobe_contents.data);
             let totals = await utils.checkWealthAndTalis(items, exploit, api);
             profiles[pf.cute_name].wealth = totals[0] + (prof.profile.banking ? (prof.profile.banking.balance) / 1000000 : 0) + member.coin_purse / 1000000;
             profiles[pf.cute_name].talismans = totals[1];
