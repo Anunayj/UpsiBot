@@ -105,7 +105,7 @@ class splashNotifier {
         if (title !== null) embed.title(title[0] + (isDemi ? " - DEMI" : ""));
         else embed.title((isDemi ? "DEMI " : "") + "Splash");
         embed.description(totalmsg);
-        embed.color( isDemi ? "#00FFFF" : "#FFD700");
+        embed.color( isDemi ? "#C0C0C0" : "#00FFFF");
         embed.author(msgList[0].author.username, `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}`);
         for (let splashReceiveChannel of this.splashReceiveChannels) {
