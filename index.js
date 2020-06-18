@@ -81,18 +81,34 @@ class splashNotifier {
     }
 
     sendSplashNotification(msgList) {
-        const totalmsg = msgList.reduce((total, now) => {
-            return now.cleanContent + "\n" + total;
-        }, "");
+        // const totalmsg = msgList.reduce((total, now) => {
+        //     if(now.embeds.length>0) 
+        //     return now.cleanContent + "\n" + total;
+        // }, "");
+        let totalmsg = "";
+        for(let msg of msgList){
+            if(msg.embeds.length>0) {
+                msg.embeds[0].author = {name:msg.author.username,icon_url:`https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`}
+                msg.embeds[0].footer = {text:`This Message was sent in ${msg.channel.guild.name}`}
+                msg.embeds[0].color = 1752220;
+                for (let splashReceiveChannel of this.splashReceiveChannels) {
+                    bot.createMessage(splashReceiveChannel,{embed:msg.embeds[0]});
+                }
+                return;
+            }
+            totalmsg = msg.cleanContent + "\n" + totalmsg;
+        }
         if (totalmsg.match(/\d+\s?K/i) !== null) return;
+        if (totalmsg.toLowerCase().includes("demi")) return;
         let embed = bot.createEmbed();
         const title = totalmsg.match(/((party|p) join \w+|HUB\s?\d+)/i);
         if (title !== null) embed.title(title[0]);
         else embed.title("Splash");
         embed.description(totalmsg);
+        embed.color("#00FFFF")
         embed.author(msgList[0].author.username, `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}`);
-        for (var splashReceiveChannel of this.splashReceiveChannels) {
+        for (let splashReceiveChannel of this.splashReceiveChannels) {
             embed.send(bot, splashReceiveChannel).catch(error => console.log(error));
         }
     }
@@ -242,7 +258,8 @@ async function checkRequirements(msg, args) {
                 res.hyplayer.player.achievements.skyblock_excavator +
                 res.hyplayer.player.achievements.skyblock_harvester +
                 res.hyplayer.player.achievements.skyblock_augmentation +
-                res.hyplayer.player.achievements.skyblock_concoctor) / 7;
+                res.hyplayer.player.achievements.skyblock_concoctor +
+                res.hyplayer.player.achievements.skyblock_domesticator) / 8;
             const crafts = res.hyplayer.player.achievements.skyblock_minion_lover;
             embed.field("Achievements API:",
                 `Skills: ${skill.toFixed(2)} ${skill >= vals.skills ? ":green_circle:" : ":red_circle:"}` +
@@ -456,27 +473,32 @@ async function updateLeaderboards(){
             return;
         }
     }
-
-    for(const i in guildMemberList){
-        const hyplayer = await api.gethypixelPlayer(guildMemberList[i].uuid);
-        guildMemberList[i].minions = hyplayer.player.achievements.skyblock_minion_lover;
-        guildMemberList[i].fishing = hyplayer.player.achievements.skyblock_angler;
-        guildMemberList[i].foraging = hyplayer.player.achievements.skyblock_gatherer;
-        guildMemberList[i].mining = hyplayer.player.achievements.skyblock_excavator;
-        guildMemberList[i].farming = hyplayer.player.achievements.skyblock_harvester;
-        guildMemberList[i].enchanting = hyplayer.player.achievements.skyblock_augmentation;
-        guildMemberList[i].alchemy = hyplayer.player.achievements.skyblock_concoctor;
-        guildMemberList[i].combat = hyplayer.player.achievements.skyblock_combat;
-        guildMemberList[i].average = parseFloat(((guildMemberList[i].fishing + guildMemberList[i].foraging + guildMemberList[i].mining + guildMemberList[i].farming + guildMemberList[i].enchanting + guildMemberList[i].alchemy + guildMemberList[i].combat)/7).toFixed(2))
+    let guildMemberListlocal = utils.deepCopy(guildMemberList);
+    for(const i in guildMemberListlocal){
+        const hyplayer = await api.gethypixelPlayer(guildMemberListlocal[i].uuid);
+        if(hyplayer.player.achievements===undefined){
+            hyplayer.player.achievements = {};
+        }
+            
+        guildMemberListlocal[i].minions = hyplayer.player.achievements.skyblock_minion_lover || 0;
+        guildMemberListlocal[i].fishing = hyplayer.player.achievements.skyblock_angler || 0;
+        guildMemberListlocal[i].foraging = hyplayer.player.achievements.skyblock_gatherer || 0;
+        guildMemberListlocal[i].mining = hyplayer.player.achievements.skyblock_excavator || 0;
+        guildMemberListlocal[i].farming = hyplayer.player.achievements.skyblock_harvester || 0;
+        guildMemberListlocal[i].enchanting = hyplayer.player.achievements.skyblock_augmentation || 0;
+        guildMemberListlocal[i].alchemy = hyplayer.player.achievements.skyblock_concoctor || 0;
+        guildMemberListlocal[i].combat = hyplayer.player.achievements.skyblock_combat || 0;
+        guildMemberListlocal[i].taming = hyplayer.player.achievements.skyblock_domesticator || 0;
+        guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming)/8).toFixed(2))
     }
     const createEmbed = (array,sortSkill) => {
         embed = bot.createEmbed();
         array.sort((a,b) => b[sortSkill] - a[sortSkill]);
         //epic hack fix
         if(sortSkill == "average") 
-            embed._description = "```js\n" + array.reduce((total,now) => (total + now[sortSkill].toFixed(2) + "- " + now.name + "\n") ,"") + "```";
+            embed._description = "```css\n" + array.reduce((total,now,index) => (`${total}#${index+1} ${now.name} [${now[sortSkill].toFixed(2)}]\n`) ,"") + "```";
         else
-        embed._description = "```js\n" + array.reduce((total,now) => (total + now[sortSkill] + "- " + now.name + "\n") ,"") + "```";
+            embed._description = "```css\n" + array.reduce((total,now,index) => (`${total}#${index+1} ${now.name} [${now[sortSkill]}]\n`) ,"") + "```";
         embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
         embed.description(embed._description);
         embed.color("#00AAFF");
@@ -484,7 +506,7 @@ async function updateLeaderboards(){
         return embed.sendable;
     }
     for(skillName of Object.keys(vals.skillMessage)){
-        bot.editMessage(vals.skillChannel, vals.skillMessage[skillName], { content: "", embed: createEmbed(guildMemberList,skillName) }).catch(e => console.error(e)); 
+        bot.editMessage(vals.skillChannel, vals.skillMessage[skillName], { content: "", embed: createEmbed(guildMemberListlocal,skillName) }).catch(e => console.error(e)); 
     }
     
 
