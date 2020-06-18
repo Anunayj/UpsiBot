@@ -90,7 +90,7 @@ class splashNotifier {
             if(msg.embeds.length>0) {
                 msg.embeds[0].author = {name:msg.author.username,icon_url:`https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`}
                 msg.embeds[0].footer = {text:`This Message was sent in ${msg.channel.guild.name}`}
-                msg.embeds[0].color = 1752220;
+                msg.embeds[0].color = 0x00ffff;
                 for (let splashReceiveChannel of this.splashReceiveChannels) {
                     bot.createMessage(splashReceiveChannel,{embed:msg.embeds[0]});
                 }
@@ -99,13 +99,13 @@ class splashNotifier {
             totalmsg = msg.cleanContent + "\n" + totalmsg;
         }
         if (totalmsg.match(/\d+\s?K/i) !== null) return;
-        if (totalmsg.toLowerCase().includes("demi")) return;
+        const isDemi = totalmsg.toLowerCase().includes("demi");
         let embed = bot.createEmbed();
         const title = totalmsg.match(/((party|p) join \w+|HUB\s?\d+)/i);
-        if (title !== null) embed.title(title[0]);
-        else embed.title("Splash");
+        if (title !== null) embed.title(title[0] + (isDemi ? " - DEMI" : ""));
+        else embed.title((isDemi ? "DEMI " : "") + "Splash");
         embed.description(totalmsg);
-        embed.color("#00FFFF")
+        embed.color( isDemi ? "#00FFFF" : "#FFD700");
         embed.author(msgList[0].author.username, `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}`);
         for (let splashReceiveChannel of this.splashReceiveChannels) {
