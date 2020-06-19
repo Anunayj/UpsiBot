@@ -106,7 +106,7 @@ module.exports = {
         100: Number.MAX_VALUE
     },
     replaceEmbed: function(embed, name, value) {
-        for (var field of embed._fields) {
+        for (let field of embed._fields) {
             if (field.name == name) {
                 field.value = value;
             }
@@ -179,7 +179,7 @@ module.exports = {
         }
     },
     getIn: function(json, fromJson, defaultVal) {
-        for (var from of fromJson) {
+        for (let from of fromJson) {
             if (this.isIn(json, [from])) {
                 json = json[from];
             } else {
@@ -189,7 +189,7 @@ module.exports = {
         return json;
     },
     isIn: function(json, fromJson) {
-        for (var from of fromJson) {
+        for (let from of fromJson) {
             if (!(from in json)) {
                 return false;
             }
@@ -197,7 +197,7 @@ module.exports = {
         return true;
     },
     isInNext: function(json, fromJson) {
-        for (var from of fromJson) {
+        for (let from of fromJson) {
             if (this.isIn(json, [from])) {
                 json = json[from];
             } else {
@@ -233,7 +233,7 @@ module.exports = {
     fromExp: function(exp) {
         if (exp >= this.leveling_xp[50])
             return { a: 50, b: 50, c: exp };
-        for (var i in Object.values(this.leveling_xp)) {
+        for (const i in Object.values(this.leveling_xp)) {
             let xp = this.leveling_xp[i];
             if (exp < xp) {
                 return {
@@ -244,5 +244,43 @@ module.exports = {
             }
         }
         return { a: 0, b: 0, c: exp };
+    },
+    minion_crafts:{
+        5:0,
+        6:5,
+        7:15,
+        8:30,
+        9:50,
+        10:75,
+        11:100,
+        12:125,
+        13:150,	
+        14:175,
+        15:200,
+        16:225,
+        17:250,
+        18:275,
+        19:300,
+        20:350,
+        21:400,
+        22:450,
+        23:500,
+        24:550,
+        25:Infinity 
+    },
+    getSlots: function(crafts) {
+        if (crafts >= this.minion_crafts[24])
+            return { a: 25, b: 25, c: crafts };
+        for (const i of Object.keys(this.minion_crafts)) {
+            let slots = this.minion_crafts[i];
+            if (crafts < slots) {
+                return {
+                    a: (i - 1),
+                    b: (i - 1) + Math.max(0, Math.min((crafts - this.minion_crafts[i - 1]) / (slots - this.minion_crafts[i - 1]), 1)),
+                    c: crafts
+                };
+            }
+        }
+        return { a: 0, b: 0, c: crafts };
     }
 };

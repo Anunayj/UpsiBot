@@ -508,7 +508,7 @@ async function updateLeaderboards(){
             hyplayer.player.achievements = {};
         }
             
-        guildMemberListlocal[i].minions = hyplayer.player.achievements.skyblock_minion_lover || 0;
+        guildMemberListlocal[i].minions = utils.getSlots(getSlotshyplayer.player.achievements.skyblock_minion_lover).b;
         guildMemberListlocal[i].fishing = hyplayer.player.achievements.skyblock_angler || 0;
         guildMemberListlocal[i].foraging = hyplayer.player.achievements.skyblock_gatherer || 0;
         guildMemberListlocal[i].mining = hyplayer.player.achievements.skyblock_excavator || 0;
