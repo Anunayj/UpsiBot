@@ -453,11 +453,6 @@ async function price(msg,args){
     return({embed:embed.sendable});
 }
 
-
-
-
-
-
 setInterval(updateOnlineStatus, 1000 * 60 * 5);
 async function updateOnlineStatus() {
     const guild = await api.getGuild(vals.guildID);
@@ -499,8 +494,15 @@ async function updateLeaderboards(){
         }
     }
     let guildMemberListlocal = utils.deepCopy(guildMemberList);
-    for(const i in guildMemberListlocal){
-        const hyplayer = await api.gethypixelPlayer(guildMemberListlocal[i].uuid);
+    for(let i = 0;i < guildMemberListlocal.length; i++){
+        await new Promise(r => setTimeout(r, 2750));
+        let hyplayer;
+        try{
+            hyplayer = await api.gethypixelPlayer(guildMemberListlocal[i].uuid);
+        }catch(e){
+            i=i-1
+            continue;
+        }
         if(hyplayer.player.achievements===undefined){
             hyplayer.player.achievements = {};
         }
@@ -515,15 +517,45 @@ async function updateLeaderboards(){
         guildMemberListlocal[i].combat = hyplayer.player.achievements.skyblock_combat || 0;
         guildMemberListlocal[i].taming = hyplayer.player.achievements.skyblock_domesticator || 0;
         guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming)/8).toFixed(2))
+        
+        if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
+            continue;
+        }
+        
+        for (const pf of Object.values(hyplayer.player.stats.SkyBlock.profiles)) {
+            let prof;
+            try{
+                prof = await api.getProfile(pf.profile_id);
+            }catch{
+                continue;
+            }
+            
+            if (prof === undefined || prof === null) continue;
+            let member = prof.profile.members[guildMemberListlocal[i].uuid];
+            if (utils.isIn(member, ['experience_skill_alchemy'])) { 
+                    guildMemberListlocal[i].combat = (utils.fromExp(member.experience_skill_combat).b  > guildMemberListlocal[i].combat ? utils.fromExp(member.experience_skill_combat).b : guildMemberListlocal[i].combat)
+                    guildMemberListlocal[i].farming = (utils.fromExp(member.experience_skill_farming).b  > guildMemberListlocal[i].farming ? utils.fromExp(member.experience_skill_farming).b : guildMemberListlocal[i].farming)
+                    guildMemberListlocal[i].fishing = (utils.fromExp(member.experience_skill_fishing).b > guildMemberListlocal[i].fishing ? utils.fromExp(member.experience_skill_fishing).b : guildMemberListlocal[i].fishing)
+                    guildMemberListlocal[i].foraging = (utils.fromExp(member.experience_skill_foraging).b > guildMemberListlocal[i].foraging ? utils.fromExp(member.experience_skill_foraging).b : guildMemberListlocal[i].foraging)
+                    guildMemberListlocal[i].mining = (utils.fromExp(member.experience_skill_mining).b > guildMemberListlocal[i].mining ? utils.fromExp(member.experience_skill_mining).b  : guildMemberListlocal[i].mining)
+                    guildMemberListlocal[i].alchemy = (utils.fromExp(member.experience_skill_alchemy).b > guildMemberListlocal[i].alchemy ? utils.fromExp(member.experience_skill_alchemy).b  : guildMemberListlocal[i].alchemy)
+                    guildMemberListlocal[i].enchanting = (utils.fromExp(member.experience_skill_enchanting).b > guildMemberListlocal[i].enchanting ? utils.fromExp(member.experience_skill_enchanting).b  : guildMemberListlocal[i].enchanting)
+                    guildMemberListlocal[i].taming = (utils.fromExp(member.experience_skill_taming).b > guildMemberListlocal[i].taming ? utils.fromExp(member.experience_skill_taming).b  : guildMemberListlocal[i].taming)
+                    guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming)/8).toFixed(2))
+                }
+            }
+    
+    
+    
     }
     const createEmbed = (array,sortSkill) => {
         embed = bot.createEmbed();
         array.sort((a,b) => b[sortSkill] - a[sortSkill]);
         //epic hack fix
-        if(sortSkill == "average") 
-            embed._description = "```css\n" + array.reduce((total,now,index) => (`${total}#${index+1} ${now.name} [${now[sortSkill].toFixed(2)}]\n`) ,"") + "```";
-        else
-            embed._description = "```css\n" + array.reduce((total,now,index) => (`${total}#${index+1} ${now.name} [${now[sortSkill]}]\n`) ,"") + "```";
+        // if(sortSkill == "average") 
+        embed._description = "```css\n" + array.reduce((total,now,index) => (`${total}#${index+1} ${now.name} [${now[sortSkill].toFixed(2)}]\n`) ,"") + "```";
+        // else
+        //     embed._description = "```css\n" + array.reduce((total,now,index) => (`${total}#${index+1} ${now.name} [${now[sortSkill]}]\n`) ,"") + "```";
         embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
         embed.description(embed._description);
         embed.color("#00AAFF");
@@ -534,6 +566,7 @@ async function updateLeaderboards(){
         bot.editMessage(vals.skillChannel, vals.skillMessage[skillName], { content: "", embed: createEmbed(guildMemberListlocal,skillName) }).catch(e => console.error(e)); 
     }
     
+
 
 
 
