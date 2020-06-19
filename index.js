@@ -91,7 +91,7 @@ class splashNotifier {
         for(let msg of msgList){
             if(msg.embeds.length>0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv" ) {
                 hasEmbed = msg.embeds[0]; 
-            } else if(msg.embeds.length>0 && (msg.embeds[0].type === "image" || msg.embeds[0].type === "gifv")) {
+            } else if(msg.embeds.length>0 && msg.embeds[0].type === "image" ) {
                 totalmsg = msg.cleanContent + "\n" + totalmsg;
                 embed.image(msg.embeds[0].url);
             } else {
@@ -138,7 +138,7 @@ class splashNotifier {
                         if (arr.embeds.length > 0 && arr.embeds[0].author !== undefined)
                             return arr.embeds[0].author.name === msg.author.username;
                     })[0];
-                    if(msg.embeds.length>0 && msg.embeds[0].type !== "image"){
+                    if(msg.embeds.length>0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv"){
                         msg.embeds[0].description = msgtoEdit.embeds[0].description;
                         msgtoEdit.embeds[0] = msg.embeds[0];
                     }else if(msg.embeds.length>0 && msg.embeds[0].type === "image"){
