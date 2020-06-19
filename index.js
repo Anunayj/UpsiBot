@@ -86,22 +86,31 @@ class splashNotifier {
         //     return now.cleanContent + "\n" + total;
         // }, "");
         let totalmsg = "";
+        let embed = bot.createEmbed();
+        let hasEmbed = null;
         for(let msg of msgList){
-            if(msg.embeds.length>0) {
-                msg.embeds[0].author = {name:msg.author.username,icon_url:`https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`}
-                msg.embeds[0].footer = {text:`This Message was sent in ${msg.channel.guild.name}`}
-                msg.embeds[0].timestamp = new Date();
-                msg.embeds[0].color = 0x00ffff;
-                for (let splashReceiveChannel of this.splashReceiveChannels) {
-                    bot.createMessage(splashReceiveChannel,{embed:msg.embeds[0]});
-                }
-                return;
+            if(msg.embeds.length>0 && msg.embeds[0].type !== "image") {
+                hasEmbed = msg.embeds[0];
+            } else if(msg.embeds.length>0 && msg.embeds[0].type === "image") {
+                embed.image(msg.embeds[0].url);
+            } else {
+                totalmsg = msg.cleanContent + "\n" + totalmsg;
             }
-            totalmsg = msg.cleanContent + "\n" + totalmsg;
         }
+        if(hasEmbed!==null){
+            msg.embeds[0].author = {name:msg.author.username,icon_url:`https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`}
+            msg.embeds[0].footer = {text:`This Message was sent in ${msg.channel.guild.name}`}
+            msg.embeds[0].timestamp = new Date();
+            msg.embeds[0].color = 0x00ffff;
+            msg.embeds[0].description = totalmsg;
+            for (let splashReceiveChannel of this.splashReceiveChannels) {
+                bot.createMessage(splashReceiveChannel,{embed:msg.embeds[0]});
+            }
+            return;
+        }
+
         if (totalmsg.match(/\d+\s?K/i) !== null) return;
         const isDemi = totalmsg.toLowerCase().includes("demi");
-        let embed = bot.createEmbed();
         const title = totalmsg.match(/((party|p) join \w+|HUB\s?\d+)/i);
         if (title !== null) embed.title(title[0] + (isDemi ? " - DEMI" : ""));
         else embed.title((isDemi ? "DEMI " : "") + "Splash");
@@ -128,11 +137,24 @@ class splashNotifier {
                         if (arr.embeds.length > 0 && arr.embeds[0].author !== undefined)
                             return arr.embeds[0].author.name === msg.author.username;
                     })[0];
-                    msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
-                    const title = msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i);
-                    if (title !== null) msgtoEdit.embeds[0].title = title[0];
+                    if(msg.embeds.length>0 && msg.embeds[0].type !== "image"){
+                        msg.embeds[0].description = msgtoEdit.embeds[0].description;
+                        msgtoEdit.embeds[0] = msg.embeds[0];
+                    }else if(msg.embeds.length>0 && msg.embeds[0].type === "image"){
+                        msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
+                        msgtoEdit.embeds[0].image = {url:msg.embeds[0].url};
+                        const title = msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i);
+                        if (title !== null) msgtoEdit.embeds[0].title = title[0];
+                    }else{
+                        msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
+                        const title = msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i);
+                        if (title !== null) msgtoEdit.embeds[0].title = title[0];
+                    }
+
+                    
+                    
                     try{
-                    await bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, { embed: msgtoEdit.embeds[0] });
+                        await bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, { embed: msgtoEdit.embeds[0] });
                     }catch(e){
                         console.error(e);
                     }
