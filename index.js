@@ -89,22 +89,23 @@ class splashNotifier {
         let embed = bot.createEmbed();
         let hasEmbed = null;
         for(let msg of msgList){
-            if(msg.embeds.length>0 && msg.embeds[0].type !== "image") {
-                hasEmbed = msg.embeds[0];
-            } else if(msg.embeds.length>0 && msg.embeds[0].type === "image") {
+            if(msg.embeds.length>0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv" ) {
+                hasEmbed = msg.embeds[0]; 
+            } else if(msg.embeds.length>0 && (msg.embeds[0].type === "image" || msg.embeds[0].type === "gifv")) {
+                totalmsg = msg.cleanContent + "\n" + totalmsg;
                 embed.image(msg.embeds[0].url);
             } else {
                 totalmsg = msg.cleanContent + "\n" + totalmsg;
             }
         }
         if(hasEmbed!==null){
-            msg.embeds[0].author = {name:msg.author.username,icon_url:`https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`}
-            msg.embeds[0].footer = {text:`This Message was sent in ${msg.channel.guild.name}`}
-            msg.embeds[0].timestamp = new Date();
-            msg.embeds[0].color = 0x00ffff;
-            msg.embeds[0].description = totalmsg;
+            hasEmbed.author = {name:msgList[0].author.username,icon_url:`https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`}
+            hasEmbed.footer = {text:`This Message was sent in ${msgList[0].channel.guild.name}`}
+            hasEmbed.timestamp = new Date();
+            hasEmbed.color = 0x00ffff;
+            hasEmbed.description = totalmsg;
             for (let splashReceiveChannel of this.splashReceiveChannels) {
-                bot.createMessage(splashReceiveChannel,{embed:msg.embeds[0]});
+                bot.createMessage(splashReceiveChannel,{embed:hasEmbed});
             }
             return;
         }
