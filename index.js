@@ -207,9 +207,10 @@ async function checkRequirements(msg, args) {
     let res = await getStats(args[0], exploit);
     if (typeof(res) !== typeof({})) {
         let timeTaken = new Date(Date.now() - timeStart);
-        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
         return;
     }
+
     if (simple) {
         for (var profId in res.stats) {
             let prof = res.stats[profId];
@@ -337,7 +338,7 @@ async function stats(msg, args) {
     let timeTaken = new Date();
     let res = await getStats(args[0]);
     if (typeof(res) !== typeof({})) {
-        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
         return;
     }
     let embed = bot.createEmbed(msg.channel.id);
@@ -347,6 +348,7 @@ async function stats(msg, args) {
         let pf = res.stats[profile];
         embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills === -1 ? "Enable API" : (`${pf.skills.toFixed(2)}\n With Progress:\n${pf.skills2.toFixed(2)}`)} \n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth === -1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth === -1 ? "Enable API" : pf.talismans}`);
     }
+    
     timeTaken = new Date(Date.now() - timeStart);
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
     await embed.send();
@@ -371,7 +373,7 @@ async function getStats(username, exploit = false) {
     let profiles = {};
     for (const pf of Object.values(sbp.stats.SkyBlock.profiles)) {
         let prof = await api.getProfile(pf.profile_id);
-        if (prof === undefined || prof === null) break;
+        if (prof === undefined || prof === null || prof.profile === null) break;
         let member = prof.profile.members[player.id];
         let minions = 0;
         let skill = -1;
@@ -413,6 +415,9 @@ async function getStats(username, exploit = false) {
             profiles[pf.cute_name].wealth = -1;
             profiles[pf.cute_name].talismans = -1;
         }
+    }
+    if (Object.keys(profiles).length===0) {
+        return "I am guesssing this idiot got wiped.";
     }
     res.stats = profiles;
     return res;
