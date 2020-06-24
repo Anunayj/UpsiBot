@@ -463,10 +463,7 @@ setInterval(updateOnlineStatus, 1000 * 60 * 5);
 async function updateOnlineStatus() {
     const guild = await api.getGuild(vals.guildID);
     const guildMembers = guild.members.map(members => members.uuid);
-    let embed = bot.createEmbed();
-    embed._description = "";
-    embed.title("Online Status");
-    embed.color("#00FF00");
+
     let statusArray = [];
     for (let member of guildMembers) {
         const status = await api.getStatus(member);
@@ -481,10 +478,28 @@ async function updateOnlineStatus() {
     }
     guildMemberList = utils.deepCopy(statusArray);
     statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1) : (a.online ? -1 : 1));
-    for (status of statusArray)
-        embed._description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
-    embed.description(embed._description);
-    bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message, { content: "", embed: embed.sendable }).catch(e => console.error(e));
+    let i=0;
+    let description = "";
+
+    for (const status of statusArray){
+        if((description + `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`).length>2048){
+            let embed = bot.createEmbed();
+            embed.title("Online Status");
+            embed.color("#00FF00");
+            embed.description(description);
+            bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message[i], { content: "", embed: embed.sendable }).catch(e => console.error(e));
+            i++;
+            description = "";
+        }else{
+            description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
+        }
+
+    }
+    for(;i<2;i++){
+        bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message[i], "** **").catch(e => console.error(e));
+
+    }
+
 }
 
 updateLeaderboards();
@@ -523,7 +538,11 @@ async function updateLeaderboards(){
         guildMemberListlocal[i].combat = hyplayer.player.achievements.skyblock_combat || 0;
         guildMemberListlocal[i].taming = hyplayer.player.achievements.skyblock_domesticator || 0;
         guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming)/8).toFixed(2))
-        
+        guildMemberListlocal[i].sven = 0
+        guildMemberListlocal[i].spider = 0 
+        guildMemberListlocal[i].revenant = 0
+        guildMemberListlocal[i].slayer = 0
+
         if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
             continue;
         }
@@ -548,31 +567,53 @@ async function updateLeaderboards(){
                     guildMemberListlocal[i].enchanting = (utils.fromExp(member.experience_skill_enchanting).b > guildMemberListlocal[i].enchanting ? utils.fromExp(member.experience_skill_enchanting).b  : guildMemberListlocal[i].enchanting)
                     guildMemberListlocal[i].taming = (utils.fromExp(member.experience_skill_taming).b > guildMemberListlocal[i].taming ? utils.fromExp(member.experience_skill_taming).b  : guildMemberListlocal[i].taming)
                     guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming)/8).toFixed(2))
+                    guildMemberListlocal[i].sven = (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.wolf.xp || 0) > guildMemberListlocal[i].sven ? (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.wolf.xp || 0) : guildMemberListlocal[i].sven;
+                    guildMemberListlocal[i].spider = (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.spider.xp || 0) > guildMemberListlocal[i].spider ? (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.spider.xp || 0) : guildMemberListlocal[i].spider;
+                    guildMemberListlocal[i].revenant = (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.zombie.xp || 0) > guildMemberListlocal[i].revenant ? (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.zombie.xp || 0) : guildMemberListlocal[i].revenant;
+                    guildMemberListlocal[i].slayer = (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) > guildMemberListlocal[i].slayer ? (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) : guildMemberListlocal[i].slayer;
                 }
             }
     
     
     
     }
-    const createEmbed = (array,sortSkill) => {
-        embed = bot.createEmbed();
+    let createEmbeds = (array,sortSkill) => {
+        let embedlist = []
         array.sort((a,b) => b[sortSkill] - a[sortSkill]);
-        //epic hack fix
-        // if(sortSkill == "average") 
-        embed._description = "```css\n" + array.reduce((total,now,index) => (`${total}#${index+1} ${now.name} [${now[sortSkill].toFixed(2)}]\n`) ,"") + "```";
-        // else
-        //     embed._description = "```css\n" + array.reduce((total,now,index) => (`${total}#${index+1} ${now.name} [${now[sortSkill]}]\n`) ,"") + "```";
-        embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
-        embed.description(embed._description);
-        embed.color("#00AAFF");
-        embed.author("Upsi","https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
-        return embed.sendable;
+        let description = "```css\n"
+        for(let index in array){
+            index = parseInt(index) //fuck you javadscript
+            if(((`${description}#${index+1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`).length > 2048) || (index + 1 === array.length)){
+                description+="```"
+                embed = bot.createEmbed();
+                embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
+                embed.description(description);
+                embed.color("#00AAFF");
+                embed.author("Upsi","https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
+                embedlist.push(embed.sendable);
+                description="```css\n";
+            }else{
+                if(["slayer","revenant","spider","sven"].includes(sortSkill))
+                    description = `${description}#${index+1} ${array[index].name} [${array[index][sortSkill]} xp]\n`;
+                else
+                    description = `${description}#${index+1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`;
+            }
+        }
+        return embedlist;
+
+
     }
     for(skillName of Object.keys(vals.skillMessage)){
-        bot.editMessage(vals.skillChannel, vals.skillMessage[skillName], { content: "", embed: createEmbed(guildMemberListlocal,skillName) }).catch(e => console.error(e)); 
+        const embeds = createEmbeds(guildMemberListlocal,skillName);
+        for(index=0;index<2;index++){
+            if(embeds[index]===undefined)
+                bot.editMessage(vals.skillChannel, vals.skillMessage[skillName][index], "** **").catch(e => console.error(e));
+            else
+                bot.editMessage(vals.skillChannel, vals.skillMessage[skillName][index], { content: "", embed: embeds[index] }).catch(e => console.error(e));
+        }
+    
     }
     
-
 
 
 

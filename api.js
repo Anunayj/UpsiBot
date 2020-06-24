@@ -55,7 +55,7 @@ class Client{
             _bazaar["ACACIA_LOG"] = _bazaar["LOG_2"];
             delete _bazaar["LOG_2"];
             _bazaar["JUNGLE_LOG"] = _bazaar["LOG:3"];
-            delete _bazaar["LOG_:3"];
+            delete _bazaar["LOG:3"];
             _bazaar["BROWN_MUSHROOM_BLOCK"] = _bazaar["HUGE_MUSHROOM_1"];
             delete _bazaar["HUGE_MUSHROOM_1"];
             _bazaar["RED_MUSHROOM_BLOCK"] = _bazaar["HUGE_MUSHROOM_2"];
