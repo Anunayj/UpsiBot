@@ -39,7 +39,7 @@ bot.connect().then(() => { console.log("Logged in!"); }).catch(() => { throw "Un
 scraperbot.connect().catch(() => { throw "Unable to connect"; });
 
 async function runInVm(msg) {
-    if (msg.author.id !== "213612539483914240" && msg.author.id !== "260470661732892672") return "No.";
+    if (msg.author.id !== "213612539483914240" && msg.author.id !== "260470661732892672" && msg.author.id !=="732251109564874754") return "No.";
     // TODO Ask refusings to make this look better.
     let reg = msg.content.match(/```(.*?)```/s);
     if (reg === null) reg = msg.content.match(`${msg.prefix}run (.*)`);
