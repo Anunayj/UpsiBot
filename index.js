@@ -72,6 +72,19 @@ bot.registerCommand("run", runInVm, {
     argsRequired: true,
     usage: "run <code>"
 });
+
+
+bot.registerCommand("say", say, {
+    description: "Say...",
+    fullDescription: "Lets hope this does not destroy the server",
+    argsRequired: true,
+    usage: "<What to say>"
+});
+function say(msg){
+    if(msg.author.bot===true) return;
+    // replace(/<(:\w+:)[0-9]+>/g, "$1")
+    return(msg.cleanContent.replace(msg.prefix+msg.command.label,""))
+}
  
 class splashNotifier {
     constructor() {
@@ -505,6 +518,20 @@ async function updateOnlineStatus() {
 updateLeaderboards();
 setInterval(updateLeaderboards, 1000 * 60 * 60 * 3);
 
+bot.registerCommand("updateleaderboard", updateLeaderboardsCheck, {
+    description: "Updates Leaderboard",
+    fullDescription: "",
+    argsRequired: false,
+    usage: ``,
+    cooldown: 10000,
+    cooldownMessage: "Slow down!!"
+});
+async function updateLeaderboardsCheck(msg){
+    if (msg.author.id !== "213612539483914240") return "I am afraid you don't have the permession to do that.";
+    await updateLeaderboards();
+    return `<@${msg.author.id}> Updated leaderboards`;
+}
+
 async function updateLeaderboards(){
     if(guildMemberList===null){
         try{
@@ -542,6 +569,7 @@ async function updateLeaderboards(){
         guildMemberListlocal[i].spider = 0 
         guildMemberListlocal[i].revenant = 0
         guildMemberListlocal[i].slayer = 0
+        guildMemberListlocal[i].profile = hyplayer.player;
 
         if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
             continue;
@@ -613,6 +641,18 @@ async function updateLeaderboards(){
         }
     
     }
+    // guildMembers = getRESTGuildMembers(682608242932842559);
+    // for(member of guildMemberListlocal){
+    //     if(member.average>=30 && member.slayer>=1200000){
+    //         if(member.profile.socialMedia!== undefined && member.profile.socialMedia.links!== undefined && member.profile.socialMedia.links.DISCORD!== undefined){
+                
+    //         }
+    //     }else if(member.average>=25 && member.slayer>=300000){
+
+    //     }else if{
+
+    //     }
+    // }
     
 
 
