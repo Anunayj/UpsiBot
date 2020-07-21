@@ -153,13 +153,14 @@ module.exports = {
     },
     getTalismanValue: function(item) {
         try {
-            const regex = item.display.Lore[item.display.Lore.length - 1].match(/§.§.(.*) ACCESSORY/);
+            const regex = item.display.Lore[item.display.Lore.length - 1].match(/(§.§.§.a§. )?(§.§.){1,2}(.*) (HAT|A)CCESSORY( §.§.§.a )?/);
             if (regex === null) return 0;
-            else if (regex[1] === "COMMON") return 3;
-            else if (regex[1] === "UNCOMMON") return 5;
-            else if (regex[1] === "RARE") return 8;
-            else if (regex[1] === "EPIC") return 12;
-            else if (regex[1] === "LEGENDARY") return 15;
+            else if (regex[3] === "COMMON") return 3;
+            else if (regex[3] === "UNCOMMON") return 5;
+            else if (regex[3] === "RARE") return 8;
+            else if (regex[3] === "EPIC") return 12;
+            else if (regex[3] === "LEGENDARY") return 15;
+            else if (regex[3] === "MYTHIC") return 15;
         } catch (e) {}
         return 0;
     },
