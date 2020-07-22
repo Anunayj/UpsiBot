@@ -543,7 +543,7 @@ async function updateLeaderboards(){
     }
     let guildMemberListlocal = utils.deepCopy(guildMemberList);
     for(let i = 0;i < guildMemberListlocal.length; i++){
-        await new Promise(r => setTimeout(r, 2750));
+        await new Promise(r => setTimeout(r, 5000));
         let hyplayer;
         try{
             hyplayer = await api.gethypixelPlayer(guildMemberListlocal[i].uuid);
@@ -602,7 +602,8 @@ async function updateLeaderboards(){
                 }
             }
     
-    
+        guildMemberListlocal[i].score = (guildMemberListlocal[i].average)*(1+(guildMemberListlocal[i].slayer/100000))
+
     
     }
     let createEmbeds = (array,sortSkill) => {
