@@ -321,7 +321,7 @@ async function checkRequirements(msg, args) {
                 embed.field(`TODO:`, todo.join(", "));
             }
         }
-        if (mainColor === "#FFFF00" || showAll) { //If API is disabled
+        if (mainColor === "#FFFF00") { //If API is disabled
             let ach = res.hyplayer.player.achievements;
             let skill = 0;
             for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
