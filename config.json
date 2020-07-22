@@ -1,7 +1,7 @@
 {
     "minions": 350,
-    "skills": 20,
-    "slayer": {
+    "skillsOld": 20,
+    "slayerOld": {
         "xpAndMinimum": false,
         "xp": 120000,
         "minimumHighestSlayer": 20000,
@@ -9,7 +9,14 @@
     },
     "wealth": 50,
     "talismans": 235,
-    "guildID":"5e7761818ea8c93927ad570a",
+    "skills": 24,
+    "slayer": {
+        "xpAndMinimum": true,
+        "xp": 240000,
+        "minimumHighestSlayer": 0,
+        "minimumAsAll": true
+    },
+    "guildID": "5e7761818ea8c93927ad570a",
     "skillChannel": "710169629271785513",
     "onlineStatus": {"channel": "703971841643118593","message":["725372838034276403","725372864588546140"]},
     "skillMessage":{
