@@ -297,7 +297,7 @@ async function checkRequirements(msg, args) {
                     mainColor = "#00FF00";
                 }
             }
-            if (mainColor == "#00FF00" && !showAll) {
+            if (mainColor == "#00FF00") {
                 break;
             }
             let todo = [];
