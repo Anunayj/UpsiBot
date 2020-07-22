@@ -659,17 +659,9 @@ async function updateLeaderboards() {
                 guildMemberListlocal[i].revenant = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.zombie.xp || 0) > guildMemberListlocal[i].revenant ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.zombie.xp || 0) : guildMemberListlocal[i].revenant;
                 guildMemberListlocal[i].slayer = (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) > guildMemberListlocal[i].slayer ? (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) : guildMemberListlocal[i].slayer;
             }
-<<<<<<< HEAD
     
-        guildMemberListlocal[i].score = (guildMemberListlocal[i].average)*(1+(guildMemberListlocal[i].slayer/100000))
-
-    
-=======
         }
-
-
-
->>>>>>> 697e581210a453a1734aa3c7280ec698292f841f
+        guildMemberListlocal[i].score = (guildMemberListlocal[i].average)*(1+(guildMemberListlocal[i].slayer/100000))
     }
     let createEmbeds = (array, sortSkill) => {
         let embedlist = [];
@@ -726,4 +718,4 @@ async function updateLeaderboards() {
 
 
 
-}
+    }
