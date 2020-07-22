@@ -4,11 +4,20 @@ const hypixel = require("./api");
 const fs = require("fs");
 const utils = require("./utils");
 const vals = require("./config.json");
-const { NodeVM } = require('vm2');
+const {
+    NodeVM
+} = require('vm2');
 //Hmmmmm
-const { JsonDB } = require('node-json-db');
-const { Config } = require('node-json-db/dist/lib/JsonDBConfig');
+const {
+    JsonDB
+} = require('node-json-db');
+const {
+    Config
+} = require('node-json-db/dist/lib/JsonDBConfig');
 const stringCompare = require("fast-levenshtein");
+const {
+    listenerCount
+} = require('process');
 // The second argument is used to tell the DB to save after each push
 // If you put false, you'll have to call the save() method.
 // The third argument is to ask JsonDB to save the database in an human readable format. (default false)
@@ -23,7 +32,11 @@ try {
     tokens = require('./env.json');
     console.log("Got tokens");
 } catch (e) {
-    tokens = { main: process.env.mainToken, scraper: process.env.scraperToken, hypixel: process.env.hypixelToken };
+    tokens = {
+        main: process.env.mainToken,
+        scraper: process.env.scraperToken,
+        hypixel: process.env.hypixelToken
+    };
     if (tokens.main === undefined || tokens.scraper === undefined || process.env.hypixelToken === undefined)
         throw "Tokens are missing!";
 }
@@ -35,11 +48,17 @@ const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     prefix: "~"
 }), Eris(tokens.scraper)];
 
-bot.connect().then(() => { console.log("Logged in!"); }).catch(() => { throw "Unable to connect"; });
-scraperbot.connect().catch(() => { throw "Unable to connect"; });
+bot.connect().then(() => {
+    console.log("Logged in!");
+}).catch(() => {
+    throw "Unable to connect";
+});
+scraperbot.connect().catch(() => {
+    throw "Unable to connect";
+});
 
 async function runInVm(msg) {
-    if (msg.author.id !== "213612539483914240" && msg.author.id !== "260470661732892672" && msg.author.id !=="314197872209821699") return "No.";
+    if (msg.author.id !== "213612539483914240" && msg.author.id !== "260470661732892672" && msg.author.id !== "314197872209821699") return "No.";
     // TODO Ask refusings to make this look better.
     let reg = msg.content.match(/```(.*?)```/s);
     if (reg === null) reg = msg.content.match(`${msg.prefix}run (.*)`);
@@ -80,12 +99,13 @@ bot.registerCommand("say", say, {
     argsRequired: true,
     usage: "<What to say>"
 });
-function say(msg){
-    if(msg.author.bot===true) return;
+
+function say(msg) {
+    if (msg.author.bot === true) return;
     // replace(/<(:\w+:)[0-9]+>/g, "$1")
-    return(msg.cleanContent.replace(msg.prefix+msg.command.label,""))
+    return (msg.cleanContent.replace(msg.prefix + msg.command.label, ""));
 }
- 
+
 class splashNotifier {
     constructor() {
         this.pastMessages = {};
@@ -101,24 +121,31 @@ class splashNotifier {
         let totalmsg = "";
         let embed = bot.createEmbed();
         let hasEmbed = null;
-        for(let msg of msgList){
-            if(msg.embeds.length>0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv" ) {
-                hasEmbed = msg.embeds[0]; 
-            } else if(msg.embeds.length>0 && msg.embeds[0].type === "image" ) {
+        for (let msg of msgList) {
+            if (msg.embeds.length > 0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv") {
+                hasEmbed = msg.embeds[0];
+            } else if (msg.embeds.length > 0 && msg.embeds[0].type === "image") {
                 totalmsg = msg.cleanContent + "\n" + totalmsg;
                 embed.image(msg.embeds[0].url);
             } else {
                 totalmsg = msg.cleanContent + "\n" + totalmsg;
             }
         }
-        if(hasEmbed!==null){
-            hasEmbed.author = {name:msgList[0].author.username,icon_url:`https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`}
-            hasEmbed.footer = {text:`This Message was sent in ${msgList[0].channel.guild.name}`}
+        if (hasEmbed !== null) {
+            hasEmbed.author = {
+                name: msgList[0].author.username,
+                icon_url: `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`
+            };
+            hasEmbed.footer = {
+                text: `This Message was sent in ${msgList[0].channel.guild.name}`
+            };
             hasEmbed.timestamp = new Date();
             hasEmbed.color = 0x00ffff;
             hasEmbed.description = totalmsg;
             for (let splashReceiveChannel of this.splashReceiveChannels) {
-                bot.createMessage(splashReceiveChannel,{embed:hasEmbed});
+                bot.createMessage(splashReceiveChannel, {
+                    embed: hasEmbed
+                });
             }
             return;
         }
@@ -129,7 +156,7 @@ class splashNotifier {
         if (title !== null) embed.title(title[0] + (isDemi ? " - DEMI" : ""));
         else embed.title((isDemi ? "DEMI " : "") + "Splash");
         embed.description(totalmsg);
-        embed.color( isDemi ? "#C0C0C0" : "#00FFFF");
+        embed.color(isDemi ? "#C0C0C0" : "#00FFFF");
         embed.timestamp(new Date());
         embed.author(msgList[0].author.username, `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}`);
@@ -144,32 +171,38 @@ class splashNotifier {
                 const msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
                 this.sendSplashNotification(msgList);
                 this.pastMessages[msg.author.id] = msg.id;
-                setTimeout((that, id) => { delete that.pastMessages[id]; }, 1000 * 300, this, msg.author.id);
+                setTimeout((that, id) => {
+                    delete that.pastMessages[id];
+                }, 1000 * 300, this, msg.author.id);
             } else if (Object.keys(this.pastMessages).includes(msg.author.id)) {
-                for (var splashReceiveChannel of this.splashReceiveChannels) {
+                for (let splashReceiveChannel of this.splashReceiveChannels) {
                     let msgtoEdit = (await bot.getMessages(splashReceiveChannel)).filter((arr) => {
                         if (arr.embeds.length > 0 && arr.embeds[0].author !== undefined)
                             return arr.embeds[0].author.name === msg.author.username;
                     })[0];
-                    if(msg.embeds.length>0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv"){
+                    if (msg.embeds.length > 0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv") {
                         msg.embeds[0].description = msgtoEdit.embeds[0].description;
                         msgtoEdit.embeds[0] = msg.embeds[0];
-                    }else if(msg.embeds.length>0 && msg.embeds[0].type === "image"){
+                    } else if (msg.embeds.length > 0 && msg.embeds[0].type === "image") {
                         msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
-                        msgtoEdit.embeds[0].image = {url:msg.embeds[0].url};
+                        msgtoEdit.embeds[0].image = {
+                            url: msg.embeds[0].url
+                        };
                         const title = msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i);
                         if (title !== null) msgtoEdit.embeds[0].title = title[0];
-                    }else{
+                    } else {
                         msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
                         const title = msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i);
                         if (title !== null) msgtoEdit.embeds[0].title = title[0];
                     }
 
-                    
-                    
-                    try{
-                        await bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, { embed: msgtoEdit.embeds[0] });
-                    }catch(e){
+
+
+                    try {
+                        await bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, {
+                            embed: msgtoEdit.embeds[0]
+                        });
+                    } catch (e) {
                         console.error(e);
                     }
                 }
@@ -177,7 +210,7 @@ class splashNotifier {
                 // So you don't do the bit after every time
                 return;
             }
-            
+
         }
     }
 }
@@ -212,32 +245,30 @@ async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     bot.sendChannelTyping(msg.channel.id);
     let timeStart = Date.now();
-    let exploit = args.join("").includes("exploit");
-    let showAll = args.join("").includes("all");
-    let simple = args.join("").includes("simple");
+    let newReqs = args.join("").includes("new");
+    let current = args.join("").includes("current");
 
     let embed = bot.createEmbed(msg.channel.id);
-    let res = await getStats(args[0], exploit);
-    if (typeof(res) !== typeof({})) {
+    let res = await getStats(args[0]);
+    if (typeof (res) !== typeof ({})) {
         let timeTaken = new Date(Date.now() - timeStart);
         await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
         return;
     }
-
-    if (simple) {
-        for (var profId in res.stats) {
+    let values = utils.deepCopy(vals);
+    if (current || newReqs) {
+        if (current) {
+            values.slayer = values.slayerOld;
+            values.skills = values.skillsOld;
+        }
+        for (let profId in res.stats) {
             let prof = res.stats[profId];
             let slayerCheck = false;
-            if (vals.slayer.minimumAsAll) slayerCheck = (prof.slayer.z >= vals.slayer.minimumHighestSlayer && prof.slayer.s >= vals.slayer.minimumHighestSlayer && prof.slayer.w >= vals.slayer.minimumHighestSlayer);
-            else slayerCheck = (prof.slayer.z >= vals.slayer.minimumHighestSlayer || prof.slayer.s >= vals.slayer.minimumHighestSlayer || prof.slayer.w >= vals.slayer.minimumHighestSlayer);
-            if (vals.slayer.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= vals.slayer.xp);
-            else slayerCheck = (slayerCheck || prof.slayer.xp >= vals.slayer.xp);
-            embed.field(profId,
-                `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n` +
-                (prof.skills === -1 ? ":yellow_circle: Enable API\n": (`${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills}\n`)) +
-                `${slayerCheck ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n` +
-                (prof.wealth === -1 ? ":yellow_circle: Enable API\n" : (`${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`)) +
-                (prof.wealth === -1 ? ":yellow_circle: Enable API" : (`${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`)));
+            if (values.slayer.minimumAsAll) slayerCheck = (prof.slayer.z >= values.slayer.minimumHighestSlayer && prof.slayer.s >= values.slayer.minimumHighestSlayer && prof.slayer.w >= values.slayer.minimumHighestSlayer);
+            else slayerCheck = (prof.slayer.z >= values.slayer.minimumHighestSlayer || prof.slayer.s >= values.slayer.minimumHighestSlayer || prof.slayer.w >= values.slayer.minimumHighestSlayer);
+            if (values.slayer.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= values.slayer.xp);
+            else slayerCheck = (slayerCheck || prof.slayer.xp >= values.slayer.xp);
+            embed = createRequirementField(embed, profId, prof, values, slayerCheck, newReqs);
         }
         embed.color("#FFA500");
         let timeTaken = new Date(Date.now() - timeStart);
@@ -246,14 +277,14 @@ async function checkRequirements(msg, args) {
         return;
     } else {
         let mainColor = "#FF0000";
-        for (var profId in res.stats) {
+        for (let profId in res.stats) {
             let prof = res.stats[profId];
             let slayerCheck = false;
-            if (vals.slayer.minimumAsAll) slayerCheck = (prof.slayer.z >= vals.slayer.minimumHighestSlayer && prof.slayer.s >= vals.slayer.minimumHighestSlayer && prof.slayer.w >= vals.slayer.minimumHighestSlayer);
-            else slayerCheck = (prof.slayer.z >= vals.slayer.minimumHighestSlayer || prof.slayer.s >= vals.slayer.minimumHighestSlayer || prof.slayer.w >= vals.slayer.minimumHighestSlayer);
-            if (vals.slayer.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= vals.slayer.xp);
-            else slayerCheck = (slayerCheck || prof.slayer.xp >= vals.slayer.xp);
-            let text = utils.circle(prof.minions >= vals.minions) + (prof.skills === -1 ? utils.circle(-1) : utils.circle(prof.skills >= vals.skills)) + utils.circle(slayerCheck) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.wealth >= vals.wealth)) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.talismans >= vals.talismans));
+            if (vals.slayerOld.minimumAsAll) slayerCheck = (prof.slayer.z >= vals.slayerOld.minimumHighestSlayer && prof.slayer.s >= vals.slayerOld.minimumHighestSlayer && prof.slayer.w >= vals.slayerOld.minimumHighestSlayer);
+            else slayerCheck = (prof.slayer.z >= vals.slayerOld.minimumHighestSlayer || prof.slayer.s >= vals.slayerOld.minimumHighestSlayer || prof.slayer.w >= vals.slayerOld.minimumHighestSlayer);
+            if (vals.slayerOld.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= vals.slayerOld.xp);
+            else slayerCheck = (slayerCheck || prof.slayer.xp >= vals.slayerOld.xp);
+            let text = utils.circle(prof.minions >= vals.minions) + (prof.skills === -1 ? utils.circle(-1) : utils.circle(prof.skills >= vals.skillsOld)) + utils.circle(slayerCheck) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.wealth >= vals.wealth)) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.talismans >= vals.talismans));
             embed.field(`${profId}`, text);
             if (mainColor != "#00FF00") {
                 if (text.includes("yellow")) {
@@ -275,7 +306,7 @@ async function checkRequirements(msg, args) {
             }
             let types = ["Minions", "Skills", "Slayer", "Wealth", "Talismans"];
             let colors = text.replace(/_circle:/g, ",").replace(/:/g, '').split(",");
-            for (var i = 0; i < colors.length; i++) {
+            for (let i = 0; i < colors.length; i++) {
                 if (colors[i] == "red" || colors[i] == "blue") {
                     if (types[i] == "Slayer") {
                         todo.push(`${types[i]} (${prof.slayer.xp} | ${prof.slayer.z}/${prof.slayer.s}/${prof.slayer.w})`);
@@ -291,14 +322,12 @@ async function checkRequirements(msg, args) {
             }
         }
         if (mainColor === "#FFFF00" || showAll) { //If API is disabled
-            const skill = (res.hyplayer.player.achievements.skyblock_combat +
-                res.hyplayer.player.achievements.skyblock_angler +
-                res.hyplayer.player.achievements.skyblock_gatherer +
-                res.hyplayer.player.achievements.skyblock_excavator +
-                res.hyplayer.player.achievements.skyblock_harvester +
-                res.hyplayer.player.achievements.skyblock_augmentation +
-                res.hyplayer.player.achievements.skyblock_concoctor +
-                res.hyplayer.player.achievements.skyblock_domesticator) / 8;
+            let ach = res.hyplayer.player.achievements;
+            let skill = 0;
+            for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
+                skill += ach["skyblock_" + name];
+            }
+            skill /= 8;
             const crafts = res.hyplayer.player.achievements.skyblock_minion_lover;
             embed.field("Achievements API:",
                 `Skills: ${skill.toFixed(2)} ${skill >= vals.skills ? ":green_circle:" : ":red_circle:"}` +
@@ -312,6 +341,16 @@ async function checkRequirements(msg, args) {
         embed.color(mainColor);
         embed.send().catch(e => console.error(e));
     }
+}
+
+function createRequirementField(embed, profId, prof, vals, slayerCheck, newReqs = false) {
+    embed.field(profId,
+        (!newReqs ? `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n` : "") +
+        (prof.skills === -1 ? ":yellow_circle: Enable API\n" : (`${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills}\n`)) +
+        `${slayerCheck ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n` +
+        (!newReqs ? (prof.wealth === -1 ? ":yellow_circle: Enable API\n" : (`${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`)) : "") +
+        (!newReqs ? (prof.wealth === -1 ? ":yellow_circle: Enable API" : (`${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`)) : ""));
+    return embed;
 }
 
 bot.registerCommand("stats", stats, {
@@ -350,18 +389,18 @@ async function stats(msg, args) {
     let timeStart = Date.now();
     let timeTaken = new Date();
     let res = await getStats(args[0]);
-    if (typeof(res) !== typeof({})) {
+    if (typeof (res) !== typeof ({})) {
         await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
         return;
     }
     let embed = bot.createEmbed(msg.channel.id);
     embed.title("Stats");
     embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
-    for (var profile in res.stats) {
+    for (let profile in res.stats) {
         let pf = res.stats[profile];
         embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills === -1 ? "Enable API" : (`${pf.skills.toFixed(2)}\n With Progress:\n${pf.skills2.toFixed(2)}`)} \n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth === -1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth === -1 ? "Enable API" : pf.talismans}`);
     }
-    
+
     timeTaken = new Date(Date.now() - timeStart);
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
     await embed.send();
@@ -379,7 +418,11 @@ async function getStats(username, exploit = false) {
     } catch (err) {
         return "Invalid username!";
     }
-    let res = { player: player, hyplayer: hyplayer, sbp: sbp };
+    let res = {
+        player: player,
+        hyplayer: hyplayer,
+        sbp: sbp
+    };
     if (sbp === null || sbp === undefined || !utils.isInNext(sbp, ['stats', 'SkyBlock', 'profiles'])) {
         return "This user has never played SkyBlock!";
     }
@@ -391,7 +434,12 @@ async function getStats(username, exploit = false) {
         let minions = 0;
         let skill = -1;
         let pskill = -1;
-        let slayer = { xp: 0, z: 0, s: 0, w: 0 };
+        let slayer = {
+            xp: 0,
+            z: 0,
+            s: 0,
+            w: 0
+        };
         for (const member of Object.values(prof.profile.members)) {
             if (!('crafted_generators' in member)) continue;
             minions += member.crafted_generators.length;
@@ -416,10 +464,16 @@ async function getStats(username, exploit = false) {
             slayer.z = member.slayer_bosses.zombie.xp || 0;
             slayer.xp = slayer.z + slayer.s + slayer.w;
         }
-        profiles[pf.cute_name] = { minions: minions, skills: skill, skills2: pskill, slayer: slayer };
+        profiles[pf.cute_name] = {
+            minions: minions,
+            skills: skill,
+            skills2: pskill,
+            slayer: slayer
+        };
         if (member.inv_contents !== undefined) {
-            let items = [member.inv_armor.data, member.inv_contents.data, member.ender_chest_contents.data];
+            let items = [member.inv_armor.data, member.inv_contents.data];
             if (member.talisman_bag !== undefined) items.push(member.talisman_bag.data);
+            if (member.ender_chest_contents !== undefined) items.push(member.ender_chest_contents.data);
             if (member.wardrobe_contents !== undefined) items.push(member.wardrobe_contents.data);
             let totals = await utils.checkWealthAndTalis(items, exploit, api);
             profiles[pf.cute_name].wealth = totals[0] + (prof.profile.banking ? (prof.profile.banking.balance) / 1000000 : 0) + member.coin_purse / 1000000;
@@ -429,7 +483,7 @@ async function getStats(username, exploit = false) {
             profiles[pf.cute_name].talismans = -1;
         }
     }
-    if (Object.keys(profiles).length===0) {
+    if (Object.keys(profiles).length === 0) {
         return "I am guesssing this idiot got wiped.";
     }
     res.stats = profiles;
@@ -445,31 +499,33 @@ bot.registerCommand("price", price, {
     cooldownMessage: "Just sell your stuff to the merchant dood!"
 });
 setInterval(updateBazaarPrices, 1000 * 10);
-async function updateBazaarPrices(){
+async function updateBazaarPrices() {
     bazaar = await api.getBazaar();
 }
 
-async function price(msg,args){
+async function price(msg, args) {
     const search = args.join(" ").toUpperCase();
-    let closest = [Infinity,null];
-    for(item of Object.keys(bazaar)){
-        const score = stringCompare.get(search,item.replace("_"," "));
-        if(score < closest[0]){
-            closest = [score,item];
+    let closest = [Infinity, null];
+    for (item of Object.keys(bazaar)) {
+        const score = stringCompare.get(search, item.replace("_", " "));
+        if (score < closest[0]) {
+            closest = [score, item];
         }
     }
-    if(closest[1]===null || closest[0] > closest[1].length*0.5){
-        return(`Ummm Are you sure that is an item? Did you mean ${closest[1]}`);
+    if (closest[1] === null || closest[0] > closest[1].length * 0.5) {
+        return (`Ummm Are you sure that is an item? Did you mean ${closest[1]}`);
     }
     let embed = bot.createEmbed();
     embed.title(closest[1]);
-    embed.color("#00AF00")
-    embed.field("Sell Price: ",bazaar[closest[1]].quick_status.sellPrice.toFixed(2));
-    embed.field("Buy Price: ",bazaar[closest[1]].quick_status.buyPrice.toFixed(2));
+    embed.color("#00AF00");
+    embed.field("Sell Price: ", bazaar[closest[1]].quick_status.sellPrice.toFixed(2));
+    embed.field("Buy Price: ", bazaar[closest[1]].quick_status.buyPrice.toFixed(2));
 
-    
+
     // console.log(bazaar[closest[1]].quick_status.buyPrice);
-    return({embed:embed.sendable});
+    return ({
+        embed: embed.sendable
+    });
 }
 
 setInterval(updateOnlineStatus, 1000 * 60 * 5);
@@ -491,24 +547,27 @@ async function updateOnlineStatus() {
     }
     guildMemberList = utils.deepCopy(statusArray);
     statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1) : (a.online ? -1 : 1));
-    let i=0;
+    let i = 0;
     let description = "";
 
-    for (const status of statusArray){
-        if((description + `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`).length>2048){
+    for (const status of statusArray) {
+        if ((description + `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`).length > 2048) {
             let embed = bot.createEmbed();
             embed.title("Online Status");
             embed.color("#00FF00");
             embed.description(description);
-            bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message[i], { content: "", embed: embed.sendable }).catch(e => console.error(e));
+            bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message[i], {
+                content: "",
+                embed: embed.sendable
+            }).catch(e => console.error(e));
             i++;
             description = "";
-        }else{
+        } else {
             description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
         }
 
     }
-    for(;i<2;i++){
+    for (; i < 2; i++) {
         bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message[i], "** **").catch(e => console.error(e));
 
     }
@@ -526,35 +585,35 @@ bot.registerCommand("updateleaderboard", updateLeaderboardsCheck, {
     cooldown: 10000,
     cooldownMessage: "Slow down!!"
 });
-async function updateLeaderboardsCheck(msg){
+async function updateLeaderboardsCheck(msg) {
     if (msg.author.id !== "213612539483914240") return "I am afraid you don't have the permession to do that.";
     await updateLeaderboards();
     return `<@${msg.author.id}> Updated leaderboards`;
 }
 
-async function updateLeaderboards(){
-    if(guildMemberList===null){
-        try{
+async function updateLeaderboards() {
+    if (guildMemberList === null) {
+        try {
             await updateOnlineStatus();
-        }catch(e){
+        } catch (e) {
             console.error(e);
             return;
         }
     }
     let guildMemberListlocal = utils.deepCopy(guildMemberList);
-    for(let i = 0;i < guildMemberListlocal.length; i++){
+    for (let i = 0; i < guildMemberListlocal.length; i++) {
         await new Promise(r => setTimeout(r, 2750));
         let hyplayer;
-        try{
+        try {
             hyplayer = await api.gethypixelPlayer(guildMemberListlocal[i].uuid);
-        }catch(e){
-            i=i-1
+        } catch (e) {
+            i = i - 1;
             continue;
         }
-        if(hyplayer.player.achievements===undefined){
+        if (hyplayer.player.achievements === undefined) {
             hyplayer.player.achievements = {};
         }
-            
+
         guildMemberListlocal[i].minions = utils.getSlots(hyplayer.player.achievements.skyblock_minion_lover).b;
         guildMemberListlocal[i].fishing = hyplayer.player.achievements.skyblock_angler || 0;
         guildMemberListlocal[i].foraging = hyplayer.player.achievements.skyblock_gatherer || 0;
@@ -564,88 +623,91 @@ async function updateLeaderboards(){
         guildMemberListlocal[i].alchemy = hyplayer.player.achievements.skyblock_concoctor || 0;
         guildMemberListlocal[i].combat = hyplayer.player.achievements.skyblock_combat || 0;
         guildMemberListlocal[i].taming = hyplayer.player.achievements.skyblock_domesticator || 0;
-        guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming)/8).toFixed(2))
-        guildMemberListlocal[i].sven = 0
-        guildMemberListlocal[i].spider = 0 
-        guildMemberListlocal[i].revenant = 0
-        guildMemberListlocal[i].slayer = 0
+        guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming) / 8).toFixed(2));
+        guildMemberListlocal[i].sven = 0;
+        guildMemberListlocal[i].spider = 0;
+        guildMemberListlocal[i].revenant = 0;
+        guildMemberListlocal[i].slayer = 0;
         guildMemberListlocal[i].profile = hyplayer.player;
 
         if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
             continue;
         }
-        
+
         for (const pf of Object.values(hyplayer.player.stats.SkyBlock.profiles)) {
             let prof;
-            try{
+            try {
                 prof = await api.getProfile(pf.profile_id);
-            }catch{
+            } catch {
                 continue;
             }
-            
+
             if (prof === undefined || prof === null) continue;
             let member = prof.profile.members[guildMemberListlocal[i].uuid];
-            if (utils.isIn(member, ['experience_skill_alchemy'])) { 
-                    guildMemberListlocal[i].combat = (utils.fromExp(member.experience_skill_combat).b  > guildMemberListlocal[i].combat ? utils.fromExp(member.experience_skill_combat).b : guildMemberListlocal[i].combat)
-                    guildMemberListlocal[i].farming = (utils.fromExp(member.experience_skill_farming).b  > guildMemberListlocal[i].farming ? utils.fromExp(member.experience_skill_farming).b : guildMemberListlocal[i].farming)
-                    guildMemberListlocal[i].fishing = (utils.fromExp(member.experience_skill_fishing).b > guildMemberListlocal[i].fishing ? utils.fromExp(member.experience_skill_fishing).b : guildMemberListlocal[i].fishing)
-                    guildMemberListlocal[i].foraging = (utils.fromExp(member.experience_skill_foraging).b > guildMemberListlocal[i].foraging ? utils.fromExp(member.experience_skill_foraging).b : guildMemberListlocal[i].foraging)
-                    guildMemberListlocal[i].mining = (utils.fromExp(member.experience_skill_mining).b > guildMemberListlocal[i].mining ? utils.fromExp(member.experience_skill_mining).b  : guildMemberListlocal[i].mining)
-                    guildMemberListlocal[i].alchemy = (utils.fromExp(member.experience_skill_alchemy).b > guildMemberListlocal[i].alchemy ? utils.fromExp(member.experience_skill_alchemy).b  : guildMemberListlocal[i].alchemy)
-                    guildMemberListlocal[i].enchanting = (utils.fromExp(member.experience_skill_enchanting).b > guildMemberListlocal[i].enchanting ? utils.fromExp(member.experience_skill_enchanting).b  : guildMemberListlocal[i].enchanting)
-                    guildMemberListlocal[i].taming = (utils.fromExp(member.experience_skill_taming).b > guildMemberListlocal[i].taming ? utils.fromExp(member.experience_skill_taming).b  : guildMemberListlocal[i].taming)
-                    guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming)/8).toFixed(2))
-                    guildMemberListlocal[i].sven = (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.wolf.xp || 0) > guildMemberListlocal[i].sven ? (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.wolf.xp || 0) : guildMemberListlocal[i].sven;
-                    guildMemberListlocal[i].spider = (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.spider.xp || 0) > guildMemberListlocal[i].spider ? (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.spider.xp || 0) : guildMemberListlocal[i].spider;
-                    guildMemberListlocal[i].revenant = (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.zombie.xp || 0) > guildMemberListlocal[i].revenant ? (member.slayer_bosses===undefined ? 0 : member.slayer_bosses.zombie.xp || 0) : guildMemberListlocal[i].revenant;
-                    guildMemberListlocal[i].slayer = (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) > guildMemberListlocal[i].slayer ? (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) : guildMemberListlocal[i].slayer;
-                }
+            if (utils.isIn(member, ['experience_skill_alchemy'])) {
+                guildMemberListlocal[i].combat = (utils.fromExp(member.experience_skill_combat).b > guildMemberListlocal[i].combat ? utils.fromExp(member.experience_skill_combat).b : guildMemberListlocal[i].combat);
+                guildMemberListlocal[i].farming = (utils.fromExp(member.experience_skill_farming).b > guildMemberListlocal[i].farming ? utils.fromExp(member.experience_skill_farming).b : guildMemberListlocal[i].farming);
+                guildMemberListlocal[i].fishing = (utils.fromExp(member.experience_skill_fishing).b > guildMemberListlocal[i].fishing ? utils.fromExp(member.experience_skill_fishing).b : guildMemberListlocal[i].fishing);
+                guildMemberListlocal[i].foraging = (utils.fromExp(member.experience_skill_foraging).b > guildMemberListlocal[i].foraging ? utils.fromExp(member.experience_skill_foraging).b : guildMemberListlocal[i].foraging);
+                guildMemberListlocal[i].mining = (utils.fromExp(member.experience_skill_mining).b > guildMemberListlocal[i].mining ? utils.fromExp(member.experience_skill_mining).b : guildMemberListlocal[i].mining);
+                guildMemberListlocal[i].alchemy = (utils.fromExp(member.experience_skill_alchemy).b > guildMemberListlocal[i].alchemy ? utils.fromExp(member.experience_skill_alchemy).b : guildMemberListlocal[i].alchemy);
+                guildMemberListlocal[i].enchanting = (utils.fromExp(member.experience_skill_enchanting).b > guildMemberListlocal[i].enchanting ? utils.fromExp(member.experience_skill_enchanting).b : guildMemberListlocal[i].enchanting);
+                guildMemberListlocal[i].taming = (utils.fromExp(member.experience_skill_taming).b > guildMemberListlocal[i].taming ? utils.fromExp(member.experience_skill_taming).b : guildMemberListlocal[i].taming);
+                guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming) / 8).toFixed(2));
+                guildMemberListlocal[i].sven = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.wolf.xp || 0) > guildMemberListlocal[i].sven ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.wolf.xp || 0) : guildMemberListlocal[i].sven;
+                guildMemberListlocal[i].spider = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.spider.xp || 0) > guildMemberListlocal[i].spider ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.spider.xp || 0) : guildMemberListlocal[i].spider;
+                guildMemberListlocal[i].revenant = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.zombie.xp || 0) > guildMemberListlocal[i].revenant ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.zombie.xp || 0) : guildMemberListlocal[i].revenant;
+                guildMemberListlocal[i].slayer = (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) > guildMemberListlocal[i].slayer ? (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) : guildMemberListlocal[i].slayer;
             }
-    
-    
-    
+        }
+
+
+
     }
-    let createEmbeds = (array,sortSkill) => {
-        let embedlist = []
-        array.sort((a,b) => b[sortSkill] - a[sortSkill]);
-        let description = "```css\n"
-        for(let index in array){
-            index = parseInt(index) //fuck you javadscript
-            if(((`${description}#${index+1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`).length > 2048) || (index + 1 === array.length)){
-                description+="```"
+    let createEmbeds = (array, sortSkill) => {
+        let embedlist = [];
+        array.sort((a, b) => b[sortSkill] - a[sortSkill]);
+        let description = "```css\n";
+        for (let index in array) {
+            index = parseInt(index); //fuck you javadscript
+            if (((`${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`).length > 2048) || (index + 1 === array.length)) {
+                description += "```";
                 embed = bot.createEmbed();
                 embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
                 embed.description(description);
                 embed.color("#00AAFF");
-                embed.author("Upsi","https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
+                embed.author("Upsi", "https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
                 embedlist.push(embed.sendable);
-                description="```css\n";
-            }else{
-                if(["slayer","revenant","spider","sven"].includes(sortSkill))
-                    description = `${description}#${index+1} ${array[index].name} [${array[index][sortSkill]} xp]\n`;
+                description = "```css\n";
+            } else {
+                if (["slayer", "revenant", "spider", "sven"].includes(sortSkill))
+                    description = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill]} xp]\n`;
                 else
-                    description = `${description}#${index+1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`;
+                    description = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`;
             }
         }
         return embedlist;
 
 
-    }
-    for(skillName of Object.keys(vals.skillMessage)){
-        const embeds = createEmbeds(guildMemberListlocal,skillName);
-        for(index=0;index<2;index++){
-            if(embeds[index]===undefined)
+    };
+    for (skillName of Object.keys(vals.skillMessage)) {
+        const embeds = createEmbeds(guildMemberListlocal, skillName);
+        for (index = 0; index < 2; index++) {
+            if (embeds[index] === undefined)
                 bot.editMessage(vals.skillChannel, vals.skillMessage[skillName][index], "** **").catch(e => console.error(e));
             else
-                bot.editMessage(vals.skillChannel, vals.skillMessage[skillName][index], { content: "", embed: embeds[index] }).catch(e => console.error(e));
+                bot.editMessage(vals.skillChannel, vals.skillMessage[skillName][index], {
+                    content: "",
+                    embed: embeds[index]
+                }).catch(e => console.error(e));
         }
-    
+
     }
     // guildMembers = getRESTGuildMembers(682608242932842559);
     // for(member of guildMemberListlocal){
     //     if(member.average>=30 && member.slayer>=1200000){
     //         if(member.profile.socialMedia!== undefined && member.profile.socialMedia.links!== undefined && member.profile.socialMedia.links.DISCORD!== undefined){
-                
+
     //         }
     //     }else if(member.average>=25 && member.slayer>=300000){
 
@@ -653,7 +715,7 @@ async function updateLeaderboards(){
 
     //     }
     // }
-    
+
 
 
 
