@@ -217,6 +217,11 @@ class splashNotifier {
 
 let splashHandler = new splashNotifier();
 scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
+scraperbot.on("messageCreate", (msg) => {
+    if(["720642093181042690","720602273461567509","736220160616038471"].includes(msg.channel.id)){
+        bot.createMessage("736211540772126780",msg);
+    }
+});
 
 //SAD You will be missed
 // bot.on("messageCreate", (msg) => {
@@ -534,9 +539,15 @@ async function updateOnlineStatus() {
     const guildMembers = guild.members.map(members => members.uuid);
 
     let statusArray = [];
-    for (let member of guildMembers) {
-        const status = await api.getStatus(member);
-        const player = await api.getPlayerByUUID(member);
+    for (let i=0;i<guildMembers.length;i++) {
+        let member = guildMembers[i];
+        try{
+            var status = await api.getStatus(member);
+            var player = await api.getPlayerByUUID(member);
+        }catch(e){
+            i=i-1;
+            continue
+        }
         // embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
         statusArray.push({
             uuid: player.id,
@@ -629,7 +640,7 @@ async function updateLeaderboards() {
         guildMemberListlocal[i].revenant = 0;
         guildMemberListlocal[i].slayer = 0;
         guildMemberListlocal[i].profile = hyplayer.player;
-
+        guildMemberListlocal[i].score = 0;
         if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
             continue;
         }
@@ -661,7 +672,7 @@ async function updateLeaderboards() {
             }
     
         }
-        guildMemberListlocal[i].score = (guildMemberListlocal[i].average)*(1+(guildMemberListlocal[i].slayer/100000))
+        guildMemberListlocal[i].score = (guildMemberListlocal[i].average**4)*(1+(guildMemberListlocal[i].slayer/100000))/10000
     }
     let createEmbeds = (array, sortSkill) => {
         let embedlist = [];
@@ -669,7 +680,26 @@ async function updateLeaderboards() {
         let description = "```css\n";
         for (let index in array) {
             index = parseInt(index); //fuck you javadscript
-            if (((`${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`).length > 2048) || (index + 1 === array.length)) {
+            let text;
+            if (["slayer", "revenant", "spider", "sven"].includes(sortSkill))
+                text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill]} xp]\n`;
+            else
+                text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`;
+            if ((text.length > 2048)) {
+                description += "```";
+                embed = bot.createEmbed();
+                if(embedlist.length===0){
+                    embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
+                    embed.author("Upsi", "https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
+                }
+                embed.description(description);
+                embed.color("#00AAFF");
+                embedlist.push(embed.sendable);
+                description = "```css\n";
+                text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`;
+            }
+            description = text
+            if(index + 1 === array.length){
                 description += "```";
                 embed = bot.createEmbed();
                 embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
@@ -677,12 +707,6 @@ async function updateLeaderboards() {
                 embed.color("#00AAFF");
                 embed.author("Upsi", "https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
                 embedlist.push(embed.sendable);
-                description = "```css\n";
-            } else {
-                if (["slayer", "revenant", "spider", "sven"].includes(sortSkill))
-                    description = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill]} xp]\n`;
-                else
-                    description = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`;
             }
         }
         return embedlist;
@@ -693,10 +717,16 @@ async function updateLeaderboards() {
         const embeds = createEmbeds(guildMemberListlocal, skillName);
         for (index = 0; index < 2; index++) {
             if (embeds[index] === undefined)
-                bot.editMessage(vals.skillChannel, vals.skillMessage[skillName][index], "** **").catch(e => console.error(e));
+                bot.editMessage(vals.skillChannel, vals.skillMessage[skillName][index], {
+                    content: "** **",
+                    embed: {
+                        description:"End of List",
+                        color: 0x00AAFF,
+                    }
+                }).catch(e => console.error(e));
             else
                 bot.editMessage(vals.skillChannel, vals.skillMessage[skillName][index], {
-                    content: "",
+                    content: "** **",
                     embed: embeds[index]
                 }).catch(e => console.error(e));
         }
