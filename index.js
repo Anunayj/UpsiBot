@@ -219,7 +219,10 @@ let splashHandler = new splashNotifier();
 scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
 scraperbot.on("messageCreate", (msg) => {
     if(["720642093181042690","720602273461567509","736220160616038471"].includes(msg.channel.id)){
-        bot.createMessage("736211540772126780",msg);
+        bot.createMessage("736211540772126780",{
+            content:msg.cleanContent,
+            embed:embeds[0]
+        });
     }
 });
 
