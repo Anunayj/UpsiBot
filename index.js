@@ -40,7 +40,7 @@ try {
     if (tokens.main === undefined || tokens.scraper === undefined || tokens.hypixel === undefined)
         throw "Tokens are missing!";
 }
-console.log(`Using tokens Main: ${tokens.main.slice(0,5)}* \n Scraper: ${tokens.scraper.slice(0,5)}* \n hypixel: ${tokens.hypixel.slice(0,5)}*`)
+console.log(`Using tokens\nMain: ${tokens.main.slice(0,5)}* \nScraper: ${tokens.scraper.slice(0,5)}* \nhypixel: ${tokens.hypixel.slice(0,5)}*`)
 const api = new hypixel.Client(tokens.hypixel);
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     description: "A bot.",
@@ -543,7 +543,7 @@ async function price(msg, args) {
 setInterval(updateOnlineStatus, 1000 * 60 * 5);
 async function updateOnlineStatus() {
     const guild = await api.getGuild(vals.guildID);
-    const guildMembers = guild.members.map(members => members.uuid)
+    const guildMembers = guild.members.map(members => members.uuid);
 
     let statusArray = [];
     for (let i=0;i<guildMembers.length;i++) {
@@ -604,7 +604,7 @@ bot.registerCommand("updateleaderboard", updateLeaderboardsCheck, {
     cooldownMessage: "Slow down!!"
 });
 async function updateLeaderboardsCheck(msg) {
-    if (msg.author.id !== "213612539483914240") return "I am afraid you don't have the permession to do that.";
+    if (!["314197872209821699","213612539483914240","260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
     await updateLeaderboards();
     return `<@${msg.author.id}> Updated leaderboards`;
 }
@@ -690,9 +690,9 @@ async function updateLeaderboards() {
             index = parseInt(index); //fuck you javadscript
             let text;
             if (["slayer", "revenant", "spider", "sven"].includes(sortSkill))
-                text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill]} xp]\n`;
+                text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill]} xp]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
             else
-                text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`;
+                text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
             if ((text.length > 2048)) {
                 description += "```";
                 embed = bot.createEmbed();
