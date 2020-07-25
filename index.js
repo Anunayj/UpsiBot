@@ -218,7 +218,7 @@ class splashNotifier {
 let splashHandler = new splashNotifier();
 scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
 scraperbot.on("messageCreate", (msg) => {
-    if(["720642093181042690","720602273461567509","736220160616038471"].includes(msg.channel.id)){
+    if(["720642093181042690","720602273461567509","736220160616038471","728287548321038346"].includes(msg.channel.id)){
         bot.createMessage("736211540772126780",{
             content:msg.cleanContent,
             embed:msg.embeds[0]
@@ -605,8 +605,9 @@ bot.registerCommand("updateleaderboard", updateLeaderboardsCheck, {
 });
 async function updateLeaderboardsCheck(msg) {
     if (!["314197872209821699","213612539483914240","260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
+    bot.createMessage(msg.channel.id,"Updating...");
     await updateLeaderboards();
-    return `<@${msg.author.id}> Updated leaderboards`;
+    bot.createMessage(msg.channel.id,`<@${msg.author.id}> Updated leaderboards`);
 }
 
 async function updateLeaderboards() {
@@ -690,10 +691,10 @@ async function updateLeaderboards() {
             index = parseInt(index); //fuck you javadscript
             let text;
             if (["slayer", "revenant", "spider", "sven"].includes(sortSkill))
-                text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill]} xp]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
+                text = `#${index + 1} ${array[index].name} [${array[index][sortSkill]} xp]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
             else
-                text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
-            if ((text.length > 2048-3)) {
+                text = `#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
+            if (((description + text).length > 2048-3)) {
                 description += "```";
                 embed = bot.createEmbed();
                 if(embedlist.length===0){
@@ -704,16 +705,17 @@ async function updateLeaderboards() {
                 embed.color("#00AAFF");
                 embedlist.push(embed.sendable);
                 description = "```css\n";
-                text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]\n`;
-            }
-            description = text
+             }
+            description = description + text;
             if(index + 1 === array.length){
                 description += "```";
                 embed = bot.createEmbed();
-                embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
                 embed.description(description);
                 embed.color("#00AAFF");
-                embed.author("Upsi", "https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
+                if(embedlist.length===0){
+                    embed.author("Upsi", "https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
+                    embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
+                }
                 embedlist.push(embed.sendable);
             }
         }
