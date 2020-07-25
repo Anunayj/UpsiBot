@@ -37,10 +37,10 @@ try {
         scraper: process.env.scraperToken,
         hypixel: process.env.hypixelToken
     };
-    if (tokens.main === undefined || tokens.scraper === undefined || process.env.hypixelToken === undefined)
+    if (tokens.main === undefined || tokens.scraper === undefined || tokens.hypixel === undefined)
         throw "Tokens are missing!";
 }
-
+console.log(`Using tokens Main: ${tokens.main.slice(0,5)}* \n Scraper: ${tokens.scraper.slice(0,5)}* \n hypixel: ${tokens.hypixel.slice(0,5)}*`)
 const api = new hypixel.Client(tokens.hypixel);
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     description: "A bot.",
