@@ -693,7 +693,7 @@ async function updateLeaderboards() {
                 text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill]} xp]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
             else
                 text = `${description}#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
-            if ((text.length > 2048)) {
+            if ((text.length > 2048-3)) {
                 description += "```";
                 embed = bot.createEmbed();
                 if(embedlist.length===0){
