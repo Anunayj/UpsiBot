@@ -406,7 +406,7 @@ async function stats(msg, args) {
     embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
     for (let profile in res.stats) {
         let pf = res.stats[profile];
-        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills === -1 ? "Enable API" : (`${pf.skills.toFixed(2)}\n With Progress:\n${pf.skills2.toFixed(2)}`)} \n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth === -1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth === -1 ? "Enable API" : pf.talismans}`);
+        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills === -1 ? "Enable API" : (`${pf.skills.toFixed(2)}\n With Progress:\n${pf.skills2.toFixed(2)}`)} \n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth === -1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth === -1 ? "Enable API" : pf.talismans}\n**Score:**\n${pf.score === -1 ? "Enable API" : pf.score}`);
     }
 
     timeTaken = new Date(Date.now() - timeStart);
@@ -442,6 +442,7 @@ async function getStats(username, exploit = false) {
         let minions = 0;
         let skill = -1;
         let pskill = -1;
+        let score = -1;
         let slayer = {
             xp: 0,
             z: 0,
@@ -451,6 +452,12 @@ async function getStats(username, exploit = false) {
         for (const member of Object.values(prof.profile.members)) {
             if (!('crafted_generators' in member)) continue;
             minions += member.crafted_generators.length;
+        }
+        if (member.slayer_bosses !== undefined && member.slayer_bosses.zombie.xp !== undefined) {
+            slayer.w = member.slayer_bosses.wolf.xp || 0;
+            slayer.s = member.slayer_bosses.spider.xp || 0;
+            slayer.z = member.slayer_bosses.zombie.xp || 0;
+            slayer.xp = slayer.z + slayer.s + slayer.w;
         }
         if (utils.isIn(member, ['experience_skill_alchemy'])) {
             let combat = utils.fromExp(member.experience_skill_combat),
@@ -465,18 +472,15 @@ async function getStats(username, exploit = false) {
             skill = skill / 8;
             pskill = combat.b + farming.b + fishing.b + foraging.b + mining.b + alchemy.b + enchanting.b + taming.b;
             pskill = pskill / 8;
+            score = parseFloat(((pskill**4)*(1+(slayer.xp/100000))/10000).toFixed(2))
         }
-        if (member.slayer_bosses !== undefined && member.slayer_bosses.zombie.xp !== undefined) {
-            slayer.w = member.slayer_bosses.wolf.xp || 0;
-            slayer.s = member.slayer_bosses.spider.xp || 0;
-            slayer.z = member.slayer_bosses.zombie.xp || 0;
-            slayer.xp = slayer.z + slayer.s + slayer.w;
-        }
+
         profiles[pf.cute_name] = {
             minions: minions,
             skills: skill,
             skills2: pskill,
-            slayer: slayer
+            slayer: slayer,
+            score
         };
         if (member.inv_contents !== undefined) {
             let items = [member.inv_armor.data, member.inv_contents.data];
@@ -539,7 +543,7 @@ async function price(msg, args) {
 setInterval(updateOnlineStatus, 1000 * 60 * 5);
 async function updateOnlineStatus() {
     const guild = await api.getGuild(vals.guildID);
-    const guildMembers = guild.members.map(members => members.uuid);
+    const guildMembers = guild.members.map(members => members.uuid)
 
     let statusArray = [];
     for (let i=0;i<guildMembers.length;i++) {
@@ -668,11 +672,12 @@ async function updateLeaderboards() {
                 guildMemberListlocal[i].enchanting = (utils.fromExp(member.experience_skill_enchanting).b > guildMemberListlocal[i].enchanting ? utils.fromExp(member.experience_skill_enchanting).b : guildMemberListlocal[i].enchanting);
                 guildMemberListlocal[i].taming = (utils.fromExp(member.experience_skill_taming).b > guildMemberListlocal[i].taming ? utils.fromExp(member.experience_skill_taming).b : guildMemberListlocal[i].taming);
                 guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming) / 8).toFixed(2));
-                guildMemberListlocal[i].sven = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.wolf.xp || 0) > guildMemberListlocal[i].sven ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.wolf.xp || 0) : guildMemberListlocal[i].sven;
-                guildMemberListlocal[i].spider = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.spider.xp || 0) > guildMemberListlocal[i].spider ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.spider.xp || 0) : guildMemberListlocal[i].spider;
-                guildMemberListlocal[i].revenant = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.zombie.xp || 0) > guildMemberListlocal[i].revenant ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.zombie.xp || 0) : guildMemberListlocal[i].revenant;
-                guildMemberListlocal[i].slayer = (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) > guildMemberListlocal[i].slayer ? (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) : guildMemberListlocal[i].slayer;
+               
             }
+            guildMemberListlocal[i].sven = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.wolf.xp || 0) > guildMemberListlocal[i].sven ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.wolf.xp || 0) : guildMemberListlocal[i].sven;
+            guildMemberListlocal[i].spider = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.spider.xp || 0) > guildMemberListlocal[i].spider ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.spider.xp || 0) : guildMemberListlocal[i].spider;
+            guildMemberListlocal[i].revenant = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.zombie.xp || 0) > guildMemberListlocal[i].revenant ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.zombie.xp || 0) : guildMemberListlocal[i].revenant;
+            guildMemberListlocal[i].slayer = (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) > guildMemberListlocal[i].slayer ? (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) : guildMemberListlocal[i].slayer;
     
         }
         guildMemberListlocal[i].score = (guildMemberListlocal[i].average**4)*(1+(guildMemberListlocal[i].slayer/100000))/10000
