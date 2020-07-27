@@ -607,7 +607,7 @@ async function updateLeaderboardsCheck(msg) {
     if (!["314197872209821699","213612539483914240","260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
     bot.createMessage(msg.channel.id,"Updating...");
     await updateLeaderboards();
-    bot.createMessage(msg.channel.id,`<@${msg.author.id}> Updated leaderboards`);
+    bot.createMessage(msg.channel.id,`@${msg.author.username} Updated leaderboards`);
 }
 
 async function updateLeaderboards() {
