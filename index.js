@@ -696,7 +696,7 @@ async function updateLeaderboards() {
                 text = `#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
             if (((description + text).length > 2048-3)) {
                 description += "```";
-                embed = bot.createEmbed();
+                let embed = bot.createEmbed();
                 if(embedlist.length===0){
                     embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
                     embed.author("Upsi", "https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
@@ -742,11 +742,11 @@ async function updateLeaderboards() {
         }
 
     }
-    let embed = bot.createEmbed();
-    embed.color("#00AAFF");
-    embed.footer("Leaderboards were last updated ");
-    embed.timestamp(new Date());
-    bot.editMessage(vals.skillChannel, vals.skillLastUpdated,{content:"** **",embed:embed.sendable})
+    let skillLastUpdatedembed = bot.createEmbed();
+    skillLastUpdatedembed.color("#00AAFF");
+    skillLastUpdatedembed.footer("Leaderboards were last updated ");
+    skillLastUpdatedembed.timestamp(new Date());
+    bot.editMessage(vals.skillChannel, vals.skillLastUpdated,{content:"** **",embed:skillLastUpdatedembed.sendable})
 
     // guildMembers = getRESTGuildMembers(682608242932842559);
     // for(member of guildMemberListlocal){
