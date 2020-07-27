@@ -600,7 +600,7 @@ bot.registerCommand("updateleaderboard", updateLeaderboardsCheck, {
     fullDescription: "",
     argsRequired: false,
     usage: ``,
-    cooldown: 10000,
+    cooldown: 8*60*1000,
     cooldownMessage: "Slow down!!"
 });
 async function updateLeaderboardsCheck(msg) {
@@ -742,6 +742,12 @@ async function updateLeaderboards() {
         }
 
     }
+    let embed = bot.createEmbed();
+    embed.color("#00AAFF");
+    embed.footer("Leaderboards were last updated ");
+    embed.timestamp(new Date());
+    bot.editMessage(vals.skillChannel, vals.skillLastUpdated,{content:"** **",embed:embed.sendable})
+
     // guildMembers = getRESTGuildMembers(682608242932842559);
     // for(member of guildMemberListlocal){
     //     if(member.average>=30 && member.slayer>=1200000){
