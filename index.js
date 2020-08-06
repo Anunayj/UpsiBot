@@ -4,6 +4,8 @@ const hypixel = require("./api");
 const fs = require("fs");
 const utils = require("./utils");
 const vals = require("./config.json");
+const leechserver = require("./leechserver")
+
 const {
     NodeVM
 } = require('vm2');
@@ -142,6 +144,27 @@ class splashNotifier {
             hasEmbed.timestamp = new Date();
             hasEmbed.color = 0x00ffff;
             hasEmbed.description = totalmsg;
+            let isDemi = false;
+            for (let field of hasEmbed.fields){
+                let title = (field.name + " " + field.value).match(/((party|p) join \w+|HUB\s?\d+)/i);
+                isDemi = isDemi || (field.name + " " + field.value).toLowerCase().includes("demi");
+                if (title !== null) {
+                    hasEmbed.title = title[0];
+                }
+            }
+            let title = hasEmbed.description.match(/((party|p) join \w+|HUB\s?\d+)/i);
+            if (title !== null) {
+                hasEmbed.title = title[0];
+            }
+            if (hasEmbed.title.match(/((party|p) join \w+|HUB\s?\d+)/i) !== null){
+                leechserver.publish({
+                    type: (hasEmbed.title.match(/(party|p) join \w+/i) ? "party" : "hub"),
+                    place: hasEmbed.title
+                })
+            }
+            isDemi = isDemi || hasEmbed.description.toLowerCase().includes("demi");
+            hasEmbed.title += (isDemi ? " - DEMI" : "");
+            if(isDemi) hasEmbed.color = 0xC0C0C0;
             for (let splashReceiveChannel of this.splashReceiveChannels) {
                 bot.createMessage(splashReceiveChannel, {
                     embed: hasEmbed
@@ -153,8 +176,15 @@ class splashNotifier {
         if (totalmsg.match(/\d+\s?K/i) !== null) return;
         const isDemi = totalmsg.toLowerCase().includes("demi");
         const title = totalmsg.match(/((party|p) join \w+|HUB\s?\d+)/i);
-        if (title !== null) embed.title(title[0] + (isDemi ? " - DEMI" : ""));
-        else embed.title((isDemi ? "DEMI " : "") + "Splash");
+        if (title !== null) {
+            embed.title(title[0] + (isDemi ? " - DEMI" : ""));
+
+            leechserver.publish({
+                type: (totalmsg.match(/(party|p) join \w+/i) ? "party" : "hub"),
+                place: title[0]
+            })
+        } else 
+            embed.title((isDemi ? "DEMI " : "") + "Splash");
         embed.description(totalmsg);
         embed.color(isDemi ? "#C0C0C0" : "#00FFFF");
         embed.timestamp(new Date());
