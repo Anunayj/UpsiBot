@@ -72,7 +72,7 @@ async function genAPIKey(msg,args){
         sbp = null;
         guild = null;
     try {
-        player = await api.getplayer(args[0]);
+        player = await api.getPlayer(args[0]);
         hyplayer = await api.gethypixelPlayer(player.id);
         guild = await api.getGuildByUserID(player.id);
         sbp = hyplayer.player;
