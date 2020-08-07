@@ -159,7 +159,7 @@ bot.registerCommand("api", genAPIKey, {
 });
 
 
-bot.registerCommand("slm", (msg,args) => `https://sky.lea.moe/stats/${args[0]}` + (args[1] ? "/${args[1]}" : ""), {
+bot.registerCommand("slm", (msg,args) => `https://sky.lea.moe/stats/${args[0]}` + (args[1] ? `/${args[1]}` : ""), {
     description: "Link Sky.lea.moe",
     argsRequired: true,
     usage: "<username> [profile]"
