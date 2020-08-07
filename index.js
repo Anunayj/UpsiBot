@@ -98,13 +98,15 @@ async function queryHandler(req, res) {
         try{
             var stats = await getStats(urlParsed.query.username)
         }catch(e){
+            console.err(e)
+            console.err(urlParsed.query.username)
             res.writeHead(500)
             res.end();
             return
         }
         res.setHeader('Content-Type', 'application/json;charset=utf-8');
         res.setHeader("Cache-Control", "no-cache, must-revalidate");
-        res.end(stats);
+        res.end(JSON.stringify(stats));
         return;
     }
 
