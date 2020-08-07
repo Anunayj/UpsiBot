@@ -83,11 +83,9 @@ async function genAPIKey(msg,args){
     if(guild._id!==vals.guildID && !vals.modWhitelist.includes(player.id)) return("You are not whitelisted or a member of the guild");
     if(hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD !== `${msg.author.username}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
     const apiKey = utils.genuuid();
-    bot.createMessage((await bot.getDMChannel(msg.author.id)), "Here is your API key, Remember to keep it safe and do not share it with anyone.\n"+ apiKey);
-    db.push("/apikeys[]", {
-        id:player.id,
-        key:apiKey
-    }); // MAKE SURE TO DELETE THE OLD ONE THIS IS JUST A TEST
+    db.push(`/apikeys/${player.id}`, apiKey); // TEST
+    (await bot.getDMChannel(msg.author.id)).createMessage("Here is your API key, Remember to keep it safe and do not share it with anyone.\n```\n"+ apiKey + "```");
+
     return("Your Api key has been DMed to you")
 }
 
