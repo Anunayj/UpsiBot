@@ -96,7 +96,7 @@ async function queryHandler(req, res) {
             return;
         }
         try{
-            var stats = await getStats(args[0])
+            var stats = await getStats(urlParsed.query.username)
         }catch(e){
             res.writeHead(500)
             res.end();
