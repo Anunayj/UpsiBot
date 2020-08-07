@@ -106,7 +106,7 @@ async function queryHandler(req, res) {
             let slayer = 0
             for(profile of Object.keys(stats.stats)){
                 if(profile.skills > skill) skill = profile.skills;
-                if(profile.slayer.xp > skill) skill = profile.slayer.xp;
+                if(profile.slayer!== undefined && profile.slayer.xp > skill) skill = profile.slayer.xp;
             }
             response = {
                 skill,
