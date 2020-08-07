@@ -70,15 +70,16 @@ console.log('Server running on port 42069');
 async function queryHandler(req, res) {
     let urlParsed = url.parse(req.url, true);
     if(urlParsed.query.uuid===undefined || urlParsed.query.key ===undefined){ 
-        res.status(400).end(`Missing key/UUID`);
+        res.writeHead(400);
+        res.end(`Missing key/UUID`);
         return;
     }
     if(!db.getData("/apikeys").includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`)!== urlParsed.query.key) {
-       res.status(403).end(`Invalid UUID/Key`);
+       res.writeHead(403);
+       res.end(`Invalid UUID/Key`);
         return;
     }
 
-    // new client wants messages
     if (urlParsed.pathname == '/subscribe') {
         leechserver.onSubscribe(req, res);
         return;
@@ -86,13 +87,15 @@ async function queryHandler(req, res) {
 
     if (urlParsed.pathname == '/getStats') {
         if(urlParsed.query.username===undefined) {
-            res.status(400).end(`Missing username`);
+            res.writeHead(400)
+            res.end(`Missing username`);
             return;
         }
         try{
             var stats = await getStats(args[0])
         }catch(e){
-            res.status(500).end();
+            res.writeHead(500)
+            res.end();
             return
         }
         res.setHeader('Content-Type', 'application/json;charset=utf-8');
