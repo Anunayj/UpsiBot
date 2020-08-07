@@ -79,7 +79,8 @@ async function queryHandler(req, res) {
            res.writeHead(403);
            res.end(`Invalid UUID/Key`);
             return;
-        }catch(e){
+        }
+    }catch(e){
             res.writeHead(500)
             res.end();
         }
