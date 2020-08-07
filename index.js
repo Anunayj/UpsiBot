@@ -74,9 +74,10 @@ async function genAPIKey(msg,args){
     try {
         player = await api.getplayer(args[0]);
         hyplayer = await api.gethypixelPlayer(player.id);
-        guild = api.getGuildByUserID(player.id)
+        guild = await api.getGuildByUserID(player.id);
         sbp = hyplayer.player;
     } catch (err) {
+        console.log(err)
         return "Invalid username!";
     }
     if(guild.guild._id!==vals.guildID && !vals.modWhitelist.includes(player.id)) return("You are not whitelisted or a member of the guild");
