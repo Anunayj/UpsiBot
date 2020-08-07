@@ -74,12 +74,15 @@ async function queryHandler(req, res) {
         res.end(`Missing key/UUID`);
         return;
     }
-    if(!db.getData("/apikeys").includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`)!== urlParsed.query.key) {
-       res.writeHead(403);
-       res.end(`Invalid UUID/Key`);
-        return;
-    }
-
+    try{
+        if(!Object.keys(db.getData("/apikeys")).includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`)!== urlParsed.query.key) {
+           res.writeHead(403);
+           res.end(`Invalid UUID/Key`);
+            return;
+        }catch(e){
+            res.writeHead(500)
+            res.end();
+        }
     if (urlParsed.pathname == '/subscribe') {
         leechserver.onSubscribe(req, res);
         return;
