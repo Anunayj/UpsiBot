@@ -74,7 +74,7 @@ async function genAPIKey(msg,args){
     try {
         player = await api.getplayer(args[0]);
         hyplayer = await api.gethypixelPlayer(player.id);
-        guild = getGuildByUserID(player.id)
+        guild = api.getGuildByUserID(player.id)
         sbp = hyplayer.player;
     } catch (err) {
         return "Invalid username!";
