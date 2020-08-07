@@ -80,8 +80,16 @@ async function genAPIKey(msg,args){
         console.log(err)
         return "Invalid username!";
     }
+
     if(guild._id!==vals.guildID && !vals.modWhitelist.includes(player.id)) return("You are not whitelisted or a member of the guild");
     if(hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD !== `${msg.author.username}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
+    try{
+        if(!args.includes("new") && Object.keys(db.getData("/apikeys")).includes(player.id)){
+            return("You seem to already have a key, try `~api <username> new` if you want a new key, remember your old key will be invalidated")
+        }
+    }
+
+
     const apiKey = utils.genuuid();
     db.push(`/apikeys/${player.id}`, apiKey); // TEST
     (await bot.getDMChannel(msg.author.id)).createMessage("Here is your API key, Remember to keep it safe and do not share it with anyone.\n```\n"+ apiKey + "```");
