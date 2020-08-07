@@ -1,4 +1,3 @@
-let http = require('http');
 let url = require('url');
 let querystring = require('querystring');
 
@@ -29,18 +28,6 @@ function publish(message) {
     subscribers = Object.create(null);
 }
 
-function queryHandler(req, res) {
-    let urlParsed = url.parse(req.url, true);
-
-    // new client wants messages
-    if (urlParsed.pathname == '/subscribe') {
-        onSubscribe(req, res);
-        return;
-    }
-    res.end(`What you are looking for is not here, please don't DDoS me`)
-
-}
-
 function close() {
     for (let id in subscribers) {
         let res = subscribers[id];
@@ -50,6 +37,6 @@ function close() {
 
 if (module.parent) {
     exports.publish = publish;
-    exports.queryHandler = queryHandler;
+    exports.onSubscribe = onSubscribe;
 }
 process.on('SIGINT', close);

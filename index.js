@@ -6,6 +6,9 @@ const utils = require("./utils");
 const vals = require("./config.json");
 const leechserver = require("./leechserver")
 const http = require('http');
+let url = require('url');
+let querystring = require('querystring');
+
 
 const {
     NodeVM
@@ -61,8 +64,47 @@ scraperbot.connect().catch(() => {
 });
 
 
-http.createServer(leechserver.queryHandler).listen(42069);
+http.createServer(queryHandler).listen(42069);
 console.log('Server running on port 42069');
+
+async function queryHandler(req, res) {
+    let urlParsed = url.parse(req.url, true);
+    if(urlParsed.query.uuid===undefined || urlParsed.query.key ===undefined){ 
+        res.status(400).end(`Missing key/UUID`);
+        return;
+    }
+    if(!db.getData("/apikeys").includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`)!== urlParsed.query.key) {
+       res.status(403).end(`Invalid UUID/Key`);
+        return;
+    }
+
+    // new client wants messages
+    if (urlParsed.pathname == '/subscribe') {
+        leechserver.onSubscribe(req, res);
+        return;
+    }
+
+    if (urlParsed.pathname == '/getStats') {
+        if(urlParsed.query.username===undefined) {
+            res.status(400).end(`Missing username`);
+            return;
+        }
+        try{
+            var stats = await getStats(args[0])
+        }catch(e){
+            res.status(500).end();
+            return
+        }
+        res.setHeader('Content-Type', 'application/json;charset=utf-8');
+        res.setHeader("Cache-Control", "no-cache, must-revalidate");
+        res.end(var)
+        return;
+    }
+
+
+    res.end(`What you are looking for is not here, please don't DDoS me`)
+
+}
 
 
 async function genAPIKey(msg,args){
@@ -88,7 +130,7 @@ async function genAPIKey(msg,args){
             return("You seem to already have a key, try `~api <username> new` if you want a new key, remember your old key will be invalidated")
         }
     }catch(e){
-        
+
     }
 
 
