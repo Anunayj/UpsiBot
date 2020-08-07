@@ -59,6 +59,46 @@ scraperbot.connect().catch(() => {
     throw "Unable to connect";
 });
 
+
+http.createServer(leechserver.queryHandler).listen(42069);
+console.log('Server running on port 42069');
+
+
+async function genAPIKey(msg,args){
+    bot.sendChannelTyping(msg.channel.id);
+    let player = null,
+        hyplayer = null,
+        sbp = null;
+        guild = null;
+    try {
+        player = await api.getplayer(args[0]);
+        hyplayer = await api.gethypixelPlayer(player.id);
+        guild = getGuildByUserID(player.id)
+        sbp = hyplayer.player;
+    } catch (err) {
+        return "Invalid username!";
+    }
+    if(guild.guild._id!==vals.guildID && !vals.modWhitelist.includes(player.id)) return("You are not whitelisted or a member of the guild");
+    if(hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD !== `${msg.author.username}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
+    const apiKey = utils.genuuid();
+    bot.createMessage((await bot.getDMChannel(msg.author.id)), `Here is your API key, Remember to keep it safe and do not share it with anyone.\n \`${apiKey}\``);
+    db.push("/apikeys[]", {
+        id:player.id,
+        key:apiKey
+    }); // MAKE SURE TO DELETE THE OLD ONE THIS IS JUST A TEST
+
+}
+
+
+
+bot.registerCommand("api", genAPIKey, {
+    description: "Genenrate Api key for upsimod",
+    argsRequired: true,
+    usage: "<username>"
+});
+
+
+
 async function runInVm(msg) {
     if (msg.author.id !== "213612539483914240" && msg.author.id !== "260470661732892672" && msg.author.id !== "314197872209821699") return "No.";
     // TODO Ask refusings to make this look better.

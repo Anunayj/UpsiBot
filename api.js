@@ -35,6 +35,11 @@ class Client{
         if(res.statusCode===200) return (await res.json()).guild;
         else throw "Invalid UUID";
     }
+    async getGuildByUserID(uuid){
+        let res = await c(baseURL).path("guild").query({key:this.#key,player:uuid}).send();
+        if(res.statusCode===200) return (await res.json()).guild;
+        else throw "Invalid UUID";
+    }
     async getStatus(uuid){
         let res = await c(baseURL).path("status").query({key:this.#key,uuid}).send();
         if(res.statusCode===200) return (await res.json()).session;

@@ -48,11 +48,8 @@ function close() {
     }
 }    
 
-http.createServer(queryHandler).listen(42069);
-console.log('Server running on port 42069');
-
 if (module.parent) {
     exports.publish = publish;
-
+    exports.queryHandler = queryHandler;
 }
 process.on('SIGINT', close);
