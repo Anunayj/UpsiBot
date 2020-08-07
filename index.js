@@ -87,6 +87,8 @@ async function genAPIKey(msg,args){
         if(!args.includes("new") && Object.keys(db.getData("/apikeys")).includes(player.id)){
             return("You seem to already have a key, try `~api <username> new` if you want a new key, remember your old key will be invalidated")
         }
+    }catch(e){
+        
     }
 
 
