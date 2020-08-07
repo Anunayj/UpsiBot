@@ -174,6 +174,11 @@ bot.registerCommand("api", genAPIKey, {
 });
 
 
+bot.registerCommand("slm", (msg,args) => `https://sky.lea.moe/stats/${args[0]}` + (args[1] ? `/${args[1]}` : ""), {
+    description: "Link Sky.lea.moe",
+    argsRequired: true,
+    usage: "<username> [profile]"
+});
 
 async function runInVm(msg) {
     if (msg.author.id !== "213612539483914240" && msg.author.id !== "260470661732892672" && msg.author.id !== "314197872209821699") return "No.";
