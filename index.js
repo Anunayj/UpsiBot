@@ -68,66 +68,71 @@ http.createServer(queryHandler).listen(42069);
 console.log('Server running on port 42069');
 
 async function queryHandler(req, res) {
-    let urlParsed = url.parse(req.url, true);
-    if(urlParsed.query.uuid===undefined || urlParsed.query.key ===undefined){ 
-        res.writeHead(400);
-        res.end(`Missing key/UUID`);
-        return;
-    }
     try{
-        if(!Object.keys(db.getData("/apikeys")).includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`)!== urlParsed.query.key) {
-           res.writeHead(403);
-           res.end(`Invalid UUID/Key`);
-            return;
-        }
-    }catch(e){
-            res.writeHead(500)
-            res.end();
-        }
-    if (urlParsed.pathname == '/subscribe') {
-        leechserver.onSubscribe(req, res);
-        return;
-    }
-
-    if (urlParsed.pathname == '/getStats') {
-        if(urlParsed.query.username===undefined) {
-            res.writeHead(400)
-            res.end(`Missing username`);
+        let urlParsed = url.parse(req.url, true);
+        if(urlParsed.query.uuid===undefined || urlParsed.query.key ===undefined){ 
+            res.writeHead(400);
+            res.end(`Missing key/UUID`);
             return;
         }
         try{
-            var stats = await getStats(urlParsed.query.username)
-            let skill = 0
-            for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
-                skill += stats.hyplayer.player.achievements["skyblock_" + name];
-            }
-            skill /= 8;
-            if(skill===NaN) skill = 0;
-            let slayer = 0
-            for(profile of Object.keys(stats.stats)){
-                if(stats.stats[profile].skills > skill) skill = stats.stats[profile].skills;
-                if(stats.stats[profile].slayer!== undefined && stats.stats[profile].slayer.xp > skill) slayer = stats.stats[profile].slayer.xp;
-            }
-            response = {
-                skill,
-                slayer
+            if(!Object.keys(db.getData("/apikeys")).includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`)!== urlParsed.query.key) {
+               res.writeHead(403);
+               res.end(`Invalid UUID/Key`);
+                return;
             }
         }catch(e){
-            console.error(e)
-            console.error(urlParsed.query.username)
-            res.writeHead(500)
-            res.end();
-            return
+                res.writeHead(500)
+                res.end();
+            }
+        if (urlParsed.pathname == '/subscribe') {
+            leechserver.onSubscribe(req, res);
+            return;
         }
-        res.setHeader('Content-Type', 'application/json;charset=utf-8');
-        res.setHeader("Cache-Control", "no-cache, must-revalidate");
-        res.end(JSON.stringify(response));
-        return;
+
+        if (urlParsed.pathname == '/getStats') {
+            if(urlParsed.query.username===undefined) {
+                res.writeHead(400)
+                res.end(`Missing username`);
+                return;
+            }
+            try{
+                var stats = await getStats(urlParsed.query.username)
+                let skill = 0
+                for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
+                    skill += stats.hyplayer.player.achievements["skyblock_" + name];
+                }
+                skill /= 8;
+                if(skill===NaN) skill = 0;
+                let slayer = 0
+                for(profile of Object.keys(stats.stats)){
+                    if(stats.stats[profile].skills > skill) skill = stats.stats[profile].skills;
+                    if(stats.stats[profile].slayer!== undefined && stats.stats[profile].slayer.xp > skill) slayer = stats.stats[profile].slayer.xp;
+                }
+                response = {
+                    skill,
+                    slayer
+                }
+            }catch(e){
+                console.error(e)
+                console.error(urlParsed.query.username)
+                res.writeHead(500)
+                res.end();
+                return
+            }
+            res.setHeader('Content-Type', 'application/json;charset=utf-8');
+            res.setHeader("Cache-Control", "no-cache, must-revalidate");
+            res.end(JSON.stringify(response));
+            return;
+        }
+
+
+        res.end(`What you are looking for is not here, please don't DDoS me`)
+    }catch(e){
+        console.error(e);
+        res.writeHead(500)
+        res.end();
     }
-
-
-    res.end(`What you are looking for is not here, please don't DDoS me`)
-
 }
 
 
