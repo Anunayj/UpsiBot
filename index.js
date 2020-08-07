@@ -97,6 +97,21 @@ async function queryHandler(req, res) {
         }
         try{
             var stats = await getStats(urlParsed.query.username)
+            let skill = 0
+            for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
+                skill += ach["skyblock_" + name];
+            }
+            skill /= 8;
+            if(skill===NaN) skill = 0;
+            let slayer = 0
+            for(profile of Object.keys(stats.stats){
+                if(profile.skills > skill) skill = profile.skills;
+                if(profile.slayer.xp > skill) skill = profile.slayer.xp;
+            }
+            response = {
+                skill,
+                slayer
+            }
         }catch(e){
             console.err(e)
             console.err(urlParsed.query.username)
@@ -106,7 +121,7 @@ async function queryHandler(req, res) {
         }
         res.setHeader('Content-Type', 'application/json;charset=utf-8');
         res.setHeader("Cache-Control", "no-cache, must-revalidate");
-        res.end(JSON.stringify(stats));
+        res.end(JSON.stringify(response));
         return;
     }
 
