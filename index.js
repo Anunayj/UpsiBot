@@ -99,7 +99,7 @@ async function queryHandler(req, res) {
             var stats = await getStats(urlParsed.query.username)
             let skill = 0
             for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
-                skill += ach["skyblock_" + name];
+                skill += stats.hyplayer.player.achievements["skyblock_" + name];
             }
             skill /= 8;
             if(skill===NaN) skill = 0;
@@ -113,8 +113,8 @@ async function queryHandler(req, res) {
                 slayer
             }
         }catch(e){
-            console.err(e)
-            console.err(urlParsed.query.username)
+            console.error(e)
+            console.error(urlParsed.query.username)
             res.writeHead(500)
             res.end();
             return
@@ -162,7 +162,7 @@ async function genAPIKey(msg,args){
     db.push(`/apikeys/${player.id}`, apiKey); // TEST
     (await bot.getDMChannel(msg.author.id)).createMessage("Here is your API key, Remember to keep it safe and do not share it with anyone.\n```\n"+ apiKey + "```");
 
-    return("Your Api key has been DMed to you")
+    return("Your api key has been Direct Messaged to you")
 }
 
 
