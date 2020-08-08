@@ -68,17 +68,20 @@ http.createServer(queryHandler).listen(42069);
 console.log('Server running on port 42069');
 
 async function queryHandler(req, res) {
+    res.setHeader('Content-Type', 'application/json;charset=utf-8');
+    res.setHeader("Cache-Control", "no-cache, must-revalidate");
     try{
         let urlParsed = url.parse(req.url, true);
+
         if(urlParsed.query.uuid===undefined || urlParsed.query.key ===undefined){ 
             res.writeHead(400);
-            res.end(`Missing key/UUID`);
+            res.end(`{"error":"Missing key/UUID"}`);
             return;
         }
         try{
             if(!Object.keys(db.getData("/apikeys")).includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`)!== urlParsed.query.key) {
                res.writeHead(403);
-               res.end(`Invalid UUID/Key`);
+               res.end(`{"error":"Invalid UUID/Key"}`);
                 return;
             }
         }catch(e){
@@ -93,7 +96,7 @@ async function queryHandler(req, res) {
         if (urlParsed.pathname == '/getStats') {
             if(urlParsed.query.username===undefined) {
                 res.writeHead(400)
-                res.end(`Missing username`);
+                res.end(`{"error":"Missing username"}`);
                 return;
             }
             try{
@@ -120,8 +123,7 @@ async function queryHandler(req, res) {
                 res.end();
                 return
             }
-            res.setHeader('Content-Type', 'application/json;charset=utf-8');
-            res.setHeader("Cache-Control", "no-cache, must-revalidate");
+            
             res.end(JSON.stringify(response));
             return;
         }
@@ -282,15 +284,18 @@ class splashNotifier {
             if (title !== null) {
                 hasEmbed.title = title[0];
             }
+            isDemi = isDemi || hasEmbed.description.toLowerCase().includes("demi");
+            hasEmbed.title += (isDemi ? " - DEMI" : "");
+            //if(isDemi) hasEmbed.color = 0xC0C0C0;
+            if(isDemi) return;
             if (hasEmbed.title.match(/((party|p) join \w+|HUB\s?\d+)/i) !== null){
                 leechserver.publish({
                     type: (hasEmbed.title.match(/(party|p) join \w+/i) ? "party" : "hub"),
-                    place: hasEmbed.title
+                    place: hasEmbed.title,
+                    message: hasEmbed.description + hasEmbed.fields.map(function(obj){return(`${obj.name}:${obj.value}`)}).join("\n")
                 })
             }
-            isDemi = isDemi || hasEmbed.description.toLowerCase().includes("demi");
-            hasEmbed.title += (isDemi ? " - DEMI" : "");
-            if(isDemi) hasEmbed.color = 0xC0C0C0;
+            
             for (let splashReceiveChannel of this.splashReceiveChannels) {
                 bot.createMessage(splashReceiveChannel, {
                     embed: hasEmbed
@@ -301,13 +306,14 @@ class splashNotifier {
 
         if (totalmsg.match(/\d+\s?K/i) !== null) return;
         const isDemi = totalmsg.toLowerCase().includes("demi");
+        if(isDemi) return; //SOFT-REMOVED DEMI
         const title = totalmsg.match(/((party|p) join \w+|HUB\s?\d+)/i);
         if (title !== null) {
             embed.title(title[0] + (isDemi ? " - DEMI" : ""));
-
             leechserver.publish({
                 type: (totalmsg.match(/(party|p) join \w+/i) ? "party" : "hub"),
-                place: title[0]
+                place: title[0],
+                message: totalmsg
             })
         } else 
             embed.title((isDemi ? "DEMI " : "") + "Splash");
