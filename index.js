@@ -419,7 +419,7 @@ async function checkRequirements(msg, args) {
     bot.sendChannelTyping(msg.channel.id);
     let timeStart = Date.now();
     // let newReqs = args.join("").includes("new");
-    let newReqs = true;
+    let newReqs = !args.join("").includes("old");
     let current = args.join("").includes("old");
 
     let embed = bot.createEmbed(msg.channel.id);
