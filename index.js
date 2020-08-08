@@ -296,6 +296,8 @@ class splashNotifier {
                 })
             }
             
+            
+            
             for (let splashReceiveChannel of this.splashReceiveChannels) {
                 bot.createMessage(splashReceiveChannel, {
                     embed: hasEmbed
@@ -316,7 +318,8 @@ class splashNotifier {
                 message: totalmsg
             })
         } else 
-            embed.title((isDemi ? "DEMI " : "") + "Splash");
+            return;
+            // embed.title((isDemi ? "DEMI " : "") + "Splash");
         embed.description(totalmsg);
         embed.color(isDemi ? "#C0C0C0" : "#00FFFF");
         embed.timestamp(new Date());
@@ -415,8 +418,9 @@ async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
     bot.sendChannelTyping(msg.channel.id);
     let timeStart = Date.now();
-    let newReqs = args.join("").includes("new");
-    let current = args.join("").includes("current");
+    // let newReqs = args.join("").includes("new");
+    let newReqs = true;
+    let current = args.join("").includes("old");
 
     let embed = bot.createEmbed(msg.channel.id);
     let res = await getStats(args[0]);
