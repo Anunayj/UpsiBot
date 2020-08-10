@@ -154,7 +154,7 @@ async function genAPIKey(msg,args){
         return "Invalid username!";
     }
 
-    if(guild._id!==vals.guildID && !vals.modWhitelist.includes(player.id)) return("You are not whitelisted or a member of the guild");
+    if((guild===null || guild._id!==vals.guildID) && !vals.modWhitelist.includes(player.id)) return("You are not whitelisted or a member of the guild");
     if(hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
     try{
         if(!args.includes("new") && Object.keys(db.getData("/apikeys")).includes(player.id)){
