@@ -539,9 +539,9 @@ bot.registerCommand("stats", stats, {
 
 bot.registerCommand("guild", guildStats, {
     description: "Get Upsi Guild Stats!!",
-    fullDescription: "Dude that literally ^",
-    argsRequired: false,
-    usage: ``,
+    fullDescription: "",
+    argsRequired: true,
+    usage: `<username>`,
     cooldown: 5000,
     cooldownMessage: "Chill b*tch!",
 });
@@ -596,7 +596,13 @@ async function guildStats(msg = new Eris.Message(), args) {
     let timeStart = Date.now();
     let timeTaken = new Date();
     // returns embed of Guild Name, Description, Guild EXP, Master, Number of Members, Number of Online
-    let tempGuild = await api.getGuildByUserID("41c4be4ac82c4c02aed3a63ba2cf9dda");
+    let player;
+    try {
+        player = await api.getPlayer(args[0]);
+    } catch (err) {
+        return "Invalid username!";
+    }
+    let tempGuild = await api.getGuildByUserID(player.id);
     let embed = bot.createEmbed(msg.channel.id);
     let members = tempGuild.members;
     let gm = "";
