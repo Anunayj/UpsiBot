@@ -25,7 +25,6 @@ function publish(message) {
     for (let id in subscribers) {
         let res = subscribers[id];
         res.end(message);
-        console.log(`Incoming request from ${id} Ended`)
     }
 
     subscribers = Object.create(null);
