@@ -14,6 +14,7 @@ function onSubscribe(req, res) {
     subscribers[id] = res;
 
     req.on('close', function () {
+        console.log(`Incoming request from ${urlParsed.query.uuid} Ended`)
         delete subscribers[id];
     });
 
@@ -24,6 +25,7 @@ function publish(message) {
     for (let id in subscribers) {
         let res = subscribers[id];
         res.end(message);
+        console.log(`Incoming request from ${urlParsed.query.uuid} Ended`)
     }
 
     subscribers = Object.create(null);
