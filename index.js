@@ -4,7 +4,7 @@ const hypixel = require("./api");
 const fs = require("fs");
 const utils = require("./utils");
 const vals = require("./config.json");
-const leechserver = require("./leechserver")
+const leechserver = require("./leechserver");
 const http = require('http');
 let url = require('url');
 let querystring = require('querystring');
@@ -46,7 +46,7 @@ try {
     if (tokens.main === undefined || tokens.scraper === undefined || tokens.hypixel === undefined)
         throw "Tokens are missing!";
 }
-console.log(`Using tokens\nMain: ${tokens.main.slice(0,5)}* \nScraper: ${tokens.scraper.slice(0,5)}* \nhypixel: ${tokens.hypixel.slice(0,5)}*`)
+console.log(`Using tokens\nMain: ${tokens.main.slice(0, 5)}* \nScraper: ${tokens.scraper.slice(0, 5)}* \nhypixel: ${tokens.hypixel.slice(0, 5)}*`);
 const api = new hypixel.Client(tokens.hypixel);
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
     description: "A bot.",
@@ -70,87 +70,87 @@ console.log('Server running on port 42069');
 async function queryHandler(req, res) {
     res.setHeader('Content-Type', 'application/json;charset=utf-8');
     res.setHeader("Cache-Control", "no-cache, must-revalidate");
-    try{
+    try {
         let urlParsed = url.parse(req.url, true);
 
-        if(urlParsed.query.uuid===undefined || urlParsed.query.key ===undefined){ 
+        if (urlParsed.query.uuid === undefined || urlParsed.query.key === undefined) {
             res.writeHead(400);
             res.end(`{"error":"Missing key/UUID"}`);
             return;
         }
-        try{
-            if(!Object.keys(db.getData("/apikeys")).includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`)!== urlParsed.query.key) {
-               res.writeHead(403);
-               res.end(`{"error":"Invalid UUID/Key"}`);
+        try {
+            if (!Object.keys(db.getData("/apikeys")).includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`) !== urlParsed.query.key) {
+                res.writeHead(403);
+                res.end(`{"error":"Invalid UUID/Key"}`);
                 return;
             }
-        }catch(e){
-                res.writeHead(500)
-                res.end();
-            }
+        } catch (e) {
+            res.writeHead(500);
+            res.end();
+        }
         if (urlParsed.pathname == '/subscribe') {
             leechserver.onSubscribe(req, res);
             return;
         }
 
         if (urlParsed.pathname == '/getStats') {
-            if(urlParsed.query.username===undefined) {
-                res.writeHead(400)
+            if (urlParsed.query.username === undefined) {
+                res.writeHead(400);
                 res.end(`{"error":"Missing username"}`);
                 return;
             }
-            try{
-                var stats = await getStats(urlParsed.query.username)
-                let skill = 0
+            try {
+                var stats = await getStats(urlParsed.query.username);
+                let skill = 0;
                 for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
                     skill += stats.hyplayer.player.achievements["skyblock_" + name];
                 }
                 skill /= 8;
-                if(skill===NaN) skill = 0;
-                let slayer = 0
-                for(profile of Object.keys(stats.stats)){
-                    if(stats.stats[profile].skills > skill) skill = stats.stats[profile].skills;
-                    if(stats.stats[profile].slayer!== undefined && stats.stats[profile].slayer.xp > skill) slayer = stats.stats[profile].slayer.xp;
+                if (skill === NaN) skill = 0;
+                let slayer = 0;
+                for (profile of Object.keys(stats.stats)) {
+                    if (stats.stats[profile].skills > skill) skill = stats.stats[profile].skills;
+                    if (stats.stats[profile].slayer !== undefined && stats.stats[profile].slayer.xp > skill) slayer = stats.stats[profile].slayer.xp;
                 }
                 response = {
                     skill,
                     slayer
-                }
-            }catch(e){
-                console.error(e)
-                console.error(urlParsed.query.username)
-                res.writeHead(500)
+                };
+            } catch (e) {
+                console.error(e);
+                console.error(urlParsed.query.username);
+                res.writeHead(500);
                 res.end();
-                return
+                return;
             }
-            
+
             res.end(JSON.stringify(response));
             return;
         }
 
 
-        res.end(`What you are looking for is not here, please don't DDoS me`)
-    }catch(e){
+        res.end(`What you are looking for is not here, please don't DDoS me`);
+    } catch (e) {
         console.error(e);
-        res.writeHead(500)
+        res.writeHead(500);
         res.end();
     }
 }
 
 
-async function genAPIKey(msg,args){
+async function genAPIKey(msg, args) {
     bot.sendChannelTyping(msg.channel.id);
     let player = null,
         hyplayer = null,
         sbp = null;
-        guild = null;
+    guild = null;
     try {
         player = await api.getPlayer(args[0]);
         hyplayer = await api.gethypixelPlayer(player.id);
         guild = await api.getGuildByUserID(player.id);
         sbp = hyplayer.player;
     } catch (err) {
-        console.log(err)
+        console.log(err);
         return "Invalid username!";
     }
 
@@ -160,16 +160,16 @@ async function genAPIKey(msg,args){
         if(!args.includes("new") && Object.keys(db.getData("/apikeys")).includes(player.id)){
             return("You seem to already have a key, try `~api <username> new` if you want a new key, remember your old key will be invalidated")
         }
-    }catch(e){
+    } catch (e) {
 
     }
 
 
     const apiKey = utils.genuuid();
     db.push(`/apikeys/${player.id}`, apiKey); // TEST
-    (await bot.getDMChannel(msg.author.id)).createMessage("Here is your API key, Remember to keep it safe and do not share it with anyone.\n```\n"+ apiKey + "```");
+    (await bot.getDMChannel(msg.author.id)).createMessage("Here is your API key, Remember to keep it safe and do not share it with anyone.\n```\n" + apiKey + "```");
 
-    return("Your api key has been Direct Messaged to you")
+    return ("Your api key has been Direct Messaged to you");
 }
 
 
@@ -181,7 +181,7 @@ bot.registerCommand("api", genAPIKey, {
 });
 
 
-bot.registerCommand("slm", (msg,args) => `https://sky.lea.moe/stats/${args[0]}` + (args[1] ? `/${args[1]}` : ""), {
+bot.registerCommand("slm", (msg, args) => `https://sky.lea.moe/stats/${args[0]}` + (args[1] ? `/${args[1]}` : ""), {
     description: "Link Sky.lea.moe",
     argsRequired: true,
     usage: "<username> [profile]"
@@ -199,6 +199,7 @@ async function runInVm(msg) {
         sandbox: {}
     });
     vm.freeze(api, 'api');
+    vm.freeze(config, 'config');
     let output = await bot.createMessage(msg.channel.id, "Output:").catch(e => console.log(e));
     vm.on('console.log', (data) => {
         output.edit(output.content += `\n${JSON.stringify(data)}`);
@@ -273,7 +274,7 @@ class splashNotifier {
             hasEmbed.color = 0x00ffff;
             hasEmbed.description = totalmsg;
             let isDemi = false;
-            for (let field of hasEmbed.fields){
+            for (let field of hasEmbed.fields) {
                 let title = (field.name + " " + field.value).match(/((party|p) join \w+|HUB\s?\d+)/i);
                 isDemi = isDemi || (field.name + " " + field.value).toLowerCase().includes("demi");
                 if (title !== null) {
@@ -287,17 +288,17 @@ class splashNotifier {
             isDemi = isDemi || hasEmbed.description.toLowerCase().includes("demi");
             hasEmbed.title += (isDemi ? " - DEMI" : "");
             //if(isDemi) hasEmbed.color = 0xC0C0C0;
-            if(isDemi) return;
-            if (hasEmbed.title.match(/((party|p) join \w+|HUB\s?\d+)/i) !== null){
+            if (isDemi) return;
+            if (hasEmbed.title.match(/((party|p) join \w+|HUB\s?\d+)/i) !== null) {
                 leechserver.publish({
                     type: (hasEmbed.title.match(/(party|p) join \w+/i) ? "party" : "hub"),
                     place: hasEmbed.title,
-                    message: hasEmbed.description + hasEmbed.fields.map(function(obj){return(`${obj.name}:${obj.value}`)}).join("\n")
-                })
+                    message: hasEmbed.description + hasEmbed.fields.map(function (obj) { return (`${obj.name}:${obj.value}`); }).join("\n")
+                });
             }
-            
-            
-            
+
+
+
             for (let splashReceiveChannel of this.splashReceiveChannels) {
                 bot.createMessage(splashReceiveChannel, {
                     embed: hasEmbed
@@ -308,7 +309,7 @@ class splashNotifier {
 
         if (totalmsg.match(/\d+\s?K/i) !== null) return;
         const isDemi = totalmsg.toLowerCase().includes("demi");
-        if(isDemi) return; //SOFT-REMOVED DEMI
+        if (isDemi) return; //SOFT-REMOVED DEMI
         const title = totalmsg.match(/((party|p) join \w+|HUB\s?\d+)/i);
         if (title !== null) {
             embed.title(title[0] + (isDemi ? " - DEMI" : ""));
@@ -316,10 +317,10 @@ class splashNotifier {
                 type: (totalmsg.match(/(party|p) join \w+/i) ? "party" : "hub"),
                 place: title[0],
                 message: totalmsg
-            })
-        } else 
+            });
+        } else
             return;
-            // embed.title((isDemi ? "DEMI " : "") + "Splash");
+        // embed.title((isDemi ? "DEMI " : "") + "Splash");
         embed.description(totalmsg);
         embed.color(isDemi ? "#C0C0C0" : "#00FFFF");
         embed.timestamp(new Date());
@@ -383,10 +384,10 @@ class splashNotifier {
 let splashHandler = new splashNotifier();
 scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
 scraperbot.on("messageCreate", (msg) => {
-    if(["720642093181042690","720602273461567509","736220160616038471","728287548321038346"].includes(msg.channel.id)){
-        bot.createMessage("736211540772126780",{
-            content:msg.cleanContent,
-            embed:msg.embeds[0]
+    if (["720642093181042690", "720602273461567509", "736220160616038471", "728287548321038346"].includes(msg.channel.id)) {
+        bot.createMessage("736211540772126780", {
+            content: msg.cleanContent,
+            embed: msg.embeds[0]
         });
     }
 });
@@ -536,6 +537,15 @@ bot.registerCommand("stats", stats, {
     cooldownMessage: "Chill b*tch!",
 });
 
+bot.registerCommand("guild", guildStats, {
+    description: "Get Upsi Guild Stats!!",
+    fullDescription: "",
+    argsRequired: true,
+    usage: `<username>`,
+    cooldown: 5000,
+    cooldownMessage: "Chill b*tch!",
+});
+
 bot.registerCommand("online", isOnline, {
     description: "Check Player online!",
     fullDescription: "Chck whether a person is online",
@@ -575,6 +585,37 @@ async function stats(msg, args) {
         embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills === -1 ? "Enable API" : (`${pf.skills.toFixed(2)}\n With Progress:\n${pf.skills2.toFixed(2)}`)} \n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth === -1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth === -1 ? "Enable API" : pf.talismans}\n**Score:**\n${pf.score === -1 ? "Enable API" : pf.score}`);
     }
 
+    timeTaken = new Date(Date.now() - timeStart);
+    embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
+    await embed.send();
+    return;
+}
+
+async function guildStats(msg = new Eris.Message(), args) {
+    bot.sendChannelTyping(msg.channel.id);
+    let timeStart = Date.now();
+    let timeTaken = new Date();
+    // returns embed of Guild Name, Description, Guild EXP, Master, Number of Members, Number of Online
+    let player;
+    try {
+        player = await api.getPlayer(args[0]);
+    } catch (err) {
+        return "Invalid username!";
+    }
+    let tempGuild = await api.getGuildByUserID(player.id);
+    let embed = bot.createEmbed(msg.channel.id);
+    let members = tempGuild.members;
+    let gm = "";
+    for (var member of members) {
+        if (member.rank == "Guild Master") {
+            gm = await (await api.getPlayerByUUID(member.uuid)).name;
+        }
+    }
+    embed.title(`${tempGuild.name} - ${Object.keys(tempGuild.members).length} Members`);
+    embed.field(`Guild Description`, `${tempGuild.description}`);
+    embed.field(`Guild Master`, `${gm}`);
+    embed.field(`Guild EXP`, `${tempGuild.exp}`);
+    embed.field(`Members Online`, `${tempGuild.achievements.ONLINE_PLAYERS}`);
     timeTaken = new Date(Date.now() - timeStart);
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
     await embed.send();
@@ -638,7 +679,7 @@ async function getStats(username, exploit = false) {
             skill = skill / 8;
             pskill = combat.b + farming.b + fishing.b + foraging.b + mining.b + alchemy.b + enchanting.b + taming.b;
             pskill = pskill / 8;
-            score = parseFloat(((pskill**4)*(1+(slayer.xp/100000))/10000).toFixed(2))
+            score = parseFloat(((pskill ** 4) * (1 + (slayer.xp / 100000)) / 10000).toFixed(2));
         }
 
         profiles[pf.cute_name] = {
@@ -712,14 +753,14 @@ async function updateOnlineStatus() {
     const guildMembers = guild.members.map(members => members.uuid);
 
     let statusArray = [];
-    for (let i=0;i<guildMembers.length;i++) {
+    for (let i = 0; i < guildMembers.length; i++) {
         let member = guildMembers[i];
-        try{
+        try {
             var status = await api.getStatus(member);
             var player = await api.getPlayerByUUID(member);
-        }catch(e){
-            i=i-1;
-            continue
+        } catch (e) {
+            i = i - 1;
+            continue;
         }
         // embed._description += `:${status.online ? "green" : "red"}_circle: - ${player.name} ${status.gameType === undefined ? "" : "(" + status.gameType + ")"}\n`;
         statusArray.push({
@@ -766,14 +807,14 @@ bot.registerCommand("updateleaderboard", updateLeaderboardsCheck, {
     fullDescription: "",
     argsRequired: false,
     usage: ``,
-    cooldown: 8*60*1000,
+    cooldown: 8 * 60 * 1000,
     cooldownMessage: "Slow down!!"
 });
 async function updateLeaderboardsCheck(msg) {
-    if (!["314197872209821699","213612539483914240","260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
-    bot.createMessage(msg.channel.id,"Updating...");
+    if (!["314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
+    bot.createMessage(msg.channel.id, "Updating...");
     await updateLeaderboards();
-    bot.createMessage(msg.channel.id,`@${msg.author.username} Updated leaderboards`);
+    bot.createMessage(msg.channel.id, `@${msg.author.username} Updated leaderboards`);
 }
 
 async function updateLeaderboards() {
@@ -786,7 +827,7 @@ async function updateLeaderboards() {
         }
     }
     let guildMemberListlocal = utils.deepCopy(guildMemberList);
-    for(let i = 0;i < guildMemberListlocal.length; i++){
+    for (let i = 0; i < guildMemberListlocal.length; i++) {
         await new Promise(r => setTimeout(r, 5000));
         let hyplayer;
         try {
@@ -839,15 +880,15 @@ async function updateLeaderboards() {
                 guildMemberListlocal[i].enchanting = (utils.fromExp(member.experience_skill_enchanting).b > guildMemberListlocal[i].enchanting ? utils.fromExp(member.experience_skill_enchanting).b : guildMemberListlocal[i].enchanting);
                 guildMemberListlocal[i].taming = (utils.fromExp(member.experience_skill_taming).b > guildMemberListlocal[i].taming ? utils.fromExp(member.experience_skill_taming).b : guildMemberListlocal[i].taming);
                 guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming) / 8).toFixed(2));
-               
+
             }
             guildMemberListlocal[i].sven = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.wolf.xp || 0) > guildMemberListlocal[i].sven ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.wolf.xp || 0) : guildMemberListlocal[i].sven;
             guildMemberListlocal[i].spider = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.spider.xp || 0) > guildMemberListlocal[i].spider ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.spider.xp || 0) : guildMemberListlocal[i].spider;
             guildMemberListlocal[i].revenant = (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.zombie.xp || 0) > guildMemberListlocal[i].revenant ? (member.slayer_bosses === undefined ? 0 : member.slayer_bosses.zombie.xp || 0) : guildMemberListlocal[i].revenant;
             guildMemberListlocal[i].slayer = (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) > guildMemberListlocal[i].slayer ? (guildMemberListlocal[i].sven + guildMemberListlocal[i].spider + guildMemberListlocal[i].revenant) : guildMemberListlocal[i].slayer;
-    
+
         }
-        guildMemberListlocal[i].score = (guildMemberListlocal[i].average**4)*(1+(guildMemberListlocal[i].slayer/100000))/10000
+        guildMemberListlocal[i].score = (guildMemberListlocal[i].average ** 4) * (1 + (guildMemberListlocal[i].slayer / 100000)) / 10000;
     }
     let createEmbeds = (array, sortSkill) => {
         let embedlist = [];
@@ -860,10 +901,10 @@ async function updateLeaderboards() {
                 text = `#${index + 1} ${array[index].name} [${array[index][sortSkill]} xp]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
             else
                 text = `#${index + 1} ${array[index].name} [${array[index][sortSkill].toFixed(2)}]` + (vals.og.includes(array[index].uuid) ? " (OG)\n" : "\n");
-            if (((description + text).length > 2048-3)) {
+            if (((description + text).length > 2048 - 3)) {
                 description += "```";
                 let embed = bot.createEmbed();
-                if(embedlist.length===0){
+                if (embedlist.length === 0) {
                     embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
                     embed.author("Upsi", "https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
                 }
@@ -871,14 +912,14 @@ async function updateLeaderboards() {
                 embed.color("#00AAFF");
                 embedlist.push(embed.sendable);
                 description = "```css\n";
-             }
+            }
             description = description + text;
-            if(index + 1 === array.length){
+            if (index + 1 === array.length) {
                 description += "```";
                 embed = bot.createEmbed();
                 embed.description(description);
                 embed.color("#00AAFF");
-                if(embedlist.length===0){
+                if (embedlist.length === 0) {
                     embed.author("Upsi", "https://cdn.discordapp.com/icons/682608242932842559/661d3017a432d1b378fbc4e38d5adf84.png");
                     embed.title(sortSkill.charAt(0).toUpperCase() + sortSkill.slice(1));
                 }
@@ -896,7 +937,7 @@ async function updateLeaderboards() {
                 bot.editMessage(vals.skillChannel, vals.skillMessage[skillName][index], {
                     content: "** **",
                     embed: {
-                        description:"End of List",
+                        description: "End of List",
                         color: 0x00AAFF,
                     }
                 }).catch(e => console.error(e));
@@ -912,7 +953,7 @@ async function updateLeaderboards() {
     skillLastUpdatedembed.color("#00AAFF");
     skillLastUpdatedembed.footer("Leaderboards were last updated ");
     skillLastUpdatedembed.timestamp(new Date());
-    bot.editMessage(vals.skillChannel, vals.skillLastUpdated,{content:"** **",embed:skillLastUpdatedembed.sendable})
+    bot.editMessage(vals.skillChannel, vals.skillLastUpdated, { content: "** **", embed: skillLastUpdatedembed.sendable });
 
     // guildMembers = getRESTGuildMembers(682608242932842559);
     // for(member of guildMemberListlocal){
@@ -930,4 +971,4 @@ async function updateLeaderboards() {
 
 
 
-    }
+}
