@@ -7,7 +7,7 @@ let subscribers = Object.create(null);
 function onSubscribe(req, res) {
     let id = Math.random(); //POOR USE OF random, please don't kill me
     let urlParsed = url.parse(req.url, true);
-    console.log(`Incoming request from ${urlParsed.query.uuid} using ${urlParsed.query.key}`)
+    console.log(`Incoming request from ${urlParsed.query.uuid} using ${urlParsed.query.key} with id: ${id}`)
     // res.setHeader('Content-Type', 'application/json;charset=utf-8');
     // res.setHeader("Cache-Control", "no-cache, must-revalidate");
 
