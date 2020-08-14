@@ -3,28 +3,18 @@ let querystring = require('querystring');
 
 
 let subscribers = Object.create(null);
-let timers = Object.create(null);
 
-// // function processingHeader(){
-//     // const processing = () => {
-//         res.writeProcessing
-//     // }
-// //     processing()
-// // }
 function onSubscribe(req, res) {
     let id = Math.random(); //POOR USE OF random, please don't kill me
     let urlParsed = url.parse(req.url, true);
     console.log(`Incoming request from ${urlParsed.query.uuid} using ${urlParsed.query.key} with id: ${id}`)
- 
-    res.writeProcessing()
-    let timerid = setInterval(res.writeProcessing.bind(res),60*1000)
+    // res.setHeader('Content-Type', 'application/json;charset=utf-8');
+    // res.setHeader("Cache-Control", "no-cache, must-revalidate");
+
     subscribers[id] = res;
-    timers[id] = timerid;
-    
 
     req.on('close', function () {
         console.log(`Incoming request from ${id} Ended`)
-        clearInterval(timers[id]);
         delete subscribers[id];
     });
 
