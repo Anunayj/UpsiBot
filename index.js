@@ -255,6 +255,7 @@ class splashNotifier {
         for (let msg of msgList) {
             if (msg.embeds.length > 0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv") {
                 hasEmbed = msg.embeds[0];
+                totalmsg += msg.cleanContent + (msg.embeds[0].description || "");
             } else if (msg.embeds.length > 0 && msg.embeds[0].type === "image") {
                 totalmsg = msg.cleanContent + "\n" + totalmsg;
                 embed.image(msg.embeds[0].url);
@@ -283,6 +284,7 @@ class splashNotifier {
                     }
                 }
             }
+
             let title = hasEmbed.description.match(/((party|p) join \w+|HUB\s?\d+)/i);
             if (title !== null) {
                 hasEmbed.title = title[0];
@@ -298,7 +300,7 @@ class splashNotifier {
                     message: hasEmbed.description + hasEmbed.fields.map(function (obj) { return (`${obj.name}:${obj.value}`); }).join("\n")
                 });
             }else{
-                // return;
+                return;
             }
 
 
