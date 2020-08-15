@@ -300,7 +300,7 @@ class splashNotifier {
                     message: hasEmbed.description + hasEmbed.fields.map(function (obj) { return (`${obj.name}:${obj.value}`); }).join("\n")
                 });
             }else{
-                // return;
+                return;
             }
 
 
