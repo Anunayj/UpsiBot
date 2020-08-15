@@ -814,9 +814,10 @@ async function updateOnlineStatus() {
     let uuidList = statusArray.map((obj) => obj.uuid);
     let whitelist = db.getData("/modWhitelist");
     for(uuid of Object.keys(db.getData("/apikeys"))){
-        if(!(whitelist.includes(uuid) || uuidList.includes(uuid) ))
+        if(!(whitelist.includes(uuid) || uuidList.includes(uuid) )){
             db.delete(`/apikeys/${uuid}`);
             console.log(`YEEETED ${uuid}`);
+        }
     }
 
 }
@@ -844,6 +845,7 @@ async function whitelist(msg,args) {
         return("You are already whitelisted");
     else
         db.push("/modWhitelist[]",player.id);
+    return("Done!")
 
 }
 updateLeaderboards();
