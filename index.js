@@ -339,7 +339,7 @@ class splashNotifier {
 
     async scrapeHandler(msg) {
         if (this.splashSendChannels.includes(msg.channel.id)) {
-            if (msg.roleMentions.length > 0 || msg.mentionEveryone || msg.embeds.length > 0) {
+            if (msg.roleMentions.length > 0 || msg.mentionEveryone || msg.embeds.length > 0 || (msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i) && (msg.cleanContent.toLowerCase().includes("god") || msg.cleanContent.toLowerCase().includes("splash")) )) {
                 let msgList;
                 if(msg.embeds.length > 0)
                     msgList = [msg]
