@@ -333,7 +333,7 @@ class splashNotifier {
 
     async scrapeHandler(msg) {
         if (this.splashSendChannels.includes(msg.channel.id)) {
-            if (msg.roleMentions.length > 0 || msg.mentionEveryone) {
+            if (msg.roleMentions.length > 0 || msg.mentionEveryone || msg.embeds.length > 0) {
                 const msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
                 this.sendSplashNotification(msgList);
                 this.pastMessages[msg.author.id] = msg.id;
@@ -382,15 +382,15 @@ class splashNotifier {
 }
 
 let splashHandler = new splashNotifier();
-// scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
-// scraperbot.on("messageCreate", (msg) => {
-//     if (["720642093181042690", "720602273461567509", "736220160616038471", "728287548321038346"].includes(msg.channel.id)) {
-//         bot.createMessage("736211540772126780", {
-//             content: msg.cleanContent,
-//             embed: msg.embeds[0]
-//         });
-//     }
-// });
+scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
+scraperbot.on("messageCreate", (msg) => {
+    if (["720642093181042690", "720602273461567509", "736220160616038471", "728287548321038346"].includes(msg.channel.id)) {
+        bot.createMessage("736211540772126780", {
+            content: msg.cleanContent,
+            embed: msg.embeds[0]
+        });
+    }
+});
 
 bot.on("messageCreate", (msg) => {
     if(msg.content.toLowerCase().startsWith("-req"))
