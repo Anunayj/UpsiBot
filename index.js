@@ -831,7 +831,7 @@ bot.registerCommand("whitelist", whitelist, {
 });
 
 async function whitelist(msg,args) {
-    if(["366719661267484672","314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id))
+    if(!["366719661267484672","314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id))
         return("Well I like to be the only one with Hovercar");
     let player;
     try {
