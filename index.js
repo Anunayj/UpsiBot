@@ -274,11 +274,13 @@ class splashNotifier {
             hasEmbed.color = 0x00ffff;
             hasEmbed.description = totalmsg;
             let isDemi = false;
-            for (let field of hasEmbed.fields) {
-                let title = (field.name + " " + field.value).match(/((party|p) join \w+|HUB\s?\d+)/i);
-                isDemi = isDemi || (field.name + " " + field.value).toLowerCase().includes("demi");
-                if (title !== null) {
-                    hasEmbed.title = title[0];
+            if(hasEmbed.fields !== undefined){
+                for (let field of hasEmbed.fields) {
+                    let title = (field.name + " " + field.value).match(/((party|p) join \w+|HUB\s?\d+)/i);
+                    isDemi = isDemi || (field.name + " " + field.value).toLowerCase().includes("demi");
+                    if (title !== null) {
+                        hasEmbed.title = title[0];
+                    }
                 }
             }
             let title = hasEmbed.description.match(/((party|p) join \w+|HUB\s?\d+)/i);
@@ -295,6 +297,8 @@ class splashNotifier {
                     place: hasEmbed.title,
                     message: hasEmbed.description + hasEmbed.fields.map(function (obj) { return (`${obj.name}:${obj.value}`); }).join("\n")
                 });
+            }else{
+                // return;
             }
 
 
@@ -334,7 +338,11 @@ class splashNotifier {
     async scrapeHandler(msg) {
         if (this.splashSendChannels.includes(msg.channel.id)) {
             if (msg.roleMentions.length > 0 || msg.mentionEveryone || msg.embeds.length > 0) {
-                const msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
+                let msgList;
+                if(msg.embeds.length > 0)
+                    msgList = [msg]
+                else  
+                    msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
                 this.sendSplashNotification(msgList);
                 this.pastMessages[msg.author.id] = msg.id;
                 setTimeout((that, id) => {
