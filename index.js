@@ -153,8 +153,8 @@ async function genAPIKey(msg, args) {
         console.log(err);
         return "Invalid username!";
     }
-
-    if((guild===null || guild._id!==vals.guildID) && !vals.modWhitelist.includes(player.id)) return("You are not whitelisted or a member of the guild");
+    let whitelist = db.getData("/modWhitelist");
+    if((guild===null || guild._id!==vals.guildID) && !whitelist.includes(player.id)) return("You are not whitelisted or a member of the guild");
     if(hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
     try{
         if(!args.includes("new") && Object.keys(db.getData("/apikeys")).includes(player.id)){
@@ -811,9 +811,41 @@ async function updateOnlineStatus() {
         bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message[i], "** **").catch(e => console.error(e));
 
     }
+    let uuidList = statusArray.map((obj) => obj.uuid);
+    let whitelist = db.getData("/modWhitelist");
+    for(uuid of Object.keys(db.getData("/apikeys"))){
+        if(!(whitelist.includes(uuid) || uuidList.includes(uuid) ))
+            db.delete(`/apikeys/${uuid}`);
+            console.log(`YEEETED ${uuid}`);
+    }
 
 }
 
+bot.registerCommand("whitelist", whitelist, {
+    description: "Whitelist for upsimod",
+    fullDescription: "",
+    argsRequired: true,
+    usage: ``,
+    cooldown: 1000,
+    cooldownMessage: "Slow down!!"
+});
+
+async function whitelist(msg,args) {
+    if(["366719661267484672","314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id))
+        return("Well I like to be the only one with Hovercar");
+    let player;
+    try {
+        player = await api.getPlayer(args[0]);
+    } catch (err) {
+        return "Invalid username!";
+    }
+    whitelist = db.getData("/modWhitelist")
+    if(whitelist.includes(player.id))
+        return("You are already whitelisted");
+    else
+        db.push("/modWhitelist[]",player.id);
+
+}
 updateLeaderboards();
 setInterval(updateLeaderboards, 1000 * 60 * 60 * 3);
 
@@ -826,7 +858,7 @@ bot.registerCommand("updateleaderboard", updateLeaderboardsCheck, {
     cooldownMessage: "Slow down!!"
 });
 async function updateLeaderboardsCheck(msg) {
-    if (!["314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
+    if (!["366719661267484672","314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
     bot.createMessage(msg.channel.id, "Updating...");
     await updateLeaderboards();
     bot.createMessage(msg.channel.id, `@${msg.author.username} Updated leaderboards`);
