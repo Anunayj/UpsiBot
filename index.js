@@ -259,6 +259,8 @@ async function apply(msg, args) {
 bot.on("messageReactionAdd", async (msg,emoji,userid) => {
     if(msg.channel.id === vals.waitListChannel && ["✅","❌"].includes(emoji.name) && userid!==bot.user.id){
         msg = await bot.getMessage(msg.channel.id,msg.id);
+        if(!(await bot.getRESTGuildMember("682608242932842559", userid)).includes("691021789031301131"))
+            bot.removeMessageReaction(msg.channel.id, msg.id, emoji.name, userid);
         if(msg.author.id === bot.user.id){
             let accepted = false;
             let userid = msg.embeds[0].fields[0].value.slice(2,-1);
