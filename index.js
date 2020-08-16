@@ -110,7 +110,7 @@ async function queryHandler(req, res) {
                 let slayer = 0;
                 for (profile of Object.keys(stats.stats)) {
                     if (stats.stats[profile].skills > skill) skill = stats.stats[profile].skills;
-                    if (stats.stats[profile].slayer !== undefined && stats.stats[profile].slayer.xp > skill) slayer = stats.stats[profile].slayer.xp;
+                    if (stats.stats[profile].slayer !== undefined && stats.stats[profile].slayer.xp > slayer) slayer = stats.stats[profile].slayer.xp;
                 }
                 response = {
                     skill,
@@ -173,12 +173,113 @@ async function genAPIKey(msg, args) {
 }
 
 
-
 bot.registerCommand("api", genAPIKey, {
     description: "Genenrate Api key for upsimod",
     argsRequired: true,
     usage: "<username>"
 });
+
+
+
+
+bot.registerCommand("apply", apply, {
+    description: "Apply for guild",
+    argsRequired: true,
+    usage: "<username>",
+    cooldown: 5*60*1000,
+});
+
+
+
+
+async function apply(msg, args) {
+    let messages = bot.getMessages(vals.waitListChannel)
+    let timeStart = Date.now();
+    bot.sendChannelTyping(msg.channel.id);
+    let player = null,
+        hyplayer = null,
+        sbp = null;
+    guild = null;
+    try {
+        player = await api.getPlayer(args[0]);
+        hyplayer = await api.gethypixelPlayer(player.id);
+        sbp = hyplayer.player;
+    } catch (err) {
+        console.log(err);
+        return "Invalid username!";
+    }
+    if(hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
+    // messages = await messages;
+    if((await messages).filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).map((msg) => msg.embeds[0].author.name).includes(args[0])) 
+        return "Please Chill, You already have a Application Open";
+    let stats = await getStats(args[0]);
+    if (typeof (stats) !== typeof ({})) {
+        let timeTaken = new Date(Date.now() - timeStart);
+        await bot.createEmbed(msg.channel.id).title("Application").author(args[0]).description(stats).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+        return;
+    }
+    let embed = bot.createEmbed();
+    let maxSlayer = 0;
+    let maxSkill = 0;
+    if(stats.hyplayer.player.achievements !== undefined){
+        for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
+            maxSkill += stats.hyplayer.player.achievements["skyblock_" + name];
+        }
+        maxSkill /= 8;
+    }
+    if(maxSkill === NaN) maxSkill = 0;
+    for (let profile in stats.stats) {
+        // let prof = stats.stats[profId];
+        if (stats.stats[profile].skills > maxSkill) maxSkill = stats.stats[profile].skills;
+        if (stats.stats[profile].slayer !== undefined && stats.stats[profile].slayer.xp > maxSlayer) maxSlayer = stats.stats[profile].slayer.xp;
+    }
+    let score = parseFloat(((maxSkill ** 4) * (1 + (maxSlayer / 100000)) / 10000).toFixed(2));
+    let timeTaken = new Date(Date.now() - timeStart);
+
+    embed.author(stats.player.name, `https://crafatar.com/avatars/${stats.player.id}?overlay`);
+    embed.field("Discord",`<@${msg.author.id}>`,false)
+    embed.field("Score",score.toFixed(2),true)
+    embed.field(`Skill ${maxSkill > vals.skills ? ":green_circle:" : ":red_circle:" }`,maxSkill.toFixed(2),true)
+    embed.field(`Slayer ${maxSlayer > vals.slayer.xp ? ":green_circle:" : ":red_circle:" }`,maxSlayer.toLocaleString(),true)
+    embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
+    embed.timestamp(new Date());
+    if(maxSkill> vals.skills && maxSlayer > vals.slayer.xp){
+        embed.color(0x00ff00);
+        let msg = await embed.send(bot,vals.waitListChannel);
+        bot.addMessageReaction(msg.channel.id, msg.id, "✅")
+        bot.addMessageReaction(msg.channel.id, msg.id, "❌")
+        embed.description("Your application is under review.  If accepted, you will be contacted.\nPlease leave your current guild so we can streamline the process.\nThanks!")
+    }else
+        embed.color(0xff0000);
+    await embed.send(bot,msg.channel.id);
+    return;
+}
+
+bot.on("messageReactionAdd", async (msg,emoji,userid) => {
+    if(msg.channel.id === vals.waitListChannel && ["✅","❌"].includes(emoji.name) && userid!==bot.user.id){
+        msg = await bot.getMessage(msg.channel.id,msg.id);
+        if(msg.author.id === bot.user.id){
+            let accepted = false;
+            let userid = msg.embeds[0].fields[0].value.slice(2,-1);
+            if(emoji.name === "✅"){
+                (await bot.getDMChannel(userid)).createMessage("Your application has been Accepted, if you haven't already been invited to guild contact a staff members in discord.");
+                bot.addGuildMemberRole("682608242932842559", userid, "691292794605797407", "Application Accepted")
+                accepted
+            }else if(emoji.name === "❌"){
+                (await bot.getDMChannel(userid)).createMessage("Sorry your application has been Rejected");
+            }
+            bot.deleteMessage(msg.channel.id, msg.id);
+            let embed = msg.embeds[0];
+            embed.color = accepted ? 0x00ff00 : 0xff0000;
+            if(!accepted) embed.author.name += "- REJECTED";
+            bot.createMessage(vals.applicationLogs,{embed});
+        }
+    }
+
+});
+
+
+
 
 
 bot.registerCommand("slm", (msg, args) => `https://sky.lea.moe/stats/${args[0]}` + (args[1] ? `/${args[1]}` : ""), {

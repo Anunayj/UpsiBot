@@ -136,16 +136,6 @@
         "6eaa69d361ca4ba19a9af62142202bfe",
         "622a7af4f0674f44b5eb11ff6735d5c4"
     ],
-    "modWhitelist": [
-        "698429ecee614f83847a8b5e523a841f",
-        "5358833eec54457f98ae627cd35d81c5",
-        "c1fe0bc77deb4e90b3bd349b3ef2410c",
-        "a0d6849dcaca4a86bba9d8bf2f0a88d7",
-        "3a02144359c84e47a598fe6ee476b29c",
-        "a987ca6618424edf8a89bdebca6e8a01",
-        "d406c5856f8143b9ba83eccfc652dfb4",
-        "16b278108834457e9b51258a1ebded3a",
-        "d2190212c8cc4907b6131656e71807bf",
-        "e4585ee975104ecd8a534d114f85f3c0"
-    ]
+    "waitListChannel":"744520976359882753",
+    "applicationLogs":"744542607132065893"
 }
