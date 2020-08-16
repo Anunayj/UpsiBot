@@ -264,7 +264,7 @@ bot.on("messageReactionAdd", async (msg,emoji,userid) => {
             if(emoji.name === "✅"){
                 (await bot.getDMChannel(userid)).createMessage("Your application has been Accepted, if you haven't already been invited to guild contact a staff members in discord.");
                 bot.addGuildMemberRole("682608242932842559", userid, "691292794605797407", "Application Accepted")
-                accepted
+                accepted = true;
             }else if(emoji.name === "❌"){
                 (await bot.getDMChannel(userid)).createMessage("Sorry your application has been Rejected");
             }
