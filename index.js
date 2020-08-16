@@ -186,7 +186,8 @@ bot.registerCommand("apply", apply, {
     description: "Apply for guild",
     argsRequired: true,
     usage: "<username>",
-    cooldown: 5*60*1000,
+    cooldown: 30*60*1000,
+    cooldownMessage: "Sorry, You sent a application recently. Please try Again later"
 });
 
 
