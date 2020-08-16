@@ -48,7 +48,9 @@ try {
 }
 console.log(`Using tokens\nMain: ${tokens.main.slice(0, 5)}* \nScraper: ${tokens.scraper.slice(0, 5)}* \nhypixel: ${tokens.hypixel.slice(0, 5)}*`);
 const api = new hypixel.Client(tokens.hypixel);
-const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {}, {
+const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {
+    restMode:true
+}, {
     description: "A bot.",
     owner: "Anunay (and Refusings for those lovely embeds)",
     prefix: "~"
@@ -259,8 +261,10 @@ async function apply(msg, args) {
 bot.on("messageReactionAdd", async (msg,emoji,userid) => {
     if(msg.channel.id === vals.waitListChannel && ["✅","❌"].includes(emoji.name) && userid!==bot.user.id){
         msg = await bot.getMessage(msg.channel.id,msg.id);
-        if(!(await bot.getRESTGuildMember("682608242932842559", userid)).includes("691021789031301131"))
+        if(!(await bot.getRESTGuildMember("682608242932842559", userid)).roles.includes("691021789031301131")){
             bot.removeMessageReaction(msg.channel.id, msg.id, emoji.name, userid);
+            return;
+            }
         if(msg.author.id === bot.user.id){
             let accepted = false;
             let userid = msg.embeds[0].fields[0].value.slice(2,-1);
