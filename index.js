@@ -195,7 +195,7 @@ bot.registerCommand("apply", apply, {
 
 
 
-async function apply(msg, args) {
+async function apply(msg, args,apply=true) {
     let messages = bot.getMessages(vals.waitListChannel)
     let timeStart = Date.now();
     bot.sendChannelTyping(msg.channel.id);
@@ -211,14 +211,16 @@ async function apply(msg, args) {
         console.log(err);
         return "Invalid username!";
     }
-    if(hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
-    // messages = await messages;
-    if((await messages).filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).map((msg) => msg.embeds[0].author.name).includes(args[0])) 
-        return "Please Chill, You already have a Application Open";
+    if(apply){ //Yes I know I can use &&, Do I care no.
+        if(hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
+        // messages = await messages;
+        if((await messages).filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).map((msg) => msg.embeds[0].author.name).includes(args[0])) 
+            return "Please Chill, You already have a Application Open";
+    }
     let stats = await getStats(args[0]);
     if (typeof (stats) !== typeof ({})) {
         let timeTaken = new Date(Date.now() - timeStart);
-        await bot.createEmbed(msg.channel.id).title("Application").author(args[0]).description(stats).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(stats).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
         return;
     }
     let embed = bot.createEmbed();
@@ -248,11 +250,13 @@ async function apply(msg, args) {
     embed.timestamp(new Date());
     if(score > vals.score){
         embed.color(0x00ff00);
-        embed.description("Sorry, You do not meet Guild Requirements.")
-        let msg = await embed.send(bot,vals.waitListChannel);
-        bot.addMessageReaction(msg.channel.id, msg.id, "✅")
-        bot.addMessageReaction(msg.channel.id, msg.id, "❌")
-        embed.description("Your application is under review.  If accepted, you will be contacted.\nPlease leave your current guild so we can streamline the process.\nThanks!")
+        if(apply){
+            embed.description("Sorry, You do not meet Guild Requirements.")
+            let msg = await embed.send(bot,vals.waitListChannel);
+            bot.addMessageReaction(msg.channel.id, msg.id, "✅")
+            bot.addMessageReaction(msg.channel.id, msg.id, "❌")
+            embed.description("Your application is under review.  If accepted, you will be contacted.\nPlease leave your current guild so we can streamline the process.\nThanks!")
+        }
     }else
         embed.color(0xff0000);
     await embed.send(bot,msg.channel.id);
@@ -530,7 +534,7 @@ bot.registerCommand("ping", "Pong!", { // Make a ping command
     fullDescription: "This command could be used to check if the bot is up. Or entertainment when you're bored."
 });
 
-bot.registerCommand("req", checkRequirements, {
+bot.registerCommand("req", checkRequirementsnew, {
     description: "Check Requirements!!",
     fullDescription: "Dude that literally ^",
     argsRequired: true,
@@ -538,6 +542,10 @@ bot.registerCommand("req", checkRequirements, {
     cooldown: 1000,
     cooldownMessage: "Slow down!!"
 });
+
+async function checkRequirementsnew(msg,args){
+    return (await apply(msg,args,false));
+}
 
 async function checkRequirements(msg, args) {
     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
