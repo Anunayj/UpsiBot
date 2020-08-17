@@ -241,13 +241,14 @@ async function apply(msg, args) {
 
     embed.author(stats.player.name, `https://crafatar.com/avatars/${stats.player.id}?overlay`);
     embed.field("Discord",`<@${msg.author.id}>`,false)
-    embed.field("Score",score.toFixed(2),true)
-    embed.field(`Skill ${maxSkill > vals.skills ? ":green_circle:" : ":red_circle:" }`,maxSkill.toFixed(2),true)
-    embed.field(`Slayer ${maxSlayer > vals.slayer.xp ? ":green_circle:" : ":red_circle:" }`,maxSlayer.toLocaleString(),true)
+    embed.field(`Score ${score > vals.score ? ":green_circle:" : ":red_circle:" }`,score.toFixed(2),true)
+    embed.field(`Skill`,maxSkill.toFixed(2),true)
+    embed.field(`Slayer`,maxSlayer.toLocaleString(),true)
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
     embed.timestamp(new Date());
-    if(maxSkill> vals.skills && maxSlayer > vals.slayer.xp){
+    if(score > vals.score){
         embed.color(0x00ff00);
+        embed.description("Sorry, You do not meet Guild Requirements.")
         let msg = await embed.send(bot,vals.waitListChannel);
         bot.addMessageReaction(msg.channel.id, msg.id, "✅")
         bot.addMessageReaction(msg.channel.id, msg.id, "❌")
