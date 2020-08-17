@@ -1014,7 +1014,7 @@ async function updateLeaderboards() {
         guildMemberListlocal[i].spider = 0;
         guildMemberListlocal[i].revenant = 0;
         guildMemberListlocal[i].slayer = 0;
-        guildMemberListlocal[i].profile = hyplayer.player;
+        guildMemberListlocal[i].social = hyplayer.player.socialMedia;
         guildMemberListlocal[i].score = 0;
         if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
             continue;
