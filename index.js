@@ -841,19 +841,19 @@ async function getStats(username, exploit = false) {
     res.stats = profiles;
     return res;
 }
-updateBazaarPrices();
-bot.registerCommand("price", price, {
-    description: "Check Price",
-    fullDescription: "",
-    argsRequired: true,
-    usage: `<item_name>`,
-    cooldown: 2500,
-    cooldownMessage: "Just sell your stuff to the merchant dood!"
-});
-setInterval(updateBazaarPrices, 1000 * 10);
-async function updateBazaarPrices() {
-    bazaar = await api.getBazaar();
-}
+// updateBazaarPrices();
+// bot.registerCommand("price", price, {
+//     description: "Check Price",
+//     fullDescription: "",
+//     argsRequired: true,
+//     usage: `<item_name>`,
+//     cooldown: 2500,
+//     cooldownMessage: "Just sell your stuff to the merchant dood!"
+// });
+// setInterval(updateBazaarPrices, 1000 * 10);
+// async function updateBazaarPrices() {
+//     bazaar = await api.getBazaar();
+// }
 
 async function price(msg, args) {
     const search = args.join(" ").toUpperCase();
