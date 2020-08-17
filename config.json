@@ -9,10 +9,10 @@
     },
     "wealth": 50,
     "talismans": 235,
-    "skills": 24,
+    "skills": 25.5,
     "slayer": {
         "xpAndMinimum": true,
-        "xp": 240000,
+        "xp": 300000,
         "minimumHighestSlayer": 0,
         "minimumAsAll": true
     },
@@ -110,7 +110,6 @@
         "3139cf413c804ada9fc7adad6b265c5b",
         "7ea32158eb9b43648232042e5da072a6",
         "088969ca20634b1f87908b1969932e6c",
-        "4d524dbea80c433fad51ea84e8c6826d",
         "c53bcacb1a294bab801d1a88a43bc398",
         "14a9bfc5ea334cee949b68863697579f",
         "d25a0ec09f4b456daf23acd686305150",
@@ -134,7 +133,8 @@
         "3a02144359c84e47a598fe6ee476b29c",
         "42ad6fbc7c434e85bce920595243b35d",
         "6eaa69d361ca4ba19a9af62142202bfe",
-        "622a7af4f0674f44b5eb11ff6735d5c4"
+        "622a7af4f0674f44b5eb11ff6735d5c4",
+        "cc0e69ac07e0436db01602c3879b73cb"
     ],
     "waitListChannel":"744520976359882753",
     "applicationLogs":"744542607132065893"

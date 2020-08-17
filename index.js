@@ -726,6 +726,7 @@ async function guildStats(msg = new Eris.Message(), args) {
         return "Invalid username!";
     }
     let tempGuild = await api.getGuildByUserID(player.id);
+    if(tempGuild===null) return "That player is not in a guild."
     let embed = bot.createEmbed(msg.channel.id);
     let members = tempGuild.members;
     let gm = "";
@@ -893,6 +894,7 @@ async function updateOnlineStatus() {
             game: status.gameType
         });
     }
+    db.push("/guildMembers",statusArray);
     guildMemberList = utils.deepCopy(statusArray);
     statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1) : (a.online ? -1 : 1));
     let i = 0;
@@ -919,6 +921,7 @@ async function updateOnlineStatus() {
         bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message[i], "** **").catch(e => console.error(e));
 
     }
+    //CHECK AGAINST MOD WHITELIST
     let uuidList = statusArray.map((obj) => obj.uuid);
     let whitelist = db.getData("/modWhitelist");
     for(uuid of Object.keys(db.getData("/apikeys"))){
@@ -1111,7 +1114,7 @@ async function updateLeaderboards() {
     skillLastUpdatedembed.footer("Leaderboards were last updated ");
     skillLastUpdatedembed.timestamp(new Date());
     bot.editMessage(vals.skillChannel, vals.skillLastUpdated, { content: "** **", embed: skillLastUpdatedembed.sendable });
-
+    db.push("/guildMembersStats",guildMemberListlocal);
     // guildMembers = getRESTGuildMembers(682608242932842559);
     // for(member of guildMemberListlocal){
     //     if(member.average>=30 && member.slayer>=1200000){
