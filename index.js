@@ -242,8 +242,12 @@ async function apply(msg, args,apply=true) {
     let timeTaken = new Date(Date.now() - timeStart);
     let discord = "Unknown";
     if(hyplayer.player.socialMedia && hyplayer.player.socialMedia.links && hyplayer.player.socialMedia.links.DISCORD)
-        discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ","_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_")).mention;
-    if(discord === undefined) discord = hyplayer.player.socialMedia.links.DISCORD
+        discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ","_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_"));
+    
+    if(discord === undefined) 
+        discord = hyplayer.player.socialMedia.links.DISCORD;
+    else 
+        discord = discord.mention;
     embed.author(stats.player.name, `https://crafatar.com/avatars/${stats.player.id}?overlay`);
     embed.field("Discord",discord,false)
     embed.field(`Score ${score > vals.score ? ":green_circle:" : ":red_circle:" }`,score.toFixed(2),true)
