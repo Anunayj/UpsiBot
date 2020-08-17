@@ -241,7 +241,7 @@ async function apply(msg, args,apply=true) {
     let score = parseFloat(((maxSkill ** 4) * (1 + (maxSlayer / 100000)) / 10000).toFixed(2));
     let timeTaken = new Date(Date.now() - timeStart);
     let discord = "Unknown";
-    if(hyplayer.player.socialMedia || hyplayer.player.socialMedia.links || hyplayer.player.socialMedia.links.DISCORD)
+    if(hyplayer.player.socialMedia && hyplayer.player.socialMedia.links && hyplayer.player.socialMedia.links.DISCORD)
         discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ","_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_")).mention;
     if(discord === undefined) discord = hyplayer.player.socialMedia.links.DISCORD
     embed.author(stats.player.name, `https://crafatar.com/avatars/${stats.player.id}?overlay`);
