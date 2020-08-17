@@ -968,7 +968,7 @@ async function whitelist(msg,args) {
     return("Done!")
 
 }
-updateLeaderboards();
+// updateLeaderboards();
 setInterval(updateLeaderboards, 1000 * 60 * 60 * 3);
 
 bot.registerCommand("updateleaderboard", updateLeaderboardsCheck, {
