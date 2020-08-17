@@ -283,7 +283,7 @@ bot.on("messageReactionAdd", async (msg,emoji,userid) => {
             }
         if(msg.author.id === bot.user.id){
             let accepted = false;
-            let userid = msg.embeds[0].fields[0].value.slice(2,-1);
+            let userid = msg.embeds[0].fields[0].value.slice(3,-1);
             if(emoji.name === "✅"){
                 (await bot.getDMChannel(userid)).createMessage("Your application has been Accepted, if you haven't already been invited to guild contact a staff members in discord.");
                 bot.addGuildMemberRole("682608242932842559", userid, "691292794605797407", "Application Accepted")
