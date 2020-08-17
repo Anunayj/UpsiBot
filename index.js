@@ -240,9 +240,12 @@ async function apply(msg, args,apply=true) {
     }
     let score = parseFloat(((maxSkill ** 4) * (1 + (maxSlayer / 100000)) / 10000).toFixed(2));
     let timeTaken = new Date(Date.now() - timeStart);
-
+    let discord = "Unknown";
+    if(!(hyplayer.player.socialMedia || hyplayer.player.socialMedia.links || hyplayer.player.socialMedia.links.DISCORD))
+        discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ","_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_")).mention;
+    if(discord === undefined) discord = hyplayer.player.socialMedia.links.DISCORD
     embed.author(stats.player.name, `https://crafatar.com/avatars/${stats.player.id}?overlay`);
-    embed.field("Discord",`<@${msg.author.id}>`,false)
+    embed.field("Discord",discord,false)
     embed.field(`Score ${score > vals.score ? ":green_circle:" : ":red_circle:" }`,score.toFixed(2),true)
     embed.field(`Skill`,maxSkill.toFixed(2),true)
     embed.field(`Slayer`,maxSlayer.toLocaleString(),true)
@@ -251,14 +254,17 @@ async function apply(msg, args,apply=true) {
     if(score > vals.score){
         embed.color(0x00ff00);
         if(apply){
-            embed.description("Sorry, You do not meet Guild Requirements.")
+            
             let msg = await embed.send(bot,vals.waitListChannel);
             bot.addMessageReaction(msg.channel.id, msg.id, "✅")
             bot.addMessageReaction(msg.channel.id, msg.id, "❌")
             embed.description("Your application is under review.  If accepted, you will be contacted.\nPlease leave your current guild so we can streamline the process.\nThanks!")
         }
-    }else
+    }else{
+        embed.description("Sorry, You do not meet Guild Requirements.")
         embed.color(0xff0000);
+    }
+        
     await embed.send(bot,msg.channel.id);
     return;
 }
