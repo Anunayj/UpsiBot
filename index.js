@@ -212,7 +212,7 @@ async function apply(msg, args,apply=true) {
         return "Invalid username!";
     }
     if(apply){ //Yes I know I can use &&, Do I care no.
-        if(hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
+        if(hyplayer.player.socialMedia == undefined || hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
         // messages = await messages;
         if((await messages).filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).map((msg) => msg.embeds[0].author.name).includes(args[0])) 
             return "Please Chill, You already have a Application Open";
