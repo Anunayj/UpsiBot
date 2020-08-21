@@ -59,6 +59,7 @@ class EggSi extends Eris.Client{
             return;
         }
         this.addGuildMemberRole(msg.channel.guild.id, msg.author.id, roles[msg.channel.id] , "Verified");
+        this.editNickname(msg.channel.guild.id, args[0], "Changed nickname to ign")
         (await dm).createMessage("Successfully Verified");
     }
 }
