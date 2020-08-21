@@ -12,6 +12,7 @@ class Client{
     async getPlayer(username){
         let res = await c("https://api.mojang.com").path(`/users/profiles/minecraft/${username}`).send();
         if(res.statusCode===200) return (await res.json());
+        else if(res.statusCode===429) throw "Rate Limiting";
         else throw "Invalid Username";
     }
     async getPlayerByUUID(uuid){
@@ -23,26 +24,31 @@ class Client{
     async gethypixelPlayer(uuid){
         let res = await c(baseURL).path("/player").query({key:this.#key,uuid}).send();
         if(res.statusCode===200) return (await res.json());
+        else if(res.statusCode===429) throw "Rate Limiting";
         else throw "Something bad";
     }
     async getProfile(profile){
         let res = await c(baseURL).path("skyblock/profile").query({key:this.#key,profile}).send();
         if(res.statusCode===200) return (await res.json());
+        else if(res.statusCode===429) throw "Rate Limiting";
         else throw "Invalid Username";
     }
     async getGuild(uuid){
         let res = await c(baseURL).path("guild").query({key:this.#key,id:uuid}).send();
         if(res.statusCode===200) return (await res.json()).guild;
+        else if(res.statusCode===429) throw "Rate Limiting";
         else throw "Invalid UUID";
     }
     async getGuildByUserID(uuid){
         let res = await c(baseURL).path("guild").query({key:this.#key,player:uuid}).send();
         if(res.statusCode===200) return (await res.json()).guild;
+        else if(res.statusCode===429) throw "Rate Limiting";
         else throw "Invalid UUID";
     }
     async getStatus(uuid){
         let res = await c(baseURL).path("status").query({key:this.#key,uuid}).send();
         if(res.statusCode===200) return (await res.json()).session;
+        else if(res.statusCode===429) throw "Rate Limiting";
         else throw "Invalid UUID";
     }
     async getBazaar(){

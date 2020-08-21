@@ -6,9 +6,10 @@ const utils = require("./utils");
 const vals = require("./config.json");
 const leechserver = require("./leechserver");
 const http = require('http');
+let EggSi = require('./eggsi')
 let url = require('url');
 let querystring = require('querystring');
-
+require('dotenv').config()
 
 const {
     NodeVM
@@ -31,21 +32,17 @@ const {
 const db = new JsonDB(new Config("upsiDatabase", true, true, '/'));
 
 
-let tokens = {};
 let guildMemberList = null;
 let bazaar = {};
-try {
-    tokens = require('./env.json');
-    console.log("Got tokens");
-} catch (e) {
-    tokens = {
-        main: process.env.mainToken,
-        scraper: process.env.scraperToken,
-        hypixel: process.env.hypixelToken
-    };
-    if (tokens.main === undefined || tokens.scraper === undefined || tokens.hypixel === undefined)
-        throw "Tokens are missing!";
-}
+
+let tokens = {
+    main: process.env.mainToken,
+    scraper: process.env.scraperToken,
+    hypixel: process.env.hypixelToken,
+};
+if (Object.values(tokens).includes(undefined))
+    throw "Tokens are missing!";
+
 console.log(`Using tokens\nMain: ${tokens.main.slice(0, 5)}* \nScraper: ${tokens.scraper.slice(0, 5)}* \nhypixel: ${tokens.hypixel.slice(0, 5)}*`);
 const api = new hypixel.Client(tokens.hypixel);
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {
@@ -55,6 +52,13 @@ const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {
     owner: "Anunay (and Refusings for those lovely embeds)",
     prefix: "~"
 }), Eris(tokens.scraper)];
+
+let eggsi = new EggSi(undefined,api,process.env.eggsiToken, {})
+eggsi.connect().then(() => {
+    console.log("Logged in! Eggsi");
+}).catch(() => {
+    throw "Unable to connect";
+});
 
 bot.connect().then(() => {
     console.log("Logged in!");
