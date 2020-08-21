@@ -54,7 +54,7 @@ const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {
     prefix: "~"
 }), Eris(tokens.scraper)];
 
-let eggsi = new EggSi(undefined,api,eggsi, {})
+let eggsi = new EggSi(undefined,api,tokens.eggsi, {})
 eggsi.connect().then(() => {
     console.log("Logged in! Eggsi");
 }).catch(() => {
