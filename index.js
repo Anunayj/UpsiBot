@@ -39,11 +39,12 @@ let tokens = {
     main: process.env.mainToken,
     scraper: process.env.scraperToken,
     hypixel: process.env.hypixelToken,
+    eggsi: process.env.eggsiToken
 };
 if (Object.values(tokens).includes(undefined))
     throw "Tokens are missing!";
 
-console.log(`Using tokens\nMain: ${tokens.main.slice(0, 5)}* \nScraper: ${tokens.scraper.slice(0, 5)}* \nhypixel: ${tokens.hypixel.slice(0, 5)}*`);
+console.log(`Using tokens\nMain: ${tokens.main.slice(0, 5)}* \nScraper: ${tokens.scraper.slice(0, 5)}* \nhypixel: ${tokens.hypixel.slice(0, 5)}*\nEggsi: ${tokens.main.slice(0, 5)}*`);
 const api = new hypixel.Client(tokens.hypixel);
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {
     restMode:true
@@ -53,7 +54,7 @@ const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {
     prefix: "~"
 }), Eris(tokens.scraper)];
 
-let eggsi = new EggSi(undefined,api,process.env.eggsiToken, {})
+let eggsi = new EggSi(undefined,api,eggsi, {})
 eggsi.connect().then(() => {
     console.log("Logged in! Eggsi");
 }).catch(() => {
