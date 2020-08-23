@@ -49,8 +49,8 @@ class EggSi extends Eris.CommandClient{
 
     async splash(msg = new Eris.Message(),args){
         if(args.length < 3) return("Invalid Usage")
-        // let embed = this.createEmbed();
-        let embed = new EmbedBuilder();
+        let embed = this.createEmbed();
+        // let embed = ;
         switch (arg[0].toLowerCase()){
             case 'hub':
                 embed.field("Hub",arg[1],true)
