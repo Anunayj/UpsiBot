@@ -903,6 +903,7 @@ async function updateOnlineStatus() {
 
     let statusArray = [];
     for (let i = 0; i < guildMembers.length; i++) {
+        await new Promise(r => setTimeout(r, 2000));
         let member = guildMembers[i];
         try {
             var status = await api.getStatus(member);
