@@ -56,7 +56,9 @@ const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {
     prefix: "~"
 }), Eris(tokens.scraper)];
 
-let eggsi = new EggSi(db,api2,tokens.eggsi, {},{
+let eggsi = new EggSi(db,api2,tokens.eggsi, {
+    restMode:true
+},{
     description: "Totally not Upsi with a mask",
     owner: "Anunay",
     prefix: "-"

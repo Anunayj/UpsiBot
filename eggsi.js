@@ -48,6 +48,8 @@ class EggSi extends Eris.CommandClient{
     }
 
     async splash(msg = new Eris.Message(),args){
+        if(!msg.author.roles.includes("746882739633913867"))
+            return("You are not allowed to use that command");
         if(args.length < 3) return("Invalid Usage")
         let embed = this.createEmbed();
         // let embed = ;
