@@ -1,6 +1,7 @@
 const Eris = require("eris");
 const hypixel = require("./api");
 const EmbedBuilder = require('eris-embed-builder');
+const vals = require("./config.json");
 
 const {
     JsonDB
