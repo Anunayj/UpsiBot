@@ -66,9 +66,9 @@ bot.connect().then(() => {
 }).catch(() => {
     throw "Unable to connect";
 });
-scraperbot.connect().catch(() => {
-    throw "Unable to connect";
-});
+// scraperbot.connect().catch(() => {
+//     throw "Unable to connect";
+// });
 
 
 http.createServer(queryHandler).listen(42069);
