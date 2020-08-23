@@ -920,6 +920,23 @@ async function updateOnlineStatus() {
             game: status.gameType
         });
     }
+    const oldStatusArray = db.getData("/guildMembers");
+    const old = oldStatusArray.map(e => e.uuid);
+    const now = statusArray.map(e => e.uuid);
+    const joined = now.filter(p => !old.includes(p));
+    const left = old.filter(p => !now.includes(p));
+
+    for(member of joined){
+        let username = statusArray.find(x => x.uuid === member).name;
+        await bot.createMessage(vals.joinlog,`:green_square: \`${username}\` joined the guild! :sob:`);
+        await apply({channel:{id:vals.joinlog}},[username],false);
+    }
+    for(member of left){
+        let username = oldStatusArray.find(x => x.uuid === member).name;
+        await bot.createMessage(vals.joinlog,`:red_square: \`${username}\` left the guild!`);
+        await apply({channel:{id:vals.joinlog}},[username],false);
+    }
+
     db.push("/guildMembers",statusArray);
     guildMemberList = utils.deepCopy(statusArray);
     statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1) : (a.online ? -1 : 1));
@@ -970,6 +987,7 @@ async function updateOnlineStatus() {
     bot.editChannel("747042617245564928",{name:`Guild Members: ${statusArray.length}`});
     bot.editChannel("746468842296836268",{name:`Online Guild: ${statusArray.filter(e => e.online).length}`});
     
+
 
 
 
