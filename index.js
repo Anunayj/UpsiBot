@@ -936,8 +936,10 @@ async function updateOnlineStatus() {
                 embed: embed.sendable
             }).catch(e => console.error(e));
             i++;
+            description = `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
+        }else{
+            description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
         }
-        description = `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
             
 
     }
