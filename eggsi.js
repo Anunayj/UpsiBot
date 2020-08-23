@@ -10,7 +10,8 @@ require('dotenv').config()
 
 
 roles = {
-    "746132425125527643":"746164327911784468"
+    "746132425125527643":"746164327911784468",
+    "746716479021514754":"746715456747864066"
 }
 
 
@@ -26,7 +27,7 @@ class EggSi extends Eris.Client{
             if(Object.keys(roles).includes(msg.channel.id)){
                 this.deleteMessage(msg.channel.id, msg.id);
             }
-            if(msg.cleanContent.startsWith("-verify")){
+            if(msg.cleanContent.startsWith("-verify") || msg.cleanContent.startsWith("~verify")){
                 if(!Object.keys(roles).includes(msg.channel.id)) return;
                 this.verify(msg,msg.cleanContent.split(" ").slice(1));
                 return;
@@ -58,8 +59,9 @@ class EggSi extends Eris.Client{
             }
             return;
         }
-        this.addGuildMemberRole(msg.channel.guild.id, msg.author.id, roles[msg.channel.id] , "Verified");
-        this.editGuildMember(msg.channel.guild.id, msg.author.id ,{nick:args[0]}, "Changed nickname to IGN");
+        this.db.push(`/ign/${msg.author.id}`, {discord:msg.author.username+"#"+msg.author.discriminator, uuid: player.id, username: player.name}); // TEST
+        await this.addGuildMemberRole(msg.channel.guild.id, msg.author.id, roles[msg.channel.id] , "Verified");
+        this.editGuildMember(msg.channel.guild.id, msg.author.id ,{nick:player.name}, "Changed nickname to IGN");
         (await dm).createMessage("Successfully Verified");
     }
 }
