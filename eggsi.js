@@ -51,20 +51,20 @@ class EggSi extends Eris.CommandClient{
         if(args.length < 3) return("Invalid Usage")
         let embed = this.createEmbed();
         // let embed = ;
-        switch (arg[0].toLowerCase()){
+        switch (args[0].toLowerCase()){
             case 'hub':
-                embed.field("Hub",arg[1],true)
+                embed.field("Hub",args[1],true)
                 break;
             case 'party':
-                embed.field("Party",`/p join ${arg[1]}`,true)
+                embed.field("Party",`/p join ${args[1]}`,true)
                 break;
             case 'dungeon':
-                embed.field("Dungeon Hub",arg[1],true)
+                embed.field("Dungeon Hub",args[1],true)
                 break;
             default:
                 return("Invalid Usage")
         }
-        embed.field("Place",arg[2],true);
+        embed.field("Place",args[2],true);
         embed.field("Splasher",msg.author.mention,true);
         if(args.slice(3).join(" ") !== "")
             embed.field("Description",args.slice(3).join(" "));
