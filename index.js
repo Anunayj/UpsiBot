@@ -928,12 +928,12 @@ async function updateOnlineStatus() {
 
     for(member of joined){
         let username = statusArray.find(x => x.uuid === member).name;
-        await bot.createMessage(vals.joinlog,`:green_square: \`${username}\` joined the guild! :sob:`);
+        await bot.createMessage(vals.joinlog,`:green_square: \`${username}\` joined the guild!`);
         await apply({channel:{id:vals.joinlog}},[username],false);
     }
     for(member of left){
         let username = oldStatusArray.find(x => x.uuid === member).name;
-        await bot.createMessage(vals.joinlog,`:red_square: \`${username}\` left the guild!`);
+        await bot.createMessage(vals.joinlog,`:red_square: \`${username}\` left the guild! :sob:`);
         await apply({channel:{id:vals.joinlog}},[username],false);
     }
 
