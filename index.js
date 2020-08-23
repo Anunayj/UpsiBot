@@ -294,7 +294,7 @@ bot.on("messageReactionAdd", async (msg,emoji,userid) => {
                 let embed = msg.embeds[0];
                 embed.description = "Waiting for user to join Guild";
                 bot.editMessage(msg.channel.id,msg.id,{embed});
-                bot.removeMessageReactionEmoji(msg.channel.id,msg.id, "✅");
+                msg.removeMessageReactionEmoji("✅");
             }else if(emoji.name === "❌"){
                 (await bot.getDMChannel(userid)).createMessage("Sorry your application has been Rejected");
                 bot.deleteMessage(msg.channel.id, msg.id);
@@ -934,7 +934,10 @@ async function updateOnlineStatus() {
     for(member of joined){
         let username = statusArray.find(x => x.uuid === member).name;
         await bot.createMessage(vals.joinlog,`:green_square: \`${username}\` joined the guild!`);
-        await apply({channel:{id:vals.joinlog}},[username],false);
+        await apply({channel:{id:vals.joinlog}},[username],false);   
+    }
+
+    for(username of statusArray.map((x) => x.name)){
         let msg = messages.filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).find((msg) => msg.embeds[0].author.name.toLowerCase() === username.toLowerCase());
         if(msg!==undefined){
             msg.delete()
