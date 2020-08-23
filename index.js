@@ -939,13 +939,13 @@ async function updateOnlineStatus() {
     const joined = now.filter(p => !old.includes(p));
     const left = old.filter(p => !now.includes(p));
 
-    for(member of joined){
+    for(let member of joined){
         let username = statusArray.find(x => x.uuid === member).name;
         await bot.createMessage(vals.joinlog,`:green_square: \`${username}\` joined the guild!`);
         await apply({channel:{id:vals.joinlog}},[username],false);   
     }
 
-    for(username of statusArray.map((x) => x.name)){
+    for(let username of statusArray.map((x) => x.name)){
         let msg = messages.filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).find((msg) => msg.embeds[0].author.name.toLowerCase() === username.toLowerCase());
         if(msg!==undefined){
             msg.delete()
@@ -957,7 +957,7 @@ async function updateOnlineStatus() {
             bot.createMessage(vals.applicationLogs,{embed});
         }
     }
-    for(member of left){
+    for(let member of left){
         let username = oldStatusArray.find(x => x.uuid === member).name;
         await bot.createMessage(vals.joinlog,`:red_square: \`${username}\` left the guild! :sob:`);
         await apply({channel:{id:vals.joinlog}},[username],false);

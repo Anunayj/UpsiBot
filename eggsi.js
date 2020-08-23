@@ -76,12 +76,12 @@ class EggSi extends Eris.CommandClient{
         embed.timestamp(new Date());
         embed.color(0x00eeff);
         // return({embed:embed.sendable});
-        for(channel of vals.splashChannelDono)
+        for(let channel of vals.splashChannelDono)
             this.createMessage(channel.id,{content:channel.ping,embed:embed.sendable});
         await new Promise(r => setTimeout(r, 45000));
-        for(channel of vals.splashChannelFree)
+        for(let channel of vals.splashChannelFree)
             this.createMessage(channel.id,{content:channel.ping,embed:embed.sendable});
-        
+        return("Splash Sequence Started");
 
     }
     async verify(msg,args){
