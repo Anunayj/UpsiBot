@@ -287,20 +287,24 @@ bot.on("messageReactionAdd", async (msg,emoji,userid) => {
             return;
             }
         if(msg.author.id === bot.user.id){
-            let accepted = false;
             let userid = msg.embeds[0].fields[0].value.slice(3,-1);
             if(emoji.name === "✅"){
                 (await bot.getDMChannel(userid)).createMessage("Your application has been Accepted, if you haven't already been invited to guild contact a staff members in discord.");
-                bot.addGuildMemberRole("682608242932842559", userid, "691292794605797407", "Application Accepted")
-                accepted = true;
+                // bot.addGuildMemberRole("682608242932842559", userid, "691292794605797407", "Application Accepted")
+                let embed = msg.embeds[0];
+                embed.description = "Waiting for user to join Guild";
+                bot.editMessage(msg.channel.id,msg.id,{embed});
+                bot.removeMessageReactionEmoji(msg.channel.id,msg.id, "✅");
             }else if(emoji.name === "❌"){
                 (await bot.getDMChannel(userid)).createMessage("Sorry your application has been Rejected");
+                bot.deleteMessage(msg.channel.id, msg.id);
+                let embed = msg.embeds[0];
+                embed.color = 0xff0000;
+                embed.description = "";
+                embed.author.name += "- REJECTED";
+                bot.createMessage(vals.applicationLogs,{embed});
             }
-            bot.deleteMessage(msg.channel.id, msg.id);
-            let embed = msg.embeds[0];
-            embed.color = accepted ? 0x00ff00 : 0xff0000;
-            if(!accepted) embed.author.name += "- REJECTED";
-            bot.createMessage(vals.applicationLogs,{embed});
+            
         }
     }
 
@@ -920,6 +924,7 @@ async function updateOnlineStatus() {
             game: status.gameType
         });
     }
+    let messages = await bot.getMessages(vals.waitListChannel);
     const oldStatusArray = db.getData("/guildMembers");
     const old = oldStatusArray.map(e => e.uuid);
     const now = statusArray.map(e => e.uuid);
@@ -930,6 +935,16 @@ async function updateOnlineStatus() {
         let username = statusArray.find(x => x.uuid === member).name;
         await bot.createMessage(vals.joinlog,`:green_square: \`${username}\` joined the guild!`);
         await apply({channel:{id:vals.joinlog}},[username],false);
+        let msg = messages.filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).find((msg) => msg.embeds[0].author.name.toLowerCase() === username.toLowerCase());
+        if(msg!==undefined){
+            msg.delete()
+            let userid = msg.embeds[0].fields[0].value.slice(3,-1);
+            bot.addGuildMemberRole("682608242932842559", userid, "691292794605797407", "Joined Guild");
+            let embed = msg.embeds[0];
+            embed.description = "";
+            embed.author.name += "- ACCEPTED";
+            bot.createMessage(vals.applicationLogs,{embed});
+        }
     }
     for(member of left){
         let username = oldStatusArray.find(x => x.uuid === member).name;
