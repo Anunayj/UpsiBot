@@ -66,13 +66,19 @@ class EggSi extends Eris.CommandClient{
         }
         embed.field("Place",args[2],true);
         embed.field("Splasher",msg.author.mention,true);
-        embed.title("SPLASH!");
+        // embed.title("SPLASH!");
         if(args.slice(3).join(" ") !== "")
             embed.field("Description",args.slice(3).join(" "));
             embed.author(msg.author.username, `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`);
         embed.timestamp(new Date());
-        embed.color(0x00eeff)
-        return({embed:embed.sendable});
+        embed.color(0x00eeff);
+        // return({embed:embed.sendable});
+        for(channel of vals.splashChannelDono)
+            this.createMessage(channel.id,{content:channel.ping,embed:embed.sendable});
+        await new Promise(r => setTimeout(r, 45000));
+        for(channel of vals.splashChannelFree)
+            this.createMessage(channel.id,{content:channel.ping,embed:embed.sendable});
+        
 
     }
     async verify(msg,args){

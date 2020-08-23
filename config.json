@@ -139,5 +139,13 @@
         "cc0e69ac07e0436db01602c3879b73cb"
     ],
     "waitListChannel":"744520976359882753",
-    "applicationLogs":"744542607132065893"
+    "applicationLogs":"744542607132065893",
+    "splashChannelDono":[{
+        "id":"746131563481137265",
+        "ping":""
+    }],
+    "splashChannelFree":[{
+        "id":"746131127839883364",
+        "ping":""
+    }]
 }
