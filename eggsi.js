@@ -15,7 +15,7 @@ roles = {
 }
 
 
-class EggSi extends Eris.Client{
+class EggSi extends Eris.CommandClient{
     constructor(db = new JsonDB(new Config("eggsiDatabase", true, true, '/')),
     api = new hypixel.Client(process.env.hypixelToken),
     ...args){
@@ -23,6 +23,9 @@ class EggSi extends Eris.Client{
         super(...args);
         this.db = db;
         this.api = api;
+        this.registerCommand("ping", "pong!", {
+            description: "PONG!",
+        });
         this.on("messageCreate",function (msg){
             if(Object.keys(roles).includes(msg.channel.id)){
                 this.deleteMessage(msg.channel.id, msg.id);
@@ -71,7 +74,7 @@ if (module.parent) {
     module.exports = EggSi;
 }else{
     // console.log(process.env.eggsiToken)
-    let bot = new EggSi(undefined,undefined,process.env.eggsiToken, {
+    let bot = new EggSi(undefined,undefined,process.env.eggsiToken, {},{
         description: "Totally not Upsi with a mask",
         owner: "Anunay",
         prefix: "-"
