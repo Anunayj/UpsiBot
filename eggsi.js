@@ -1,5 +1,7 @@
 const Eris = require("eris");
 const hypixel = require("./api");
+const EmbedBuilder = require('eris-embed-builder');
+
 const {
     JsonDB
 } = require('node-json-db');
@@ -26,6 +28,13 @@ class EggSi extends Eris.CommandClient{
         this.registerCommand("ping", "pong!", {
             description: "PONG!",
         });
+        this.registerCommand("splash", this.splash.bind(this), {
+            description: "Trigger a Splash!",
+            argsRequired: true,
+            usage: "<hub|dungeon|party> <HubNum|party name> <location> <description>",
+            cooldown: 1000,
+            cooldownMessage: "How many splashes do you plan to do man."
+        });
         this.on("messageCreate",function (msg){
             if(Object.keys(roles).includes(msg.channel.id)){
                 this.deleteMessage(msg.channel.id, msg.id);
@@ -38,6 +47,33 @@ class EggSi extends Eris.CommandClient{
         }.bind(this))
     }
 
+    async splash(msg = new Eris.Message(),args){
+        if(args.length < 3) return("Invalid Usage")
+        // let embed = this.createEmbed();
+        let embed = new EmbedBuilder();
+        switch (arg[0].toLowerCase()){
+            case 'hub':
+                embed.field("Hub",arg[1],true)
+                break;
+            case 'party':
+                embed.field("Party",`/p join ${arg[1]}`,true)
+                break;
+            case 'dungeon':
+                embed.field("Dungeon Hub",arg[1],true)
+                break;
+            default:
+                return("Invalid Usage")
+        }
+        embed.field("Place",arg[2],true);
+        embed.field("Splasher",msg.author.mention,true);
+        if(args.slice(3).join(" ") !== "")
+            embed.field("Description",args.slice(3).join(" "));
+            embed.author(msg.author.username, `https://cdn.discordapp.com/avatars/${msg.author.id}/${msg.author.avatar}.png`);
+        embed.timestamp(new Date());
+        embed.color(0x00ffff)
+        return({embed:embed.sendable});
+
+    }
     async verify(msg,args){
         // this.sendChannelTyping(msg.channel.id);
         let dm = this.getDMChannel(msg.author.id);
