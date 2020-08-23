@@ -936,12 +936,21 @@ async function updateOnlineStatus() {
                 embed: embed.sendable
             }).catch(e => console.error(e));
             i++;
-            description = "";
-        } else {
-            description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
         }
+        description = `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
+            
 
     }
+    let embed = bot.createEmbed();
+    embed.title("Online Status");
+    embed.color("#00FF00");
+    embed.description(description);
+    bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message[i], {
+        content: "",
+        embed: embed.sendable
+    }).catch(e => console.error(e));
+    i++;
+
     for (; i < 2; i++) {
         bot.editMessage(vals.onlineStatus.channel, vals.onlineStatus.message[i], "** **").catch(e => console.error(e));
 
@@ -955,6 +964,11 @@ async function updateOnlineStatus() {
             console.log(`YEEETED ${uuid}`);
         }
     }
+    bot.editChannel("747042617245564928",{name:`Guild Members: ${statusArray.length}`});
+    bot.editChannel("746468842296836268",{name:`Online Guild: ${statusArray.filter(e => e.online).length}`});
+    
+
+
 
 }
 
