@@ -49,16 +49,16 @@ console.log(`Using tokens\nMain: ${tokens.main.slice(0, 5)}* \nScraper: ${tokens
 const api = new hypixel.Client(tokens.hypixel);
 const api2 = new hypixel.Client(tokens.hypixel2);
 const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {
-    restMode:true
+    restMode: true
 }, {
     description: "A bot.",
     owner: "Anunay (and Refusings for those lovely embeds)",
     prefix: "~"
 }), Eris(tokens.scraper)];
 
-let eggsi = new EggSi(db,api2,tokens.eggsi, {
-    restMode:true
-},{
+let eggsi = new EggSi(db, api2, tokens.eggsi, {
+    restMode: true
+}, {
     description: "Totally not Upsi with a mask",
     owner: "Anunay",
     prefix: "-"
@@ -169,11 +169,11 @@ async function genAPIKey(msg, args) {
         return "Invalid username!";
     }
     let whitelist = db.getData("/modWhitelist");
-    if((guild===null || guild._id!==vals.guildID) && !whitelist.includes(player.id)) return("You are not whitelisted or a member of the guild");
-    if(hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
-    try{
-        if(!args.includes("new") && Object.keys(db.getData("/apikeys")).includes(player.id)){
-            return("You seem to already have a key, try `~api <username> new` if you want a new key, remember your old key will be invalidated")
+    if ((guild === null || guild._id !== vals.guildID) && !whitelist.includes(player.id)) return ("You are not whitelisted or a member of the guild");
+    if (hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return ("Please connect your Hypixel account to discord.")
+    try {
+        if (!args.includes("new") && Object.keys(db.getData("/apikeys")).includes(player.id)) {
+            return ("You seem to already have a key, try `~api <username> new` if you want a new key, remember your old key will be invalidated")
         }
     } catch (e) {
 
@@ -201,14 +201,14 @@ bot.registerCommand("apply", apply, {
     description: "Apply for guild",
     argsRequired: true,
     usage: "<username>",
-    cooldown: 10*1000,
+    cooldown: 10 * 1000,
     cooldownMessage: "Sorry, You sent a application recently. Please try Again later"
 });
 
 
 
 
-async function apply(msg, args,apply=true) {
+async function apply(msg, args, apply = true) {
     let messages = bot.getMessages(vals.waitListChannel)
     let timeStart = Date.now();
     bot.sendChannelTyping(msg.channel.id);
@@ -224,10 +224,10 @@ async function apply(msg, args,apply=true) {
         console.log(err);
         return "Invalid username!";
     }
-    if(apply){ //Yes I know I can use &&, Do I care no.
-        if(hyplayer.player.socialMedia == undefined || hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return("Please connect your Hypixel account to discord.")
+    if (apply) { //Yes I know I can use &&, Do I care no.
+        if (hyplayer.player.socialMedia == undefined || hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return ("Please connect your Hypixel account to discord.")
         // messages = await messages;
-        if((await messages).filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).map((msg) => msg.embeds[0].author.name).includes(args[0])) 
+        if ((await messages).filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).map((msg) => msg.embeds[0].author.name).includes(args[0]))
             return "Please Chill, You already have a Application Open";
     }
     let stats = await getStats(args[0]);
@@ -239,13 +239,13 @@ async function apply(msg, args,apply=true) {
     let embed = bot.createEmbed();
     let maxSlayer = 0;
     let maxSkill = 0;
-    if(stats.hyplayer.player.achievements !== undefined){
+    if (stats.hyplayer.player.achievements !== undefined) {
         for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
             maxSkill += stats.hyplayer.player.achievements["skyblock_" + name];
         }
         maxSkill /= 8;
     }
-    if(maxSkill === NaN) maxSkill = 0;
+    if (maxSkill === NaN) maxSkill = 0;
     for (let profile in stats.stats) {
         // let prof = stats.stats[profId];
         if (stats.stats[profile].skills > maxSkill) maxSkill = stats.stats[profile].skills;
@@ -254,65 +254,69 @@ async function apply(msg, args,apply=true) {
     let score = parseFloat(((maxSkill ** 4) * (1 + (maxSlayer / 100000)) / 10000).toFixed(2));
     let timeTaken = new Date(Date.now() - timeStart);
     let discord = "Unknown";
-    if(hyplayer.player.socialMedia && hyplayer.player.socialMedia.links && hyplayer.player.socialMedia.links.DISCORD){
-        discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ","_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_"));
-    
-        if(discord === undefined) 
+    if (hyplayer.player.socialMedia && hyplayer.player.socialMedia.links && hyplayer.player.socialMedia.links.DISCORD) {
+        discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ", "_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_"));
+
+        if (discord === undefined)
             discord = hyplayer.player.socialMedia.links.DISCORD;
-        else 
+        else
             discord = discord.mention;
     }
     embed.author(stats.player.name, `https://crafatar.com/avatars/${stats.player.id}?overlay`);
-    embed.field("Discord",discord,false)
-    embed.field(`Score ${score > vals.score ? ":green_circle:" : ":red_circle:" }`,score.toFixed(2),true)
-    embed.field(`Skill`,maxSkill.toFixed(2),true)
-    embed.field(`Slayer`,maxSlayer.toLocaleString(),true)
+    embed.field("Discord", discord, false)
+    embed.field(`Score ${score > vals.score ? ":green_circle:" : ":red_circle:" }`, score.toFixed(2), true)
+    embed.field(`Skill`, maxSkill.toFixed(2), true)
+    embed.field(`Slayer`, maxSlayer.toLocaleString(), true)
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
     embed.timestamp(new Date());
-    if(score > vals.score){
+    if (score > vals.score) {
         embed.color(0x00ff00);
-        if(apply){
-            
-            let msg = await embed.send(bot,vals.waitListChannel);
+        if (apply) {
+
+            let msg = await embed.send(bot, vals.waitListChannel);
             bot.addMessageReaction(msg.channel.id, msg.id, "✅")
             bot.addMessageReaction(msg.channel.id, msg.id, "❌")
             embed.description("Your application is under review.  If accepted, you will be contacted.\nPlease leave your current guild so we can streamline the process.\nThanks!")
         }
-    }else{
+    } else {
         embed.description("Sorry, You do not meet Guild Requirements.")
         embed.color(0xff0000);
     }
-        
-    await embed.send(bot,msg.channel.id);
+
+    await embed.send(bot, msg.channel.id);
     return;
 }
 
-bot.on("messageReactionAdd", async (msg,emoji,userid) => {
-    if(msg.channel.id === vals.waitListChannel && ["✅","❌"].includes(emoji.name) && userid!==bot.user.id){
-        msg = await bot.getMessage(msg.channel.id,msg.id);
-        if(!(await bot.getRESTGuildMember("682608242932842559", userid)).roles.includes("691021789031301131")){
+bot.on("messageReactionAdd", async (msg, emoji, userid) => {
+    if (msg.channel.id === vals.waitListChannel && ["✅", "❌"].includes(emoji.name) && userid !== bot.user.id) {
+        msg = await bot.getMessage(msg.channel.id, msg.id);
+        if (!(await bot.getRESTGuildMember("682608242932842559", userid)).roles.includes("691021789031301131")) {
             bot.removeMessageReaction(msg.channel.id, msg.id, emoji.name, userid);
             return;
-            }
-        if(msg.author.id === bot.user.id){
-            let userid = msg.embeds[0].fields[0].value.slice(3,-1);
-            if(emoji.name === "✅"){
+        }
+        if (msg.author.id === bot.user.id) {
+            let userid = msg.embeds[0].fields[0].value.slice(3, -1);
+            if (emoji.name === "✅") {
                 (await bot.getDMChannel(userid)).createMessage("Your application has been Accepted, if you haven't already been invited to guild contact a staff members in discord.");
                 // bot.addGuildMemberRole("682608242932842559", userid, "691292794605797407", "Application Accepted")
                 let embed = msg.embeds[0];
                 embed.description = "Waiting for user to join Guild";
-                bot.editMessage(msg.channel.id,msg.id,{embed});
+                bot.editMessage(msg.channel.id, msg.id, {
+                    embed
+                });
                 msg.removeMessageReactionEmoji("✅");
-            }else if(emoji.name === "❌"){
+            } else if (emoji.name === "❌") {
                 (await bot.getDMChannel(userid)).createMessage("Sorry your application has been Rejected");
                 bot.deleteMessage(msg.channel.id, msg.id);
                 let embed = msg.embeds[0];
                 embed.color = 0xff0000;
                 embed.description = "";
                 embed.author.name += "- REJECTED";
-                bot.createMessage(vals.applicationLogs,{embed});
+                bot.createMessage(vals.applicationLogs, {
+                    embed
+                });
             }
-            
+
         }
     }
 
@@ -416,7 +420,7 @@ class splashNotifier {
             hasEmbed.color = 0x00ffff;
             hasEmbed.description = totalmsg;
             let isDemi = false;
-            if(hasEmbed.fields !== undefined){
+            if (hasEmbed.fields !== undefined) {
                 for (let field of hasEmbed.fields) {
                     let title = (field.name + " " + field.value).match(/((party|p) join \w+|HUB\s?\d+)/i);
                     isDemi = isDemi || (field.name + " " + field.value).toLowerCase().includes("demi");
@@ -438,9 +442,11 @@ class splashNotifier {
                 leechserver.publish({
                     type: (hasEmbed.title.match(/(party|p) join \w+/i) ? "party" : "hub"),
                     place: hasEmbed.title,
-                    message: hasEmbed.description + hasEmbed.fields.map(function (obj) { return (`${obj.name}:${obj.value}`); }).join("\n")
+                    message: hasEmbed.description + hasEmbed.fields.map(function (obj) {
+                        return (`${obj.name}:${obj.value}`);
+                    }).join("\n")
                 });
-            }else{
+            } else {
                 return;
             }
 
@@ -480,11 +486,11 @@ class splashNotifier {
 
     async scrapeHandler(msg) {
         if (this.splashSendChannels.includes(msg.channel.id)) {
-            if (msg.roleMentions.length > 0 || msg.mentionEveryone || msg.embeds.length > 0 || (msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i) && (msg.cleanContent.toLowerCase().includes("god") || msg.cleanContent.toLowerCase().includes("splash")) )) {
+            if (msg.roleMentions.length > 0 || msg.mentionEveryone || msg.embeds.length > 0 || (msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i) && (msg.cleanContent.toLowerCase().includes("god") || msg.cleanContent.toLowerCase().includes("splash")))) {
                 let msgList;
-                if(msg.embeds.length > 0)
+                if (msg.embeds.length > 0)
                     msgList = [msg]
-                else  
+                else
                     msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
                 this.sendSplashNotification(msgList);
                 this.pastMessages[msg.author.id] = msg.id;
@@ -544,8 +550,8 @@ scraperbot.on("messageCreate", (msg) => {
 });
 
 bot.on("messageCreate", (msg) => {
-    if(msg.content.toLowerCase().startsWith("-req"))
-        bot.createMessage(msg.channel.id,"Please for the love of life its a `~` (tilde), [Usually look in left-upper corner key below escape for it] ")
+    if (msg.content.toLowerCase().startsWith("-req"))
+        bot.createMessage(msg.channel.id, "Please for the love of life its a `~` (tilde), [Usually look in left-upper corner key below escape for it] ")
 });
 
 //SAD You will be missed
@@ -571,8 +577,8 @@ bot.registerCommand("req", checkRequirementsnew, {
     cooldownMessage: "Slow down!!"
 });
 
-async function checkRequirementsnew(msg,args){
-    return (await apply(msg,args,false));
+async function checkRequirementsnew(msg, args) {
+    return (await apply(msg, args, false));
 }
 
 async function checkRequirements(msg, args) {
@@ -763,7 +769,7 @@ async function guildStats(msg = new Eris.Message(), args) {
         return "Invalid username!";
     }
     let tempGuild = await api.getGuildByUserID(player.id);
-    if(tempGuild===null) return "That player is not in a guild."
+    if (tempGuild === null) return "That player is not in a guild."
     let embed = bot.createEmbed(msg.channel.id);
     let members = tempGuild.members;
     let gm = "";
@@ -939,31 +945,41 @@ async function updateOnlineStatus() {
     const joined = now.filter(p => !old.includes(p));
     const left = old.filter(p => !now.includes(p));
 
-    for(let member of joined){
+    for (let member of joined) {
         let username = statusArray.find(x => x.uuid === member).name;
-        await bot.createMessage(vals.joinlog,`:green_square: \`${username}\` joined the guild!`);
-        await apply({channel:{id:vals.joinlog}},[username],false);   
+        await bot.createMessage(vals.joinlog, `:green_square: \`${username}\` joined the guild!`);
+        await apply({
+            channel: {
+                id: vals.joinlog
+            }
+        }, [username], false);
     }
 
-    for(let username of statusArray.map((x) => x.name)){
+    for (let username of statusArray.map((x) => x.name)) {
         let msg = messages.filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).find((msg) => msg.embeds[0].author.name.toLowerCase() === username.toLowerCase());
-        if(msg!==undefined){
+        if (msg !== undefined) {
             msg.delete()
-            let userid = msg.embeds[0].fields[0].value.slice(3,-1);
+            let userid = msg.embeds[0].fields[0].value.slice(3, -1);
             bot.addGuildMemberRole("682608242932842559", userid, "691292794605797407", "Joined Guild");
             let embed = msg.embeds[0];
             embed.description = "";
             embed.author.name += "- ACCEPTED";
-            bot.createMessage(vals.applicationLogs,{embed});
+            bot.createMessage(vals.applicationLogs, {
+                embed
+            });
         }
     }
-    for(let member of left){
+    for (let member of left) {
         let username = oldStatusArray.find(x => x.uuid === member).name;
-        await bot.createMessage(vals.joinlog,`:red_square: \`${username}\` left the guild! :sob:`);
-        await apply({channel:{id:vals.joinlog}},[username],false);
+        await bot.createMessage(vals.joinlog, `:red_square: \`${username}\` left the guild! :sob:`);
+        await apply({
+            channel: {
+                id: vals.joinlog
+            }
+        }, [username], false);
     }
 
-    db.push("/guildMembers",statusArray);
+    db.push("/guildMembers", statusArray);
     guildMemberList = utils.deepCopy(statusArray);
     statusArray.sort((a, b) => !(a.online ^ b.online) ? (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1) : (a.online ? -1 : 1));
     let i = 0;
@@ -981,10 +997,10 @@ async function updateOnlineStatus() {
             }).catch(e => console.error(e));
             i++;
             description = `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
-        }else{
+        } else {
             description += `:${status.online ? "green" : "red"}_circle: - ${status.name} ${status.game === undefined ? "" : "(" + utils.gameList[status.game] + ")"}\n`;
         }
-            
+
 
     }
     let embed = bot.createEmbed();
@@ -1004,15 +1020,19 @@ async function updateOnlineStatus() {
     //CHECK AGAINST MOD WHITELIST
     let uuidList = statusArray.map((obj) => obj.uuid);
     let whitelist = db.getData("/modWhitelist");
-    for(uuid of Object.keys(db.getData("/apikeys"))){
-        if(!(whitelist.includes(uuid) || uuidList.includes(uuid) )){
+    for (uuid of Object.keys(db.getData("/apikeys"))) {
+        if (!(whitelist.includes(uuid) || uuidList.includes(uuid))) {
             db.delete(`/apikeys/${uuid}`);
             console.log(`YEEETED ${uuid}`);
         }
     }
-    bot.editChannel("747042617245564928",{name:`Guild Members: ${statusArray.length}`});
-    bot.editChannel("746468842296836268",{name:`Online Guild: ${statusArray.filter(e => e.online).length}`});
-    
+    bot.editChannel("747042617245564928", {
+        name: `Guild Members: ${statusArray.length}`
+    });
+    bot.editChannel("746468842296836268", {
+        name: `Online Guild: ${statusArray.filter(e => e.online).length}`
+    });
+
 
 
 
@@ -1028,9 +1048,9 @@ bot.registerCommand("whitelist", whitelist, {
     cooldownMessage: "Slow down!!"
 });
 
-async function whitelist(msg,args) {
-    if(!["366719661267484672","314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id))
-        return("Well I like to be the only one with Hovercar");
+async function whitelist(msg, args) {
+    if (!["366719661267484672", "314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id))
+        return ("Well I like to be the only one with Hovercar");
     let player;
     try {
         player = await api.getPlayer(args[0]);
@@ -1038,11 +1058,11 @@ async function whitelist(msg,args) {
         return "Invalid username!";
     }
     whitelist = db.getData("/modWhitelist")
-    if(whitelist.includes(player.id))
-        return("You are already whitelisted");
+    if (whitelist.includes(player.id))
+        return ("You are already whitelisted");
     else
-        db.push("/modWhitelist[]",player.id);
-    return("Done!")
+        db.push("/modWhitelist[]", player.id);
+    return ("Done!")
 
 }
 // updateLeaderboards();
@@ -1057,7 +1077,7 @@ bot.registerCommand("updateleaderboard", updateLeaderboardsCheck, {
     cooldownMessage: "Slow down!!"
 });
 async function updateLeaderboardsCheck(msg) {
-    if (!["366719661267484672","314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
+    if (!["366719661267484672", "314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
     bot.createMessage(msg.channel.id, "Updating...");
     await updateLeaderboards();
     bot.createMessage(msg.channel.id, `@${msg.author.username} Updated leaderboards`);
@@ -1199,8 +1219,11 @@ async function updateLeaderboards() {
     skillLastUpdatedembed.color("#00AAFF");
     skillLastUpdatedembed.footer("Leaderboards were last updated ");
     skillLastUpdatedembed.timestamp(new Date());
-    bot.editMessage(vals.skillChannel, vals.skillLastUpdated, { content: "** **", embed: skillLastUpdatedembed.sendable });
-    db.push("/guildMembersStats",guildMemberListlocal);
+    bot.editMessage(vals.skillChannel, vals.skillLastUpdated, {
+        content: "** **",
+        embed: skillLastUpdatedembed.sendable
+    });
+    db.push("/guildMembersStats", guildMemberListlocal);
     // guildMembers = getRESTGuildMembers(682608242932842559);
     // for(member of guildMemberListlocal){
     //     if(member.average>=30 && member.slayer>=1200000){
