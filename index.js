@@ -422,7 +422,7 @@ class splashNotifier {
             let isDemi = false;
             if (hasEmbed.fields !== undefined) {
                 for (let field of hasEmbed.fields) {
-                    let title = (field.name + " " + field.value).match(/((party|p) join \w+|HUB\s?\d+)/i);
+                    let title = (field.name + " " + field.value).match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
                     isDemi = isDemi || (field.name + " " + field.value).toLowerCase().includes("demi");
                     if (title !== null) {
                         hasEmbed.title = title[0];
@@ -430,7 +430,7 @@ class splashNotifier {
                 }
             }
 
-            let title = hasEmbed.description.match(/((party|p) join \w+|HUB\s?\d+)/i);
+            let title = hasEmbed.description.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
             if (title !== null) {
                 hasEmbed.title = title[0];
             }
@@ -438,7 +438,7 @@ class splashNotifier {
             hasEmbed.title += (isDemi ? " - DEMI" : "");
             //if(isDemi) hasEmbed.color = 0xC0C0C0;
             if (isDemi) return;
-            if (hasEmbed.title.match(/((party|p) join \w+|HUB\s?\d+)/i) !== null) {
+            if (hasEmbed.title.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i) !== null) {
                 leechserver.publish({
                     type: (hasEmbed.title.match(/(party|p) join \w+/i) ? "party" : "hub"),
                     place: hasEmbed.title,
@@ -463,7 +463,7 @@ class splashNotifier {
         if (totalmsg.match(/\d+\s?K/i) !== null) return;
         const isDemi = totalmsg.toLowerCase().includes("demi");
         if (isDemi) return; //SOFT-REMOVED DEMI
-        const title = totalmsg.match(/((party|p) join \w+|HUB\s?\d+)/i);
+        const title = totalmsg.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
         if (title !== null) {
             embed.title(title[0] + (isDemi ? " - DEMI" : ""));
             leechserver.publish({
@@ -486,7 +486,7 @@ class splashNotifier {
 
     async scrapeHandler(msg) {
         if (this.splashSendChannels.includes(msg.channel.id)) {
-            if (msg.roleMentions.length > 0 || msg.mentionEveryone || msg.embeds.length > 0 || (msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i) && (msg.cleanContent.toLowerCase().includes("god") || msg.cleanContent.toLowerCase().includes("splash")))) {
+            if (msg.roleMentions.length > 0 || msg.mentionEveryone || msg.embeds.length > 0 || (msg.cleanContent.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i) && (msg.cleanContent.toLowerCase().includes("god") || msg.cleanContent.toLowerCase().includes("splash")))) {
                 let msgList;
                 if (msg.embeds.length > 0)
                     msgList = [msg]
@@ -511,11 +511,11 @@ class splashNotifier {
                         msgtoEdit.embeds[0].image = {
                             url: msg.embeds[0].url
                         };
-                        const title = msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i);
+                        const title = msg.cleanContent.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
                         if (title !== null) msgtoEdit.embeds[0].title = title[0];
                     } else {
                         msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
-                        const title = msg.cleanContent.match(/((party|p) join \w+|HUB\s?\d+)/i);
+                        const title = msg.cleanContent.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
                         if (title !== null) msgtoEdit.embeds[0].title = title[0];
                     }
 
