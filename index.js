@@ -1253,7 +1253,20 @@ async function updateLeaderboards() {
             }
         }
     }
-    console.log(rolesList);
+    // console.log(rolesList);
+    for(let roleid of Object.keys(roleList)){
+        const already = bot.guilds.get("682608242932842559").members.filter(x => x.roles.includes(roleid)).map(e => e.id);        
+        const toAdd = roleList[roleid].filter(p => !already.includes(p));
+        const toRemove = already.filter(p => !roleList[roleid].includes(p));
+        for(let x of toAdd){
+            bot.addGuildMemberRole("682608242932842559",x,roleid,"Gabe role");
+            bot.createEmbed(vals.roleLogs).description(`Added <@&${roleid}> role to <@!${x}>`).color(0x00ff00).send();
+        }
+        for(let x of toRemove){
+            bot.removeGuildMemberRole("682608242932842559",x,roleid,"Ungabe role");
+            bot.createEmbed(vals.roleLogs).description(`Removed <@&${roleid}> role from <@!${x}>`).color(0xff0000).send();
+        }
+    }
     // guildMembers = getRESTGuildMembers(682608242932842559);
     // for(member of guildMemberListlocal){
     //     if(member.average>=30 && member.slayer>=1200000){
