@@ -451,7 +451,7 @@ class splashNotifier {
             }
 
 
-
+            if(msgList[0].channel.id === "675381164990529546") return;
             for (let splashReceiveChannel of this.splashReceiveChannels) {
                 bot.createMessage(splashReceiveChannel, {
                     embed: hasEmbed
