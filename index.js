@@ -227,7 +227,7 @@ async function apply(msg, args, apply = true) {
     if (apply) { //Yes I know I can use &&, Do I care no.
         if (hyplayer.player.socialMedia == undefined || hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return ("Please connect your Hypixel account to discord.")
         // messages = await messages;
-        if ((await messages).filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).map((msg) => msg.embeds[0].author.name).includes(args[0]))
+        if ((await messages).filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).map((msg) => msg.embeds[0].author.name).includes(player.name))
             return "Please Chill, You already have a Application Open";
     }
     let stats = await getStats(args[0]);
@@ -1244,7 +1244,7 @@ async function updateLeaderboards() {
     });
     db.push("/guildMembersStats", guildMemberListlocal);
 
-    rolesList = {};
+    let rolesList = {};
     for(let roleid of Object.keys(utils.roles)){
         rolesList[roleid] = [];
         for (member of guildMemberListlocal) {
