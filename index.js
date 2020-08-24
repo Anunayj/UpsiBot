@@ -971,7 +971,7 @@ async function updateOnlineStatus() {
     }
     for (let member of left) {
         let username = oldStatusArray.find(x => x.uuid === member).name;
-        flipped = {};
+        let flipped = {};
 
         let name = db.getData("/ign");
         for (key of Object.keys(name)) {
@@ -1103,6 +1103,13 @@ async function updateLeaderboards() {
         }
     }
     let guildMemberListlocal = utils.deepCopy(guildMemberList);
+    let flipped = {};
+
+    let name = db.getData("/ign");
+    for (key of Object.keys(name)) {
+        flipped[database.ign[key].uuid] = key
+    }
+        
     for (let i = 0; i < guildMemberListlocal.length; i++) {
         await new Promise(r => setTimeout(r, 5000));
         let hyplayer;
@@ -1132,14 +1139,17 @@ async function updateLeaderboards() {
         guildMemberListlocal[i].slayer = 0;
         // guildMemberListlocal[i].social = hyplayer.player.socialMedia;
         guildMemberListlocal[i].score = 0;
-        if (hyplayer.player.socialMedia && hyplayer.player.socialMedia.links && hyplayer.player.socialMedia.links.DISCORD) {
+        let discord = undefined;
+        if(flipped[guildMemberListlocal[i].uuid])
+            discord = flipped[guildMemberListlocal[i].uuid];
+        else if (hyplayer.player.socialMedia && hyplayer.player.socialMedia.links && hyplayer.player.socialMedia.links.DISCORD) {
             discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ", "_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_"));
+            if(discord)
+                guildMemberListlocal[i].discord = discord.id;
         }
         if (discord === undefined)
             guildMemberListlocal[i].discord = undefined;
-        else
-            guildMemberListlocal[i].discord = discord.id;
-
+        
         if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
             continue;
         }
@@ -1260,11 +1270,11 @@ async function updateLeaderboards() {
         const toAdd = roleList[roleid].filter(p => !already.includes(p));
         const toRemove = already.filter(p => !roleList[roleid].includes(p));
         for(let x of toAdd){
-            bot.addGuildMemberRole("682608242932842559",x,roleid,"Gabe role");
+            await bot.addGuildMemberRole("682608242932842559",x,roleid,"Gabe role");
             bot.createEmbed(vals.roleLogs).description(`Added <@&${roleid}> role to <@!${x}>`).color(0x00ff00).send();
         }
         for(let x of toRemove){
-            bot.removeGuildMemberRole("682608242932842559",x,roleid,"Ungabe role");
+            await bot.removeGuildMemberRole("682608242932842559",x,roleid,"Ungabe role");
             bot.createEmbed(vals.roleLogs).description(`Removed <@&${roleid}> role from <@!${x}>`).color(0xff0000).send();
         }
     }
