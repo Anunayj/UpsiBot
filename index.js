@@ -971,6 +971,16 @@ async function updateOnlineStatus() {
     }
     for (let member of left) {
         let username = oldStatusArray.find(x => x.uuid === member).name;
+        flipped = {};
+
+        let name = db.getData("/ign");
+        for (key of Object.keys(name)) {
+            flipped[database.ign[key].uuid] = key
+        }
+        if (flipped[member] !== undefined)
+            bot.removeGuildMemberRole("682608242932842559", flipped[member], "691292794605797407", "Left Guild");
+
+
         await bot.createMessage(vals.joinlog, `:red_square: \`${username}\` left the guild! :sob:`);
         await apply({
             channel: {
@@ -1120,8 +1130,16 @@ async function updateLeaderboards() {
         guildMemberListlocal[i].spider = 0;
         guildMemberListlocal[i].revenant = 0;
         guildMemberListlocal[i].slayer = 0;
-        guildMemberListlocal[i].social = hyplayer.player.socialMedia;
+        // guildMemberListlocal[i].social = hyplayer.player.socialMedia;
         guildMemberListlocal[i].score = 0;
+        if (hyplayer.player.socialMedia && hyplayer.player.socialMedia.links && hyplayer.player.socialMedia.links.DISCORD) {
+            discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ", "_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_"));
+        }
+        if (discord === undefined)
+            guildMemberListlocal[i].discord = undefined;
+        else
+            guildMemberListlocal[i].discord = discord.id;
+
         if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
             continue;
         }
@@ -1155,6 +1173,7 @@ async function updateLeaderboards() {
 
         }
         guildMemberListlocal[i].score = (guildMemberListlocal[i].average ** 4) * (1 + (guildMemberListlocal[i].slayer / 100000)) / 10000;
+    
     }
     let createEmbeds = (array, sortSkill) => {
         let embedlist = [];
@@ -1224,6 +1243,17 @@ async function updateLeaderboards() {
         embed: skillLastUpdatedembed.sendable
     });
     db.push("/guildMembersStats", guildMemberListlocal);
+
+    rolesList = {};
+    for(let roleid of Object.keys(utils.roles)){
+        rolesList[roleid] = [];
+        for (member of guildMemberListlocal) {
+            if(utils.roles[roleid](member) && member.discord){
+                rolesList[roleid].push(member.discord);
+            }
+        }
+    }
+    console.log(rolesList);
     // guildMembers = getRESTGuildMembers(682608242932842559);
     // for(member of guildMemberListlocal){
     //     if(member.average>=30 && member.slayer>=1200000){
