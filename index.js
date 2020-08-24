@@ -474,6 +474,7 @@ class splashNotifier {
         } else
             return;
         // embed.title((isDemi ? "DEMI " : "") + "Splash");
+        if(msgList[0].channel.id === "675381164990529546") return;
         embed.description(totalmsg);
         embed.color(isDemi ? "#C0C0C0" : "#00FFFF");
         embed.timestamp(new Date());
