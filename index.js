@@ -1244,15 +1244,16 @@ async function updateLeaderboards() {
     });
     db.push("/guildMembersStats", guildMemberListlocal);
 
-    let rolesList = {};
+    let roleList = {};
     for(let roleid of Object.keys(utils.roles)){
-        rolesList[roleid] = [];
+        roleList[roleid] = [];
         for (member of guildMemberListlocal) {
             if(utils.roles[roleid](member) && member.discord){
-                rolesList[roleid].push(member.discord);
+                roleList[roleid].push(member.discord);
             }
         }
     }
+    
     // console.log(rolesList);
     for(let roleid of Object.keys(roleList)){
         const already = bot.guilds.get("682608242932842559").members.filter(x => x.roles.includes(roleid)).map(e => e.id);        
