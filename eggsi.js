@@ -80,7 +80,7 @@ class EggSi extends Eris.CommandClient{
         this.createMessage(msg.channel.id,"Splash Sequence Started");
         for(let channel of vals.splashChannelDono)
             this.createMessage(channel.id,{content:channel.ping,embed:embed.sendable});
-        await new Promise(r => setTimeout(r, 45000));
+        await new Promise(r => setTimeout(r, 90000));
         embed.footer("<#720012518235570216> for Priority");
         for(let channel of vals.splashChannelFree)
             this.createMessage(channel.id,{content:channel.ping,embed:embed.sendable});
