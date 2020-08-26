@@ -310,9 +310,20 @@ module.exports = {
     },
     roles: {
         "691292794605797407": () => true,
-        "743488287695437825": (member) => member.score >= 318.86,
-        "724698151885471815": (member) => member.score >= 2193.95,
-        "747458527978586192": (member) => member.alchemy >= 50
-
+        "743488287695437825": (member) => member.score >= 318.86, //LATEGAME
+        "724698151885471815": (member) => member.score >= 2193.95, //ENDGAME
+        "747458527978586192": (member) => member.alchemy >= 50,
+        "748162489446957127": (member) => member.combat >= 50,
+        "748162690324889640": (member) => member.foraging >= 50,
+        "748163274985570374": (member) => member.fishing >= 50,
+        "748163397530681382": (member) => member.enchanting >= 50,
+        "748162869467807779": (member) => member.taming >= 50,
+        "748163037298688091": (member) => member.farming >= 50,
+        "748162770259804192": (member) => member.mining >= 50,
+        "748164313650298973": (member) => member.alchemy >= 50 && member.combat >= 50 &&  member.foraging >= 50 && member.fishing >= 50 && member.taming >= 50 && member.farming >= 50 && member.mining >= 50,
+        "748236466685083840": (member) => member.sven >= 1000000,
+        "748236701486284801": (member) => member.spider >= 1000000,
+        "748237317453381773": (member) => member.revenant >= 1000000,
+        "741663983479816253": (member) => member.revenant >= 1000000 && member.spider >= 1000000 && member.sven >= 1000000
     }
 };
