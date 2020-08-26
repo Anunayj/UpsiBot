@@ -554,14 +554,14 @@ class splashNotifier {
 
 let splashHandler = new splashNotifier();
 scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
-scraperbot.on("messageCreate", (msg) => {
-    if (["720642093181042690", "720602273461567509", "736220160616038471", "728287548321038346"].includes(msg.channel.id)) {
-        bot.createMessage("736211540772126780", {
-            content: msg.cleanContent,
-            embed: msg.embeds[0]
-        });
-    }
-});
+// scraperbot.on("messageCreate", (msg) => {
+//     if (["720642093181042690", "720602273461567509", "736220160616038471", "728287548321038346"].includes(msg.channel.id)) {
+//         bot.createMessage("736211540772126780", {
+//             content: msg.cleanContent,
+//             embed: msg.embeds[0]
+//         });
+//     }
+// });
 
 bot.on("messageCreate", (msg) => {
     if (msg.content.toLowerCase().startsWith("-req"))
