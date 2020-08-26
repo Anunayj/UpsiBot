@@ -582,127 +582,127 @@ async function checkRequirementsnew(msg, args) {
     return (await apply(msg, args, false));
 }
 
-async function checkRequirements(msg, args) {
-    // if (args[0] === undefined) return "Invalid Usage! do req <username>";
-    bot.sendChannelTyping(msg.channel.id);
-    let timeStart = Date.now();
-    // let newReqs = args.join("").includes("new");
-    let newReqs = !args.join("").includes("old");
-    let current = args.join("").includes("old");
+// async function checkRequirements(msg, args) {
+//     // if (args[0] === undefined) return "Invalid Usage! do req <username>";
+//     bot.sendChannelTyping(msg.channel.id);
+//     let timeStart = Date.now();
+//     // let newReqs = args.join("").includes("new");
+//     let newReqs = !args.join("").includes("old");
+//     let current = args.join("").includes("old");
 
-    let embed = bot.createEmbed(msg.channel.id);
-    let res = await getStats(args[0]);
-    if (typeof (res) !== typeof ({})) {
-        let timeTaken = new Date(Date.now() - timeStart);
-        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
-        return;
-    }
-    let values = utils.deepCopy(vals);
-    if (current || newReqs) {
-        if (current) {
-            values.slayer = values.slayerOld;
-            values.skills = values.skillsOld;
-        }
-        for (let profId in res.stats) {
-            let prof = res.stats[profId];
-            let slayerCheck = false;
-            if (values.slayer.minimumAsAll) slayerCheck = (prof.slayer.z >= values.slayer.minimumHighestSlayer && prof.slayer.s >= values.slayer.minimumHighestSlayer && prof.slayer.w >= values.slayer.minimumHighestSlayer);
-            else slayerCheck = (prof.slayer.z >= values.slayer.minimumHighestSlayer || prof.slayer.s >= values.slayer.minimumHighestSlayer || prof.slayer.w >= values.slayer.minimumHighestSlayer);
-            if (values.slayer.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= values.slayer.xp);
-            else slayerCheck = (slayerCheck || prof.slayer.xp >= values.slayer.xp);
-            embed = createRequirementField(embed, profId, prof, values, slayerCheck, newReqs);
-        }
-        embed.color("#FFA500");
-        let timeTaken = new Date(Date.now() - timeStart);
-        embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
-        await embed.send();
-        return;
-    } else {
-        let mainColor = "#FF0000";
-        for (let profId in res.stats) {
-            let prof = res.stats[profId];
-            let slayerCheck = false;
-            if (vals.slayerOld.minimumAsAll) slayerCheck = (prof.slayer.z >= vals.slayerOld.minimumHighestSlayer && prof.slayer.s >= vals.slayerOld.minimumHighestSlayer && prof.slayer.w >= vals.slayerOld.minimumHighestSlayer);
-            else slayerCheck = (prof.slayer.z >= vals.slayerOld.minimumHighestSlayer || prof.slayer.s >= vals.slayerOld.minimumHighestSlayer || prof.slayer.w >= vals.slayerOld.minimumHighestSlayer);
-            if (vals.slayerOld.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= vals.slayerOld.xp);
-            else slayerCheck = (slayerCheck || prof.slayer.xp >= vals.slayerOld.xp);
-            let text = utils.circle(prof.minions >= vals.minions) + (prof.skills === -1 ? utils.circle(-1) : utils.circle(prof.skills >= vals.skillsOld)) + utils.circle(slayerCheck) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.wealth >= vals.wealth)) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.talismans >= vals.talismans));
-            embed.field(`${profId}`, text);
-            if (mainColor != "#00FF00") {
-                if (text.includes("yellow")) {
-                    mainColor = "#FFFF00";
-                } else if (text.includes("red")) {
-                    mainColor = "#FF0000";
-                } else if (text.includes("blue")) {
-                    mainColor = "#0000FF";
-                } else {
-                    mainColor = "#00FF00";
-                }
-            }
-            if (mainColor == "#00FF00") {
-                break;
-            }
-            let todo = [];
-            if (text.includes("yellow")) {
-                todo.push("Enable API");
-            }
-            let types = ["Minions", "Skills", "Slayer", "Wealth", "Talismans"];
-            let colors = text.replace(/_circle:/g, ",").replace(/:/g, '').split(",");
-            for (let i = 0; i < colors.length; i++) {
-                if (colors[i] == "red" || colors[i] == "blue") {
-                    if (types[i] == "Slayer") {
-                        todo.push(`${types[i]} (${prof.slayer.xp} | ${prof.slayer.z}/${prof.slayer.s}/${prof.slayer.w})`);
-                    } else if (["Skills", "Wealth"].includes(types[i])) {
-                        todo.push(`${types[i]} (${prof[types[i].toLowerCase()].toFixed(2)})`);
-                    } else {
-                        todo.push(`${types[i]} (${prof[types[i].toLowerCase()]})`);
-                    }
-                }
-            }
-            if (todo.length != 0) {
-                embed.field(`TODO:`, todo.join(", "));
-            }
-        }
-        if (mainColor === "#FFFF00") { //If API is disabled
-            let ach = res.hyplayer.player.achievements;
-            let skill = 0;
-            for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
-                skill += ach["skyblock_" + name];
-            }
-            skill /= 8;
-            const crafts = res.hyplayer.player.achievements.skyblock_minion_lover;
-            embed.field("Achievements API:",
-                `Skills: ${skill.toFixed(2)} ${skill >= vals.skills ? ":green_circle:" : ":red_circle:"}` +
-                `, Minions: ${crafts} ${crafts >= vals.minions ? ":green_circle:" : ":red_circle:"}`);
-        }
-        // embed.field("Requirements:","")
-        embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
-        embed.color(mainColor);
-        let timeTaken = new Date(Date.now() - timeStart);
-        embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
-        embed.color(mainColor);
-        embed.send().catch(e => console.error(e));
-    }
-}
+//     let embed = bot.createEmbed(msg.channel.id);
+//     let res = await getStats(args[0]);
+//     if (typeof (res) !== typeof ({})) {
+//         let timeTaken = new Date(Date.now() - timeStart);
+//         await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+//         return;
+//     }
+//     let values = utils.deepCopy(vals);
+//     if (current || newReqs) {
+//         if (current) {
+//             values.slayer = values.slayerOld;
+//             values.skills = values.skillsOld;
+//         }
+//         for (let profId in res.stats) {
+//             let prof = res.stats[profId];
+//             let slayerCheck = false;
+//             if (values.slayer.minimumAsAll) slayerCheck = (prof.slayer.z >= values.slayer.minimumHighestSlayer && prof.slayer.s >= values.slayer.minimumHighestSlayer && prof.slayer.w >= values.slayer.minimumHighestSlayer);
+//             else slayerCheck = (prof.slayer.z >= values.slayer.minimumHighestSlayer || prof.slayer.s >= values.slayer.minimumHighestSlayer || prof.slayer.w >= values.slayer.minimumHighestSlayer);
+//             if (values.slayer.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= values.slayer.xp);
+//             else slayerCheck = (slayerCheck || prof.slayer.xp >= values.slayer.xp);
+//             embed = createRequirementField(embed, profId, prof, values, slayerCheck, newReqs);
+//         }
+//         embed.color("#FFA500");
+//         let timeTaken = new Date(Date.now() - timeStart);
+//         embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
+//         await embed.send();
+//         return;
+//     } else {
+//         let mainColor = "#FF0000";
+//         for (let profId in res.stats) {
+//             let prof = res.stats[profId];
+//             let slayerCheck = false;
+//             if (vals.slayerOld.minimumAsAll) slayerCheck = (prof.slayer.z >= vals.slayerOld.minimumHighestSlayer && prof.slayer.s >= vals.slayerOld.minimumHighestSlayer && prof.slayer.w >= vals.slayerOld.minimumHighestSlayer);
+//             else slayerCheck = (prof.slayer.z >= vals.slayerOld.minimumHighestSlayer || prof.slayer.s >= vals.slayerOld.minimumHighestSlayer || prof.slayer.w >= vals.slayerOld.minimumHighestSlayer);
+//             if (vals.slayerOld.xpAndMinimum) slayerCheck = (slayerCheck && prof.slayer.xp >= vals.slayerOld.xp);
+//             else slayerCheck = (slayerCheck || prof.slayer.xp >= vals.slayerOld.xp);
+//             let text = utils.circle(prof.minions >= vals.minions) + (prof.skills === -1 ? utils.circle(-1) : utils.circle(prof.skills >= vals.skillsOld)) + utils.circle(slayerCheck) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.wealth >= vals.wealth)) + (prof.wealth === -1 ? utils.circle(-1) : utils.circle(prof.talismans >= vals.talismans));
+//             embed.field(`${profId}`, text);
+//             if (mainColor != "#00FF00") {
+//                 if (text.includes("yellow")) {
+//                     mainColor = "#FFFF00";
+//                 } else if (text.includes("red")) {
+//                     mainColor = "#FF0000";
+//                 } else if (text.includes("blue")) {
+//                     mainColor = "#0000FF";
+//                 } else {
+//                     mainColor = "#00FF00";
+//                 }
+//             }
+//             if (mainColor == "#00FF00") {
+//                 break;
+//             }
+//             let todo = [];
+//             if (text.includes("yellow")) {
+//                 todo.push("Enable API");
+//             }
+//             let types = ["Minions", "Skills", "Slayer", "Wealth", "Talismans"];
+//             let colors = text.replace(/_circle:/g, ",").replace(/:/g, '').split(",");
+//             for (let i = 0; i < colors.length; i++) {
+//                 if (colors[i] == "red" || colors[i] == "blue") {
+//                     if (types[i] == "Slayer") {
+//                         todo.push(`${types[i]} (${prof.slayer.xp} | ${prof.slayer.z}/${prof.slayer.s}/${prof.slayer.w})`);
+//                     } else if (["Skills", "Wealth"].includes(types[i])) {
+//                         todo.push(`${types[i]} (${prof[types[i].toLowerCase()].toFixed(2)})`);
+//                     } else {
+//                         todo.push(`${types[i]} (${prof[types[i].toLowerCase()]})`);
+//                     }
+//                 }
+//             }
+//             if (todo.length != 0) {
+//                 embed.field(`TODO:`, todo.join(", "));
+//             }
+//         }
+//         if (mainColor === "#FFFF00") { //If API is disabled
+//             let ach = res.hyplayer.player.achievements;
+//             let skill = 0;
+//             for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
+//                 skill += ach["skyblock_" + name];
+//             }
+//             skill /= 8;
+//             const crafts = res.hyplayer.player.achievements.skyblock_minion_lover;
+//             embed.field("Achievements API:",
+//                 `Skills: ${skill.toFixed(2)} ${skill >= vals.skills ? ":green_circle:" : ":red_circle:"}` +
+//                 `, Minions: ${crafts} ${crafts >= vals.minions ? ":green_circle:" : ":red_circle:"}`);
+//         }
+//         // embed.field("Requirements:","")
+//         embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
+//         embed.color(mainColor);
+//         let timeTaken = new Date(Date.now() - timeStart);
+//         embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
+//         embed.color(mainColor);
+//         embed.send().catch(e => console.error(e));
+//     }
+// }
 
-function createRequirementField(embed, profId, prof, vals, slayerCheck, newReqs = false) {
-    embed.field(profId,
-        (!newReqs ? `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n` : "") +
-        (prof.skills === -1 ? ":yellow_circle: Enable API\n" : (`${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills}\n`)) +
-        `${slayerCheck ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n` +
-        (!newReqs ? (prof.wealth === -1 ? ":yellow_circle: Enable API\n" : (`${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`)) : "") +
-        (!newReqs ? (prof.wealth === -1 ? ":yellow_circle: Enable API" : (`${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`)) : ""));
-    return embed;
-}
+// function createRequirementField(embed, profId, prof, vals, slayerCheck, newReqs = false) {
+//     embed.field(profId,
+//         (!newReqs ? `${prof.minions >= vals.minions ? ":green_circle:" : ":red_circle:"} - Minions: ${prof.minions}/${vals.minions}\n` : "") +
+//         (prof.skills === -1 ? ":yellow_circle: Enable API\n" : (`${prof.skills >= vals.skills ? ":green_circle:" : ":red_circle:"} - Skill Average: ${prof.skills.toFixed(2)}/${vals.skills}\n`)) +
+//         `${slayerCheck ? ":green_circle:" : (prof.slayer.xp == 0 ? ":blue_circle:" : ":red_circle:")} - Slayer XP: ${parseInt(prof.slayer.xp).toLocaleString()}/${parseInt(vals.slayer.xp).toLocaleString()} \n` +
+//         (!newReqs ? (prof.wealth === -1 ? ":yellow_circle: Enable API\n" : (`${prof.wealth >= vals.wealth ? ":green_circle:" : ":red_circle:"} - Wealth: ${prof.wealth.toFixed(2)} points/${vals.wealth} \n`)) : "") +
+//         (!newReqs ? (prof.wealth === -1 ? ":yellow_circle: Enable API" : (`${prof.talismans >= vals.talismans ? ":green_circle:" : ":red_circle:"} - Talismans: ${prof.talismans}/${vals.talismans}`)) : ""));
+//     return embed;
+// }
 
-bot.registerCommand("stats", stats, {
-    description: "Get Player Stats!!",
-    fullDescription: "Dude that literally ^",
-    argsRequired: true,
-    usage: `<username>`,
-    cooldown: 3000,
-    cooldownMessage: "Chill b*tch!",
-});
+// bot.registerCommand("stats", stats, {
+//     description: "Get Player Stats!!",
+//     fullDescription: "Dude that literally ^",
+//     argsRequired: true,
+//     usage: `<username>`,
+//     cooldown: 3000,
+//     cooldownMessage: "Chill b*tch!",
+// });
 
 bot.registerCommand("guild", guildStats, {
     description: "Get Upsi Guild Stats!!",
@@ -735,28 +735,28 @@ async function isOnline(msg, args) {
 }
 
 
-async function stats(msg, args) {
-    bot.sendChannelTyping(msg.channel.id);
-    let timeStart = Date.now();
-    let timeTaken = new Date();
-    let res = await getStats(args[0]);
-    if (typeof (res) !== typeof ({})) {
-        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
-        return;
-    }
-    let embed = bot.createEmbed(msg.channel.id);
-    embed.title("Stats");
-    embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
-    for (let profile in res.stats) {
-        let pf = res.stats[profile];
-        embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills === -1 ? "Enable API" : (`${pf.skills.toFixed(2)}\n With Progress:\n${pf.skills2.toFixed(2)}`)} \n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth === -1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth === -1 ? "Enable API" : pf.talismans}\n**Score:**\n${pf.score === -1 ? "Enable API" : pf.score}`);
-    }
+// async function stats(msg, args) {
+//     bot.sendChannelTyping(msg.channel.id);
+//     let timeStart = Date.now();
+//     let timeTaken = new Date();
+//     let res = await getStats(args[0]);
+//     if (typeof (res) !== typeof ({})) {
+//         await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(res).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+//         return;
+//     }
+//     let embed = bot.createEmbed(msg.channel.id);
+//     embed.title("Stats");
+//     embed.author(res.player.name, `https://crafatar.com/avatars/${res.player.id}?overlay`);
+//     for (let profile in res.stats) {
+//         let pf = res.stats[profile];
+//         embed.field(profile, `**Minions:**\n${pf.minions}\n**Skill Average:**\n${pf.skills === -1 ? "Enable API" : (`${pf.skills.toFixed(2)}\n With Progress:\n${pf.skills2.toFixed(2)}`)} \n**Slayer XP:**\n${pf.slayer.xp} | ${pf.slayer.z}/${pf.slayer.s}/${pf.slayer.w}\n**Wealth:**\n${pf.wealth === -1 ? "Enable API" : pf.wealth.toFixed(2)}\n**Talismans:**\n${pf.wealth === -1 ? "Enable API" : pf.talismans}\n**Score:**\n${pf.score === -1 ? "Enable API" : pf.score}`);
+//     }
 
-    timeTaken = new Date(Date.now() - timeStart);
-    embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
-    await embed.send();
-    return;
-}
+//     timeTaken = new Date(Date.now() - timeStart);
+//     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`);
+//     await embed.send();
+//     return;
+// }
 
 async function guildStats(msg = new Eris.Message(), args) {
     bot.sendChannelTyping(msg.channel.id);
@@ -790,7 +790,7 @@ async function guildStats(msg = new Eris.Message(), args) {
     return;
 }
 
-async function getStats(username, exploit = false) {
+async function getStats(username) {
     let player = null,
         hyplayer = null,
         sbp = null;
@@ -857,18 +857,18 @@ async function getStats(username, exploit = false) {
             slayer: slayer,
             score
         };
-        if (member.inv_contents !== undefined) {
-            let items = [member.inv_armor.data, member.inv_contents.data];
-            if (member.talisman_bag !== undefined) items.push(member.talisman_bag.data);
-            if (member.ender_chest_contents !== undefined) items.push(member.ender_chest_contents.data);
-            if (member.wardrobe_contents !== undefined) items.push(member.wardrobe_contents.data);
-            let totals = await utils.checkWealthAndTalis(items, exploit, api);
-            profiles[pf.cute_name].wealth = totals[0] + (prof.profile.banking ? (prof.profile.banking.balance) / 1000000 : 0) + member.coin_purse / 1000000;
-            profiles[pf.cute_name].talismans = totals[1];
-        } else {
-            profiles[pf.cute_name].wealth = -1;
-            profiles[pf.cute_name].talismans = -1;
-        }
+        // if (member.inv_contents !== undefined) {
+        //     let items = [member.inv_armor.data, member.inv_contents.data];
+        //     if (member.talisman_bag !== undefined) items.push(member.talisman_bag.data);
+        //     if (member.ender_chest_contents !== undefined) items.push(member.ender_chest_contents.data);
+        //     if (member.wardrobe_contents !== undefined) items.push(member.wardrobe_contents.data);
+        //     let totals = await utils.checkWealthAndTalis(items, exploit, api);
+        //     profiles[pf.cute_name].wealth = totals[0] + (prof.profile.banking ? (prof.profile.banking.balance) / 1000000 : 0) + member.coin_purse / 1000000;
+        //     profiles[pf.cute_name].talismans = totals[1];
+        // } else {
+        //     profiles[pf.cute_name].wealth = -1;
+        //     profiles[pf.cute_name].talismans = -1;
+        // }
     }
     if (Object.keys(profiles).length === 0) {
         return "I am guesssing this idiot got wiped.";
@@ -976,7 +976,7 @@ async function updateOnlineStatus() {
 
         let name = db.getData("/ign");
         for (key of Object.keys(name)) {
-            flipped[database.ign[key].uuid] = key
+            flipped[name[key].uuid] = key
         }
         if (flipped[member] !== undefined)
             bot.removeGuildMemberRole("682608242932842559", flipped[member], "691292794605797407", "Left Guild");
