@@ -385,10 +385,23 @@ function say(msg) {
 class splashNotifier {
     constructor() {
         this.pastMessages = {};
-        this.splashSendChannels = require("./splashSendChannels.json");
-        this.splashReceiveChannels = require("./splashReceiveChannels.json");
+        try{
+            this.splashSendChannels = db.getData("/splashSendChannels");
+            this.splashReceiveChannels = db.getData("/splashReceiveChannels");
+        }catch(e){
+            this.splashSendChannels = [];
+            this.splashReceiveChannels = [];
+        }
     }
-
+    refreshList(){
+        try{
+            this.splashSendChannels = db.getData("/splashSendChannels");
+            this.splashReceiveChannels = db.getData("/splashReceiveChannels");
+        }catch(e){
+            this.splashSendChannels = [];
+            this.splashReceiveChannels = [];
+        }
+    }
     sendSplashNotification(msgList) {
         // const totalmsg = msgList.reduce((total, now) => {
         //     if(now.embeds.length>0) 
