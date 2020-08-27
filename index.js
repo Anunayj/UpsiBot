@@ -404,6 +404,7 @@ function say(msg) {
 class splashNotifier {
     constructor() {
         this.pastMessages = {};
+        this.duplicate = Object.create(null);
         try{
             this.splashSendChannels = db.getData("/splashSendChannels");
             this.splashReceiveChannels = db.getData("/splashReceiveChannels");
@@ -470,7 +471,12 @@ class splashNotifier {
             hasEmbed.title += (isDemi ? " - DEMI" : "");
             //if(isDemi) hasEmbed.color = 0xC0C0C0;
             if (isDemi) return;
-            if (hasEmbed.title.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i) !== null) {
+            if (hasEmbed.title.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i) !== null && !Object.keys(this.duplicate).includes(hasEmbed.title)) {
+                this.duplicate[hasEmbed.title] = true;
+                setTimeout(function(){
+                    delete this.duplicate[hasEmbed.title];
+                    console.log(`Deleted ${hasEmbed.title}`);
+                }.bind(this),30000)
                 leechserver.publish({
                     type: (hasEmbed.title.match(/(party|p) join \w+/i) ? "party" : "hub"),
                     place: hasEmbed.title,
@@ -496,7 +502,12 @@ class splashNotifier {
         const isDemi = totalmsg.toLowerCase().includes("demi");
         if (isDemi) return; //SOFT-REMOVED DEMI
         const title = totalmsg.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
-        if (title !== null) {
+        if (title !== null && !Object.keys(this.duplicate).includes(title[0])) {
+            this.duplicate[title[0]] = true;
+                setTimeout(function(){
+                    delete this.duplicate[title[0]];
+                    console.log(`Deleted ${title[0]}`);
+                }.bind(this),30000)
             embed.title(title[0] + (isDemi ? " - DEMI" : ""));
             leechserver.publish({
                 type: (totalmsg.match(/(party|p) join \w+/i) ? "party" : "hub"),
