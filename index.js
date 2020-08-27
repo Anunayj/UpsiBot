@@ -1141,7 +1141,7 @@ async function updateLeaderboards() {
 
     let name = db.getData("/ign");
     for (key of Object.keys(name)) {
-        flipped[database.ign[key].uuid] = key
+        flipped[name[key].uuid] = key;
     }
         
     for (let i = 0; i < guildMemberListlocal.length; i++) {
