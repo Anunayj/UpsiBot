@@ -376,6 +376,20 @@ bot.registerCommand("say", say, {
     usage: "<What to say>"
 });
 
+
+bot.registerCommand("addleech", addleech, {
+    description: "Add Leech Channel",
+    fullDescription: "Add a server to leech bot",
+    argsRequired: true,
+    usage: "<channelid> <server invite>"
+});
+
+async function addleech(msg,arg){
+    if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
+    if(arg[1].match(/https:\/\/discord.gg\/(.+)/gi)===null);
+    
+}
+
 function say(msg) {
     if (msg.author.bot === true) return;
     // replace(/<(:\w+:)[0-9]+>/g, "$1")
@@ -455,9 +469,9 @@ class splashNotifier {
                 leechserver.publish({
                     type: (hasEmbed.title.match(/(party|p) join \w+/i) ? "party" : "hub"),
                     place: hasEmbed.title,
-                    message: hasEmbed.description + hasEmbed.fields.map(function (obj) {
+                    message: hasEmbed.description + (hasEmbed.fields ? hasEmbed.fields.map(function (obj) {
                         return (`${obj.name}:${obj.value}`);
-                    }).join("\n")
+                    }).join("\n") : "") 
                 });
             } else {
                 return;
@@ -517,6 +531,7 @@ class splashNotifier {
                         if (arr.embeds.length > 0 && arr.embeds[0].author !== undefined)
                             return arr.embeds[0].author.name === msg.author.username;
                     })[0];
+                    if(!msgtoEdit) return;
                     if (msg.embeds.length > 0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv") {
                         msg.embeds[0].description = msgtoEdit.embeds[0].description;
                         msgtoEdit.embeds[0] = msg.embeds[0];
