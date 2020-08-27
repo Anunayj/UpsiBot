@@ -29,13 +29,13 @@ class EggSi extends Eris.CommandClient{
         this.registerCommand("ping", "pong!", {
             description: "PONG!",
         });
-        this.registerCommand("splash", this.splash.bind(this), {
-            description: "Trigger a Splash!",
-            argsRequired: true,
-            usage: "<hub|dungeon|party> <HubNum|party name> <location> <description>",
-            cooldown: 1000,
-            cooldownMessage: "How many splashes do you plan to do man."
-        });
+//         this.registerCommand("splash", this.splash.bind(this), {
+//             description: "Trigger a Splash!",
+//             argsRequired: true,
+//             usage: "<hub|dungeon|party> <HubNum|party name> <location> <description>",
+//             cooldown: 1000,
+//             cooldownMessage: "How many splashes do you plan to do man."
+//         });
         this.on("messageCreate",function (msg){
             if(Object.keys(roles).includes(msg.channel.id)){
                 this.deleteMessage(msg.channel.id, msg.id);

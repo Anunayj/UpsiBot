@@ -331,6 +331,11 @@ bot.registerCommand("slm", (msg, args) => `https://sky.lea.moe/stats/${args[0]}`
     argsRequired: true,
     usage: "<username> [profile]"
 });
+bot.registerCommand("ssm", (msg, args) => `https://sky.shiiyu.moe/stats/${args[0]}` + (args[1] ? `/${args[1]}` : ""), {
+    description: "Link Sky.lea.moe",
+    argsRequired: true,
+    usage: "<username> [profile]"
+});
 
 async function runInVm(msg) {
     if (msg.author.id !== "213612539483914240" && msg.author.id !== "260470661732892672" && msg.author.id !== "314197872209821699") return "No.";
@@ -569,14 +574,14 @@ class splashNotifier {
 
 let splashHandler = new splashNotifier();
 scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
-scraperbot.on("messageCreate", (msg) => {
-    if (["720642093181042690", "720602273461567509", "736220160616038471", "728287548321038346"].includes(msg.channel.id)) {
-        bot.createMessage("736211540772126780", {
-            content: msg.cleanContent,
-            embed: msg.embeds[0]
-        });
-    }
-});
+// scraperbot.on("messageCreate", (msg) => {
+//     if (["720642093181042690", "720602273461567509", "736220160616038471", "728287548321038346"].includes(msg.channel.id)) {
+//         bot.createMessage("736211540772126780", {
+//             content: msg.cleanContent,
+//             embed: msg.embeds[0]
+//         });
+//     }
+// });
 
 bot.on("messageCreate", (msg) => {
     if (msg.content.toLowerCase().startsWith("-req"))
