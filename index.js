@@ -307,7 +307,7 @@ async function apply(msg, args, apply = true) {
         embed.color(0xff0000);
     }
     if(scammerlist[player.id]){
-        embed.description(`☢️ This Player is a known **SCAMMMER** ☢️\Offence: ${scammerlist[player.id].reason}`);
+        embed.description(`☢️ This Player is a known **SCAMMMER** ☢️\nOffence: ${scammerlist[player.id].reason}`);
         embed.color(0xffff00);
     }
 
