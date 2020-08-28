@@ -1189,7 +1189,7 @@ async function updateLeaderboards() {
         }
         let discord = undefined;
         if(flipped[guildMemberListlocal[i].uuid])
-            discord = flipped[guildMemberListlocal[i].uuid];
+            guildMemberListlocal[i].discord = flipped[guildMemberListlocal[i].uuid];
         else if (hyplayer.player.socialMedia && hyplayer.player.socialMedia.links && hyplayer.player.socialMedia.links.DISCORD) {
             discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ", "_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_"));
             if(discord)
