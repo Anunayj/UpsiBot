@@ -671,7 +671,7 @@ bot.registerCommand("scammer", scammer, {
     cooldownMessage: "Slow down!!"
 });
 
-bot.registerCommand("remove Scammer", unscammer, {
+bot.registerCommand("unscammer", unscammer, {
     description: "Remove a scammer from scammer DB",
     fullDescription: "",
     argsRequired: true,
