@@ -595,7 +595,7 @@ scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
 // });
 
 bot.on("messageCreate", (msg) => {
-    if (msg.content.toLowerCase().startsWith("-req"))
+    if (msg.content.toLowerCase().startsWith("-req") || msg.content.toLowerCase().startsWith("-apply"))
         bot.createMessage(msg.channel.id, "Please for the love of life its a `~` (tilde), [Usually look in left-upper corner key below escape for it] ")
 });
 
