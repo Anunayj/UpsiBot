@@ -40,7 +40,8 @@ let scammerlist = Object.create(null); //INITIALIZED EMPTY CAUSE FUCK IT! I AM N
 
 async function getScammerList(){
     let res = await c("https://raw.githubusercontent.com/skyblockz/pricecheckbot/master/scammer.json").send();
-    if (res.statusCode===200) scammerlist = await res.json();
+    if (res.statusCode===200) jason = await res.json();
+    Object.assign(scammerlist, jason); //UwU
 }
 getScammerList();
 setInterval(getScammerList,1000*60*60*24) //A scammer List fetcha  day, keeps the scammers away!
@@ -66,7 +67,7 @@ const [bot, scraperbot] = [new Eris.CommandClient(tokens.main, {
     prefix: "~"
 }), Eris(tokens.scraper)];
 
-let eggsi = new EggSi(db, api2, tokens.eggsi, {
+let eggsi = new EggSi(db, api2, scammerlist,tokens.eggsi, {
     restMode: true
 }, {
     description: "Totally not Upsi with a mask",
@@ -639,6 +640,31 @@ bot.registerCommand("req", checkRequirementsnew, {
     cooldownMessage: "Slow down!!"
 });
 
+
+bot.registerCommand("scammer", scammer, {
+    description: "Add a Scammer to Scammer DB",
+    fullDescription: "",
+    argsRequired: true,
+    usage: `<username> <reason>`,
+    cooldown: 1000,
+    cooldownMessage: "Slow down!!"
+});
+
+async function scammer(msg,args){
+    if (!(await bot.getRESTGuildMember("682608242932842559", msg.author.id)).roles.includes("691021789031301131")) 
+        return "Naaaah"
+    try {
+        player = await api.getPlayer(args[0]);
+    } catch (err) {
+        return "Invalid username!";
+    }
+
+    db.push(`/scammer/${player.id}`,{
+        operated_staff:msg.author.username+"#"+msg.author.discriminator,
+        uuid:player.id,
+        reason: args.slice(1).join(" ")
+    })
+}
 async function checkRequirementsnew(msg, args) {
     return (await apply(msg, args, false));
 }

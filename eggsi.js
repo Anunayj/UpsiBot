@@ -13,19 +13,23 @@ require('dotenv').config()
 
 
 roles = {
-    "746132425125527643":"746164327911784468",
     "746716479021514754":"746715456747864066"
+}
+scammerroles = {
+    "746716479021514754":"749000601265766421"
 }
 
 
 class EggSi extends Eris.CommandClient{
     constructor(db = new JsonDB(new Config("eggsiDatabase", true, true, '/')),
     api = new hypixel.Client(process.env.hypixelToken),
+    scammerlist,
     ...args){
 
         super(...args);
         this.db = db;
         this.api = api;
+        this.scammerlist = scammerlist;
         this.registerCommand("ping", "pong!", {
             description: "PONG!",
         });
@@ -99,6 +103,7 @@ class EggSi extends Eris.CommandClient{
             (await dm).createMessage(err)
             return;
         }
+
         if(hyplayer.player.socialMedia == undefined || hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ","_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`){
             dm = (await dm);
             dm.createMessage("Please connect your Hypixel account to discord.")
@@ -109,6 +114,14 @@ class EggSi extends Eris.CommandClient{
                 dm.createMessage("You do not seem to have a Discord Username set")
             }
             return;
+        }
+        if(this.scammerlist[player.id]){
+            this.bot.createMessage(vals.roleLogs,`A scammer (${player.name}) tried to Join, Not Banned (yet), Offence: ${this.scammerlist[player.id].reason}\nDiscordID: ${msg.author.id}`)
+            let dm = (await dm);
+            await dm.createMessage("Sorry, You are banned from the guild for scamming, try contacting a admin if u think this is an error.")
+            await this.addGuildMemberRole(msg.channel.guild.id, msg.author.id, scammerroles[msg.channel.id] , "SCAMMER!");
+            // this.banGuildMember(msg.guildID, msg.author.id, 0, "SCAMMER!")
+
         }
         this.db.push(`/ign/${msg.author.id}`, {discord:msg.author.username+"#"+msg.author.discriminator, uuid: player.id, username: player.name}); // TEST
         await this.addGuildMemberRole(msg.channel.guild.id, msg.author.id, roles[msg.channel.id] , "Verified");
