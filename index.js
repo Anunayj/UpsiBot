@@ -1317,8 +1317,8 @@ async function updateLeaderboards() {
             bot.createEmbed(vals.roleLogs).description(`Added <@&${roleid}> role to <@!${x}>`).color(0x00ff00).send();
         }
         for(let x of toRemove){
-            // await bot.removeGuildMemberRole("682608242932842559",x,roleid,"Ungabe role");
-            bot.createEmbed(vals.roleLogs).description(`Removed <@&${roleid}> role from <@!${x}> **It hasnt, Ref has removed that shit**`).color(0xff0000).send();
+            await bot.removeGuildMemberRole("682608242932842559",x,roleid,"Ungabe role");
+            bot.createEmbed(vals.roleLogs).description(`Removed <@&${roleid}> role from <@!${x}>`).color(0xff0000).send();
         }
     }
     // guildMembers = getRESTGuildMembers(682608242932842559);
