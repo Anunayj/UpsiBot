@@ -281,10 +281,7 @@ async function apply(msg, args, apply = true) {
     embed.field(`Slayer`, maxSlayer.toLocaleString(), true)
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
     embed.timestamp(new Date());
-    if(scammerlist[player.id]){
-        embed.description(`☢️ This Player is a known **SCAMMMER** ☢️\nReason:${scammerlist[player.id].reason}`);
-        embed.color(0xffff00);
-    }
+    
     if (score > vals.score && !scammerlist[player.id]) {
         embed.color(0x00ff00);
         if (apply) {
@@ -297,6 +294,10 @@ async function apply(msg, args, apply = true) {
     } else {
         embed.description("Sorry, You do not meet Guild Requirements.")
         embed.color(0xff0000);
+    }
+    if(scammerlist[player.id]){
+        embed.description(`☢️ This Player is a known **SCAMMMER** ☢️\nReason:${scammerlist[player.id].reason}`);
+        embed.color(0xffff00);
     }
 
     await embed.send(bot, msg.channel.id);
