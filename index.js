@@ -9,6 +9,8 @@ const http = require('http');
 let EggSi = require('./eggsi')
 let url = require('url');
 let querystring = require('querystring');
+const c = require('centra');
+
 require('dotenv').config()
 
 const {
@@ -34,6 +36,14 @@ const db = new JsonDB(new Config("upsiDatabase", true, true, '/'));
 
 let guildMemberList = null;
 let bazaar = {};
+let scammerlist = Object.create(null); //INITIALIZED EMPTY CAUSE FUCK IT! I AM NOT WRAPPING EVERYTHING IN A BLOCK! LETS WAIT FOR TOP LEVEL AWAIT TO BE IMPLEMENTED.
+
+async function getScammerList(){
+    let res = await c("https://raw.githubusercontent.com/skyblockz/pricecheckbot/master/scammer.json").send();
+    if (res.statusCode===200) scammerlist = await res.json();
+}
+getScammerList();
+setInterval(getScammerList,1000*60*60*24) //A scammer List fetcha  day, keeps the scammers away!
 
 let tokens = {
     main: process.env.mainToken,
@@ -216,6 +226,8 @@ async function apply(msg, args, apply = true) {
         hyplayer = null,
         sbp = null;
     guild = null;
+
+
     try {
         player = await api.getPlayer(args[0]);
         hyplayer = await api.gethypixelPlayer(player.id);
@@ -269,7 +281,11 @@ async function apply(msg, args, apply = true) {
     embed.field(`Slayer`, maxSlayer.toLocaleString(), true)
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
     embed.timestamp(new Date());
-    if (score > vals.score) {
+    if(scammerlist[player.id]){
+        embed.description(`☢️ This Player is a known **SCAMMMER** ☢️\nReason:${scammerlist[player.id].reason}`);
+        embed.color(0xffff00);
+    }
+    if (score > vals.score && !scammerlist[player.id]) {
         embed.color(0x00ff00);
         if (apply) {
 
@@ -382,18 +398,18 @@ bot.registerCommand("say", say, {
 });
 
 
-bot.registerCommand("addleech", addleech, {
-    description: "Add Leech Channel",
-    fullDescription: "Add a server to leech bot",
-    argsRequired: true,
-    usage: "<channelid> <server invite>"
-});
+// bot.registerCommand("addleech", addleech, {
+//     description: "Add Leech Channel",
+//     fullDescription: "Add a server to leech bot",
+//     argsRequired: true,
+//     usage: "<channelid> <server invite>"
+// });
 
-async function addleech(msg,arg){
-    if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
-    if(arg[1].match(/https:\/\/discord.gg\/(.+)/gi)===null);
+// async function addleech(msg,arg){
+//     if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
+//     if(arg[1].match(/https:\/\/discord.gg\/(.+)/gi)===null);
     
-}
+// }
 
 function say(msg) {
     if (msg.author.bot === true) return;
