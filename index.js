@@ -50,6 +50,17 @@ function refreshLocalScammerList(){
 async function getScammerList(){
     let res = await c("https://raw.githubusercontent.com/skyblockz/pricecheckbot/master/scammer.json").send();
     if (res.statusCode===200) jason = await res.json();
+    try{
+        for(uuid of db.getData("/scammerBypass")){
+            try{
+                delete jason[uuid];
+            }catch(e){
+                //mehhh
+            }
+        }
+    }catch(e){
+        cosnole.log(e);
+    }
     Object.assign(scammerlist, jason); //UwU
 }
 refreshLocalScammerList();
@@ -659,6 +670,37 @@ bot.registerCommand("scammer", scammer, {
     cooldown: 1000,
     cooldownMessage: "Slow down!!"
 });
+
+bot.registerCommand("remove Scammer", unscammer, {
+    description: "Remove a scammer from scammer DB",
+    fullDescription: "",
+    argsRequired: true,
+    usage: `<username>`,
+    cooldown: 1000,
+    cooldownMessage: "Slow down!!"
+});
+async function unscammer(msg,args){
+    if (!(await bot.getRESTGuildMember("682608242932842559", msg.author.id)).roles.includes("691021789031301131")) 
+        return "Naaaah"
+    try {
+        player = await api.getPlayer(args[0]);
+    } catch (err) {
+        return "Invalid username!";
+    }
+    try{
+        db.delete(`/scammer/${player.id}`);
+    }catch(e){
+
+    }
+
+    try{
+        delete scammerlist[player.id];
+    }catch(e){
+    }
+
+    db.push("/scammerBypass[]",player.id);
+    
+}
 
 async function scammer(msg,args){
     if (!(await bot.getRESTGuildMember("682608242932842559", msg.author.id)).roles.includes("691021789031301131")) 
