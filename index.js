@@ -38,11 +38,21 @@ let guildMemberList = null;
 let bazaar = {};
 let scammerlist = Object.create(null); //INITIALIZED EMPTY CAUSE FUCK IT! I AM NOT WRAPPING EVERYTHING IN A BLOCK! LETS WAIT FOR TOP LEVEL AWAIT TO BE IMPLEMENTED.
 
+function refreshLocalScammerList(){
+    try{
+       let scammerobj =  db.getData("/scammer");
+       Object.assign(scammerlist, scammerobj); //UwU
+    }catch(e){
+        console.log(e);
+    }
+}
+
 async function getScammerList(){
     let res = await c("https://raw.githubusercontent.com/skyblockz/pricecheckbot/master/scammer.json").send();
     if (res.statusCode===200) jason = await res.json();
     Object.assign(scammerlist, jason); //UwU
 }
+refreshLocalScammerList();
 getScammerList();
 setInterval(getScammerList,1000*60*60*24) //A scammer List fetcha  day, keeps the scammers away!
 
@@ -664,6 +674,13 @@ async function scammer(msg,args){
         uuid:player.id,
         reason: args.slice(1).join(" ")
     })
+    scammerlist[player.id] = {
+        operated_staff:msg.author.username+"#"+msg.author.discriminator,
+        uuid:player.id,
+        reason: args.slice(1).join(" ")
+    }
+    // refreshLocalScammerList();
+    return("Added that user to scammer list");
 }
 async function checkRequirementsnew(msg, args) {
     return (await apply(msg, args, false));
