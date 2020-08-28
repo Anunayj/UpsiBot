@@ -959,7 +959,7 @@ async function price(msg, args) {
     });
 }
 
-setInterval(updateOnlineStatus, 1000 * 60 * 5);
+setInterval(updateOnlineStatus, 1000 * 60 * 10);
 async function updateOnlineStatus() {
     const guild = await api.getGuild(vals.guildID);
     const guildMembers = guild.members.map(members => members.uuid);
@@ -1184,6 +1184,9 @@ async function updateLeaderboards() {
         guildMemberListlocal[i].slayer = 0;
         // guildMemberListlocal[i].social = hyplayer.player.socialMedia;
         guildMemberListlocal[i].score = 0;
+         if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
+            continue;
+        }
         let discord = undefined;
         if(flipped[guildMemberListlocal[i].uuid])
             discord = flipped[guildMemberListlocal[i].uuid];
@@ -1195,9 +1198,7 @@ async function updateLeaderboards() {
         if (discord === undefined)
             guildMemberListlocal[i].discord = undefined;
         
-        if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
-            continue;
-        }
+       
 
         for (const pf of Object.values(hyplayer.player.stats.SkyBlock.profiles)) {
             let prof;
