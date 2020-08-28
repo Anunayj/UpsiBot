@@ -1187,17 +1187,14 @@ async function updateLeaderboards() {
          if (hyplayer.player === null || hyplayer.player === undefined || !utils.isInNext(hyplayer.player, ['stats', 'SkyBlock', 'profiles'])) {
             continue;
         }
-        let discord = undefined;
         if(flipped[guildMemberListlocal[i].uuid])
             guildMemberListlocal[i].discord = flipped[guildMemberListlocal[i].uuid];
         else if (hyplayer.player.socialMedia && hyplayer.player.socialMedia.links && hyplayer.player.socialMedia.links.DISCORD) {
-            discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ", "_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_"));
-            if(discord)
-                guildMemberListlocal[i].discord = discord.id;
-        }
-        if (discord === undefined)
+            guildMemberListlocal[i].discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ", "_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_"));
+            if(guildMemberListlocal[i].discord)
+                guildMemberListlocal[i].discord = guildMemberListlocal[i].discord.id;
+        }else
             guildMemberListlocal[i].discord = undefined;
-        
        
 
         for (const pf of Object.values(hyplayer.player.stats.SkyBlock.profiles)) {
