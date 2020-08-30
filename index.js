@@ -429,6 +429,24 @@ bot.registerCommand("addleech", addleech, {
 });
 
 
+bot.registerCommand("removeleech", removeleech, {
+    description: "Remove a Leech Channel",
+    argsRequired: true,
+    usage: "<channelid>"
+});
+
+async function removeleech(msg,arg){
+    if(!["213612539483914240"].includes(msg.author.id)) return "You're not allowed to do that";
+    if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
+    try{
+        db.delete("/splashSendChannels[" + db.getIndex("/splashSendChannels", arg[0]) + "]");
+        splashHandler.refreshList();
+        return("YEETED!");
+    }catch(e){
+        return("That channel is not in the list");
+    }
+}
+
 
 async function addleech(msg,arg){
     if(!["213612539483914240"].includes(msg.author.id)) return "You're not allowed to do that";
@@ -464,7 +482,6 @@ async function addleech(msg,arg){
     
 }
 
-//db.delete("/arraytest/myarray[" + db.getIndex("/arraytest/myarray", 65464646155) + "]");
 
 function say(msg) {
     if (msg.author.bot === true) return;
