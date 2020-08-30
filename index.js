@@ -431,8 +431,8 @@ bot.registerCommand("addleech", addleech, {
 async function addleech(msg,arg){
     if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
     if(arg[1]!==undefined){
-        let match = arg[1].match(/^(https?\:\/\/)?(.*\/)?([a-z0-9-]{2,32})$/gi);
-        if(match ===null || match[2] === undefined) return "Invalid Invite";
+        let match = arg[1].match(/^(https?\:\/\/)?(.*\/)?([a-z0-9-]{2,32})$/i);
+        if(match ===null || match[3] === undefined) return "Invalid Invite";
         let request = await c(`https://discord.com/api/v8/invites/${match[2]}`, 'POST').header({
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0',
             'Authorization': tokens.scraper,
