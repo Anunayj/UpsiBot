@@ -436,7 +436,7 @@ bot.registerCommand("removeleech", removeleech, {
 });
 
 async function removeleech(msg,arg){
-    if(!["213612539483914240"].includes(msg.author.id)) return "You're not allowed to do that";
+    if(!["213612539483914240","314197872209821699","260470661732892672"].includes(msg.author.id)) return "You're not allowed to do that";
     if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
     try{
         db.delete("/splashSendChannels[" + db.getIndex("/splashSendChannels", arg[0]) + "]");
@@ -449,7 +449,7 @@ async function removeleech(msg,arg){
 
 
 async function addleech(msg,arg){
-    if(!["213612539483914240"].includes(msg.author.id)) return "You're not allowed to do that";
+    if(!["213612539483914240","314197872209821699","260470661732892672","366719661267484672"].includes(msg.author.id)) return "You're not allowed to do that";
     if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
     if(splashHandler.splashSendChannels.includes(arg[0])) return("Channel Already in Splash Leech")
     if(arg[1]!==undefined){
@@ -472,15 +472,37 @@ async function addleech(msg,arg){
     db.push("/splashSendChannels[]",arg[0]);
     splashHandler.splashSendChannels.push(arg[0]);
     try{
-        channel = await scraperbot.getChannel(arg[0]);
+        let channel = await scraperbot.getChannel(arg[0]);
+        if(channel===undefined) return "That channel doesn't exist";
     }catch(e){
         console.log(e);
         return "Some unknown error occured";
     }
-    if(channel===undefined) return "That channel doesn't exist";
     return "Successfully Added Server to list";
     
 }
+
+bot.registerCommand("score", (msg,args) => {
+
+        switch(args[1].slice(-1)){
+            case 'k':
+            case 'K':
+                args[1] = parseFloat(args[1].slice(0,-1))*1000;
+                break;
+            case 'm':
+            case 'M':
+                args[1] = parseFloat(args[1].slice(0,-1))*1000000;
+                break;
+            default:
+                break;
+        }
+        let score = ((args[0] ** 4) * (1 + ( args[1] / 100000)) / 10000).toFixed(2)
+        return(score);
+    }, {
+    description: "Calculate Score (for Lazy people)",
+    argsRequired: true,
+    usage: "<skill> <slayer>"
+});
 
 
 function say(msg) {
