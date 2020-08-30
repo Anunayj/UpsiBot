@@ -59,7 +59,7 @@ async function getScammerList(){
             }
         }
     }catch(e){
-        cosnole.log(e);
+        console.log(e);
     }
     Object.assign(scammerlist, jason); //UwU
 }
@@ -428,31 +428,43 @@ bot.registerCommand("addleech", addleech, {
     usage: "<channelid> <server invite>"
 });
 
+
+
 async function addleech(msg,arg){
+    if(!["213612539483914240"].includes(msg.author.id)) return "You're not allowed to do that";
     if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
+    if(splashHandler.splashSendChannels.includes(arg[0])) return("Channel Already in Splash Leech")
     if(arg[1]!==undefined){
         let match = arg[1].match(/^(https?\:\/\/)?(.*\/)?([a-z0-9-]{2,32})$/i);
         if(match ===null || match[3] === undefined) return "Invalid Invite";
-        let request = await c(`https://discord.com/api/v8/invites/${match[2]}`, 'POST').header({
+        let request = await c(`https://discord.com/api/v8/invites/${match[3]}`, 'POST').header({
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0',
             'Authorization': tokens.scraper,
             'Origin': 'https://discord.com',
             'Connection': 'keep-alive',
             'Accept':'*/*'
-        }).send();
-        if([403,404].includes(request.statusCode)) return (await request.json()).message;
+        }).body({}).send();
+        if([403,404].includes(request.statusCode)){
+            const message = (await request.json()).message;
+            return message;
+        } 
         else if(request.statusCode !== 200) return "Some Unknown Error Occoured";
         await msg.channel.createMessage(`Joined ${(await request.json()).guild.name}`)
     }
     db.push("/splashSendChannels[]",arg[0]);
     splashHandler.splashSendChannels.push(arg[0]);
     try{
-        scraperbot.getChannel(arg[0]);
+        channel = await scraperbot.getChannel(arg[0]);
     }catch(e){
-        return("That channel doesn't seem to actually exist.")
+        console.log(e);
+        return "Some unknown error occured";
     }
+    if(channel===undefined) return "That channel doesn't exist";
+    return "Successfully Added Server to list";
     
 }
+
+//db.delete("/arraytest/myarray[" + db.getIndex("/arraytest/myarray", 65464646155) + "]");
 
 function say(msg) {
     if (msg.author.bot === true) return;
