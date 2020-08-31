@@ -770,6 +770,7 @@ async function unscammer(msg,args){
     }
 
     db.push("/scammerBypass[]",player.id);
+    return "Removed Player from Scammer List";
     
 }
 
