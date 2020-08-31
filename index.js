@@ -586,7 +586,7 @@ class splashNotifier {
                 setTimeout(function(){
                     delete this.duplicate[hasEmbed.title];
                     console.log(`Deleted ${hasEmbed.title}`);
-                }.bind(this),30000)
+                }.bind(this),90000)
                 leechserver.publish({
                     type: (hasEmbed.title.match(/(party|p) join \w+/i) ? "party" : "hub"),
                     place: hasEmbed.title,
