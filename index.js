@@ -264,7 +264,7 @@ async function apply(msg, args, apply = true) {
         if ((await messages).filter((msg) => msg.embeds.length > 0 && msg.author.id === bot.user.id).map((msg) => msg.embeds[0].author.name).includes(player.name))
             return "Please Chill, You already have a Application Open";
     }
-    let stats = await getStats(args[0]);
+    let stats = await getStats(player,hyplayer);
     if (typeof (stats) !== typeof ({})) {
         let timeTaken = new Date(Date.now() - timeStart);
         await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(stats).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
@@ -320,6 +320,98 @@ async function apply(msg, args, apply = true) {
     if(scammerlist[player.id]){
         embed.description(`☢️ This Player is a known **SCAMMMER** ☢️\nOffence: ${scammerlist[player.id].reason}`);
         embed.color(0xffff00);
+    }
+
+    await embed.send(bot, msg.channel.id);
+    return;
+}
+bot.registerCommand("stat", stat, {
+    description: "Stats",
+    argsRequired: true,
+    usage: "<username>",
+    cooldown: 10 * 1000,
+    cooldownMessage: "..."
+});
+
+
+async function stat(msg, args) {
+    let messages = bot.getMessages(vals.waitListChannel)
+    let timeStart = Date.now();
+    bot.sendChannelTyping(msg.channel.id);
+    let player = null,
+        hyplayer = null,
+        sbp = null;
+    guild = null;
+
+
+    try {
+        player = await api.getPlayer(args[0]);
+        hyplayer = await api.gethypixelPlayer(player.id);
+        sbp = hyplayer.player;
+    } catch (err) {
+        console.log(err);
+        return "Invalid username!";
+    }
+    
+    let stats = await getStats(player,hyplayer);
+    if (typeof (stats) !== typeof ({})) {
+        let timeTaken = new Date(Date.now() - timeStart);
+        await bot.createEmbed(msg.channel.id).title("Stats").author(args[0]).description(stats).color("#FF0000").footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}!`).send();
+        return;
+    }
+    let embed = bot.createEmbed();
+    let maxSlayer = 0;
+    let maxSkill = 0;
+    if (stats.hyplayer.player.achievements !== undefined) {
+        for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
+            maxSkill += stats.hyplayer.player.achievements["skyblock_" + name];
+        }
+        maxSkill /= 8;
+    }
+    if (maxSkill === NaN) maxSkill = 0;
+    let bestprofile = null;
+    for (let profile in stats.stats) {
+        // let prof = stats.stats[profId];
+        // if (stats.stats[profile].skills > maxSkill) maxSkill = stats.stats[profile].skills;
+        if (stats.stats[profile].slayer !== undefined && stats.stats[profile].slayer.xp > maxSlayer) {
+            maxSlayer = stats.stats[profile].slayer.xp;
+            bestprofile = stats.stats[profile]
+        }
+
+    }
+
+    let score = parseFloat(((maxSkill ** 4) * (1 + (maxSlayer / 100000)) / 10000).toFixed(2));
+    let timeTaken = new Date(Date.now() - timeStart);
+    let discord = "Unknown";
+    if (hyplayer.player.socialMedia && hyplayer.player.socialMedia.links && hyplayer.player.socialMedia.links.DISCORD) {
+        discord = bot.guilds.get("682608242932842559").members.find((obj) => `${obj.username}#${obj.discriminator}`.toLowerCase().replace(" ", "_") === hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_"));
+
+        if (discord === undefined)
+            discord = hyplayer.player.socialMedia.links.DISCORD;
+        else
+            discord = discord.mention;
+    }
+    embed.author(stats.player.name, `https://crafatar.com/avatars/${stats.player.id}?overlay`);
+    embed.field("Discord", discord, false)
+    embed.field(`Score ${score > vals.score ? ":green_circle:" : ":red_circle:" }`, score.toFixed(2), true)
+    embed.field(`Skill`, maxSkill.toFixed(2), true)
+    embed.field(`Slayer`, maxSlayer.toLocaleString(), true)
+
+    embed.field(`🐺`, bestprofile.slayer.w.toLocaleString(), true)
+    embed.field(`🕸️`, bestprofile.slayer.s.toLocaleString(), true)
+    embed.field(`:zombie:`, bestprofile.slayer.z.toLocaleString(), true)
+
+
+    embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
+    embed.timestamp(new Date());
+    
+    if (score > vals.score) {
+        embed.color(0x00ff00);
+    } else if(scammerlist[player.id]){
+        embed.description(`☢️ This Player is a known **SCAMMMER** ☢️\nOffence: ${scammerlist[player.id].reason}`);
+        embed.color(0xffff00);
+    }else{
+        embed.color(0xff0000);
     }
 
     await embed.send(bot, msg.channel.id);
@@ -1008,17 +1100,17 @@ async function guildStats(msg = new Eris.Message(), args) {
     return;
 }
 
-async function getStats(username) {
-    let player = null,
-        hyplayer = null,
-        sbp = null;
-    try {
-        player = await api.getPlayer(username);
-        hyplayer = await api.gethypixelPlayer(player.id);
-        sbp = hyplayer.player;
-    } catch (err) {
-        return "Invalid username!";
-    }
+async function getStats(player,hyplayer) {
+    // let player = null,
+    //     hyplayer = null,
+    //     sbp = null;
+    // try {
+    //     player = await api.getPlayer(username);
+    //     hyplayer = await api.gethypixelPlayer(player.id);
+    // } catch (err) {
+    //     return "Invalid username!";
+    // }
+    let sbp = hyplayer.player;
     let res = {
         player: player,
         hyplayer: hyplayer,
