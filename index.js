@@ -397,9 +397,9 @@ async function stat(msg, args) {
     embed.field(`Skill`, maxSkill.toFixed(2), true)
     embed.field(`Slayer`, maxSlayer.toLocaleString(), true)
 
-    embed.field(`🐺`, bestprofile.slayer.w.toLocaleString(), true)
-    embed.field(`🕸️`, bestprofile.slayer.s.toLocaleString(), true)
-    embed.field(`:zombie:`, bestprofile.slayer.z.toLocaleString(), true)
+    embed.field(`🐺​`, bestprofile.slayer.w.toLocaleString(), true)
+    embed.field(`🕸️​`, bestprofile.slayer.s.toLocaleString(), true)
+    embed.field(`:zombie:​`, bestprofile.slayer.z.toLocaleString(), true)
 
 
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
