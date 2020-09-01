@@ -116,9 +116,9 @@ class EggSi extends Eris.CommandClient{
             return;
         }
         if(this.scammerlist[player.id]){
-            this.bot.createMessage(vals.roleLogs,`A scammer (${player.name}) tried to Join, Not Banned (yet), Offence: ${this.scammerlist[player.id].reason}\nDiscordID: ${msg.author.id}`)
+            this.createMessage(vals.roleLogs,`A scammer (${player.name}) tried to Join, Not Banned (yet), Offence: ${this.scammerlist[player.id].reason}\nDiscordID: ${msg.author.id}`)
             let dm = (await dm);
-            await dm.createMessage("Sorry, You are banned from the guild for scamming, try contacting a admin if u think this is an error.")
+            await dm.createMessage(`Sorry, You are banned from the guild for scamming (Reason: ${this.scammerlist[player.id].reason}), try contacting a admin if u think this is an error.`)
             await this.addGuildMemberRole(msg.channel.guild.id, msg.author.id, scammerroles[msg.channel.id] , "SCAMMER!");
             // this.banGuildMember(msg.guildID, msg.author.id, 0, "SCAMMER!")
 
