@@ -325,7 +325,7 @@ async function apply(msg, args, apply = true) {
     await embed.send(bot, msg.channel.id);
     return;
 }
-bot.registerCommand("stat", stat, {
+bot.registerCommand("stats", stat, {
     description: "Stats",
     argsRequired: true,
     usage: "<username>",
