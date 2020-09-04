@@ -273,11 +273,17 @@ async function apply(msg, args, apply = true) {
     let embed = bot.createEmbed();
     let maxSlayer = 0;
     let maxSkill = 0;
+    let bypassReqs = false;
     if (stats.hyplayer.player.achievements !== undefined) {
         for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
             maxSkill += stats.hyplayer.player.achievements["skyblock_" + name];
         }
         maxSkill /= 8;
+        if(stats.hyplayer.player.achievements.skyblock_dungeoneer) {
+            embed.field("Dungeon", stats.hyplayer.player.achievements.skyblock_dungeoneer, false)
+            if(stats.hyplayer.player.achievements.skyblock_dungeoneer>25)
+                bypassReqs = true;
+        }
     }
     if (maxSkill === NaN) maxSkill = 0;
     for (let profile in stats.stats) {
@@ -304,7 +310,7 @@ async function apply(msg, args, apply = true) {
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
     embed.timestamp(new Date());
     
-    if (score > vals.score && !scammerlist[player.id]) {
+    if ((score > vals.score || bypassReqs) && !scammerlist[player.id]) {
         embed.color(0x00ff00);
         if (apply) {
 
