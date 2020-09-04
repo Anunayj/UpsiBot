@@ -111,7 +111,7 @@ scraperbot.connect().catch(() => {
 });
 
 
-http.createServer(queryHandler).listen(42069);
+http.createServer(queryHandler).listen(42069,"0.0.0.0");
 console.log('Server running on port 42069');
 
 async function queryHandler(req, res) {
@@ -331,7 +331,7 @@ async function apply(msg, args, apply = true) {
     await embed.send(bot, msg.channel.id);
     return;
 }
-bot.registerCommand("stat", stat, {
+bot.registerCommand("stats", stat, {
     description: "Stats",
     argsRequired: true,
     usage: "<username>",
