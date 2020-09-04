@@ -274,13 +274,14 @@ async function apply(msg, args, apply = true) {
     let maxSlayer = 0;
     let maxSkill = 0;
     let bypassReqs = false;
+    let dungeonlvl = null;
     if (stats.hyplayer.player.achievements !== undefined) {
         for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
             maxSkill += stats.hyplayer.player.achievements["skyblock_" + name];
         }
         maxSkill /= 8;
         if(stats.hyplayer.player.achievements.skyblock_dungeoneer) {
-            embed.field("Dungeon", stats.hyplayer.player.achievements.skyblock_dungeoneer, false)
+            dungeonlvl = stats.hyplayer.player.achievements.skyblock_dungeoneer;
             if(stats.hyplayer.player.achievements.skyblock_dungeoneer>25)
                 bypassReqs = true;
         }
@@ -307,6 +308,7 @@ async function apply(msg, args, apply = true) {
     embed.field(`Score ${score > vals.score ? ":green_circle:" : ":red_circle:" }`, score.toFixed(2), true)
     embed.field(`Skill`, maxSkill.toFixed(2), true)
     embed.field(`Slayer`, maxSlayer.toLocaleString(), true)
+    embed.field("Dungeon", dungeonlvl, true)
     embed.footer(`Done in ${(timeTaken.getSeconds() + (timeTaken.getMilliseconds() / 1000)).toFixed(2)}s!`);
     embed.timestamp(new Date());
     
