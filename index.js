@@ -1451,6 +1451,7 @@ async function updateLeaderboards() {
         guildMemberListlocal[i].alchemy = hyplayer.player.achievements.skyblock_concoctor || 0;
         guildMemberListlocal[i].combat = hyplayer.player.achievements.skyblock_combat || 0;
         guildMemberListlocal[i].taming = hyplayer.player.achievements.skyblock_domesticator || 0;
+        guildMemberListlocal[i].dungeon = hyplayer.player.achievements.skyblock_dungeoneer || 0;
         guildMemberListlocal[i].average = parseFloat(((guildMemberListlocal[i].fishing + guildMemberListlocal[i].foraging + guildMemberListlocal[i].mining + guildMemberListlocal[i].farming + guildMemberListlocal[i].enchanting + guildMemberListlocal[i].alchemy + guildMemberListlocal[i].combat + guildMemberListlocal[i].taming) / 8).toFixed(2));
         guildMemberListlocal[i].sven = 0;
         guildMemberListlocal[i].spider = 0;
