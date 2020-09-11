@@ -237,6 +237,15 @@ bot.registerCommand("apply", apply, {
     cooldownMessage: "Sorry, You sent a application recently. Please try Again later"
 });
 
+bot.registerCommand("borb", ()=>{
+    const birbs = ["https://media.discordapp.net/attachments/704632414391238757/752816581754617897/image0.gif","https://media.discordapp.net/attachments/704632414391238757/752816582954057799/image3.gif","https://media.discordapp.net/attachments/704632414391238757/752816582492815420/image1.gif","https://media.discordapp.net/attachments/704632414391238757/752816583117897738/image4.gif","https://media.discordapp.net/attachments/704632414391238757/752816582723371028/image2.gif","https://media.discordapp.net/attachments/704632414391238757/752816583314767913/image5.gif"]
+    const randomElement = birbs[Math.floor(Math.random() * birbs.length)];
+    return randomElement;
+}, {
+    description: "birb",
+    argsRequired: false,
+    usage: ""
+});
 
 
 
