@@ -238,7 +238,7 @@ bot.registerCommand("apply", apply, {
 });
 
 bot.registerCommand("borb", (msg)=>{
-    if(msg.author.id === "213612539483914240" || msg.author.id = "394182476664143872") return "https://media.discordapp.net/attachments/704632414391238757/752816583314767913/image5.gif";
+    if(msg.author.id === "213612539483914240" || msg.author.id === "394182476664143872") return "https://media.discordapp.net/attachments/704632414391238757/752816583314767913/image5.gif";
     const birbs = ["https://media.discordapp.net/attachments/704632414391238757/752816581754617897/image0.gif","https://media.discordapp.net/attachments/704632414391238757/752816582954057799/image3.gif","https://media.discordapp.net/attachments/704632414391238757/752816582492815420/image1.gif","https://media.discordapp.net/attachments/704632414391238757/752816583117897738/image4.gif","https://media.discordapp.net/attachments/704632414391238757/752816582723371028/image2.gif","https://media.discordapp.net/attachments/704632414391238757/752816583314767913/image5.gif"]
     const randomElement = birbs[Math.floor(Math.random() * birbs.length)];
     return randomElement;
