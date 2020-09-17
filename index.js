@@ -1107,7 +1107,7 @@ async function guildStats(msg = new Eris.Message(), args) {
         }
     }
     embed.title(`${tempGuild.name} - ${Object.keys(tempGuild.members).length} Members`);
-    if(tempGuild.description.length) embed.field(`Guild Description`, `${tempGuild.description}`);
+    if(tempGuild.description && tempGuild.description.length) embed.field(`Guild Description`, `${tempGuild.description}`);
     embed.field(`Guild Master`, `${gm}`);
     embed.field(`Guild EXP`, `${tempGuild.exp}`);
     embed.field(`Members Online`, `${tempGuild.achievements.ONLINE_PLAYERS}`);
