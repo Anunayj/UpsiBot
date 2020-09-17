@@ -238,10 +238,11 @@ bot.registerCommand("apply", apply, {
 });
 
 bot.registerCommand("borb", (msg)=>{
-    if(msg.author.id === "213612539483914240") return "https://media.discordapp.net/attachments/704632414391238757/752816583314767913/image5.gif";
     const birbs = ["https://media.discordapp.net/attachments/704632414391238757/752816581754617897/image0.gif","https://media.discordapp.net/attachments/704632414391238757/752816582954057799/image3.gif","https://media.discordapp.net/attachments/704632414391238757/752816582492815420/image1.gif","https://media.discordapp.net/attachments/704632414391238757/752816583117897738/image4.gif","https://media.discordapp.net/attachments/704632414391238757/752816582723371028/image2.gif","https://media.discordapp.net/attachments/704632414391238757/752816583314767913/image5.gif"]
     const randomElement = birbs[Math.floor(Math.random() * (birbs.length-0.5))];
     if(Math.random()<=0.00238095238) return "https://media.discordapp.net/attachments/749299172779360307/756167459744120962/image0.gif";
+    if(Math.random()<=0.0002) return "https://cdn.discordapp.com/emojis/393622342581878785.gif"
+    if(msg.author.id === "213612539483914240") return "https://media.discordapp.net/attachments/704632414391238757/752816583314767913/image5.gif";
     return randomElement;
 }, {
     description: "birb",
