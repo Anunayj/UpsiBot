@@ -184,7 +184,7 @@ async function queryHandler(req, res) {
     }
 }
 
-class Spammer(){
+class Spammer{
     constructor(bot){
         this.doSpam = false;
         this.bot = bot;
@@ -201,6 +201,7 @@ class Spammer(){
         });
         
     }
+    
     async loop(){
         while(this.doSpam){
             this.bot.createMessage("756687524402823228","<@!314197872209821699>".repeat(90))
@@ -209,7 +210,7 @@ class Spammer(){
     }
 }
 try{
-    spambot = new Spammer(bot);
+    let spambot = new Spammer(bot);
 }catch(e){
     console.log(e);
 }
