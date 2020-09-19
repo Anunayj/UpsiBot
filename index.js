@@ -184,6 +184,40 @@ async function queryHandler(req, res) {
     }
 }
 
+class Spammer(){
+    constructor(bot){
+        this.doSpam = false;
+        this.bot = bot;
+        this.bot.registerCommand("spam", function(msg){
+            if (!["366719661267484672", "314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
+            this.doSpam = !this.doSpam;
+            if(this.doSpam){ //Not perfect, but works for now
+                this.loop();
+            }
+            
+        }.bind(this), {
+            description: "",
+            argsRequired: false        
+        });
+        
+    }
+    async loop(){
+        while(this.doSpam){
+            this.bot.createMessage("756687524402823228","<@!314197872209821699>".repeat(90))
+            await new Promise(r => setTimeout(r, 2000));
+        }
+    }
+}
+spammer = new Spammer(eggsi);
+
+
+
+async function updateLeaderboardsCheck(msg) {
+    if (!["366719661267484672", "314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
+    bot.createMessage(msg.channel.id, "Updating...");
+    await updateLeaderboards();
+    bot.createMessage(msg.channel.id, `@${msg.author.username} Updated leaderboards`);
+}
 
 async function genAPIKey(msg, args) {
     bot.sendChannelTyping(msg.channel.id);
@@ -1423,6 +1457,7 @@ async function updateLeaderboardsCheck(msg) {
     await updateLeaderboards();
     bot.createMessage(msg.channel.id, `@${msg.author.username} Updated leaderboards`);
 }
+
 
 async function updateLeaderboards() {
     if (guildMemberList === null) {
