@@ -204,7 +204,7 @@ class Spammer{
     
     async loop(){
         while(this.doSpam){
-            this.bot.createMessage("756687524402823228","<@!314197872209821699>".repeat(90))
+            this.bot.createMessage("756687524402823228","<@!314197872209821699> https://hypixel.net/attachments/1597001280384-png.1913581/")
             await new Promise(r => setTimeout(r, 2000));
         }
     }
