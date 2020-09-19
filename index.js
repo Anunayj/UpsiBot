@@ -208,8 +208,11 @@ class Spammer(){
         }
     }
 }
-spammer = new Spammer(eggsi);
-
+try{
+    spambot = new Spammer(bot);
+}catch(e){
+    console.log(e);
+}
 
 
 async function updateLeaderboardsCheck(msg) {
