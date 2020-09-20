@@ -185,9 +185,10 @@ async function queryHandler(req, res) {
 }
 
 class Spammer{
-    constructor(bot){
+    constructor(bot,bot2){
         this.doSpam = false;
         this.bot = bot;
+        this.bot2 = bot2;
         this.bot.registerCommand("spam", function(msg){
             if (!["366719661267484672", "314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
             this.doSpam = !this.doSpam;
@@ -204,13 +205,14 @@ class Spammer{
     
     async loop(){
         while(this.doSpam){
-            this.bot.createMessage("756687524402823228","<@!314197872209821699> https://hypixel.net/attachments/1597001280384-png.1913581/")
+            this.bot.createMessage("https://cdn.discordapp.com/attachments/656853907611320330/692785688806162502/OVERFLUX.png");
+            this.bot2.createMessage("https://cdn.discordapp.com/attachments/656853907611320330/692785688806162502/OVERFLUX.png")
             await new Promise(r => setTimeout(r, 2000));
         }
     }
 }
 try{
-    let spambot = new Spammer(bot);
+    let spambot = new Spammer(bot,eggsi);
 }catch(e){
     console.log(e);
 }
