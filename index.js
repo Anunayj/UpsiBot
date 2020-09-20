@@ -195,6 +195,7 @@ class Spammer{
             if(this.doSpam){ //Not perfect, but works for now
                 this.loop();
             }
+            return this.doSpam;
             
         }.bind(this), {
             description: "",
@@ -205,8 +206,8 @@ class Spammer{
     
     async loop(){
         while(this.doSpam){
-            this.bot.createMessage("<@!314197872209821699> https://cdn.discordapp.com/attachments/656853907611320330/692785688806162502/OVERFLUX.png");
-            this.bot2.createMessage("<@!314197872209821699> https://cdn.discordapp.com/attachments/656853907611320330/692785688806162502/OVERFLUX.png");
+            this.bot.createMessage("756687524402823228","<@!314197872209821699> https://cdn.discordapp.com/attachments/656853907611320330/692785688806162502/OVERFLUX.png");
+            this.bot2.createMessage("756687524402823228","<@!314197872209821699> https://cdn.discordapp.com/attachments/656853907611320330/692785688806162502/OVERFLUX.png");
             await new Promise(r => setTimeout(r, 2000));
         }
     }
