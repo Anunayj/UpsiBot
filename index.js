@@ -4,7 +4,7 @@ const hypixel = require("./api");
 const fs = require("fs");
 const utils = require("./utils");
 const vals = require("./config.json");
-const leechserver = require("./leechserver");
+// const leechserver = require("./leechserver");
 const http = require('http');
 let EggSi = require('./eggsi')
 let url = require('url');
@@ -106,117 +106,117 @@ bot.connect().then(() => {
 }).catch(() => {
     throw "Unable to connect";
 });
-scraperbot.connect().catch(() => {
-    throw "Unable to connect";
-});
+// scraperbot.connect().catch(() => {
+//     throw "Unable to connect";
+// });
 
 
-http.createServer(queryHandler).listen(42069,"0.0.0.0");
+// http.createServer(queryHandler).listen(42069,"0.0.0.0");
 console.log('Server running on port 42069');
 
-async function queryHandler(req, res) {
-    res.setHeader('Content-Type', 'application/json;charset=utf-8');
-    res.setHeader("Cache-Control", "no-cache, must-revalidate");
-    try {
-        let urlParsed = url.parse(req.url, true);
+// async function queryHandler(req, res) {
+//     res.setHeader('Content-Type', 'application/json;charset=utf-8');
+//     res.setHeader("Cache-Control", "no-cache, must-revalidate");
+//     try {
+//         let urlParsed = url.parse(req.url, true);
 
-        if (urlParsed.query.uuid === undefined || urlParsed.query.key === undefined) {
-            res.writeHead(400);
-            res.end(`{"error":"Missing key/UUID"}`);
-            return;
-        }
-        try {
-            if (!Object.keys(db.getData("/apikeys")).includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`) !== urlParsed.query.key) {
-                res.writeHead(403);
-                res.end(`{"error":"Invalid UUID/Key"}`);
-                return;
-            }
-        } catch (e) {
-            res.writeHead(500);
-            res.end();
-        }
-        if (urlParsed.pathname == '/subscribe') {
-            leechserver.onSubscribe(req, res);
-            return;
-        }
+//         if (urlParsed.query.uuid === undefined || urlParsed.query.key === undefined) {
+//             res.writeHead(400);
+//             res.end(`{"error":"Missing key/UUID"}`);
+//             return;
+//         }
+//         try {
+//             if (!Object.keys(db.getData("/apikeys")).includes(urlParsed.query.uuid) || db.getData(`/apikeys/${urlParsed.query.uuid}`) !== urlParsed.query.key) {
+//                 res.writeHead(403);
+//                 res.end(`{"error":"Invalid UUID/Key"}`);
+//                 return;
+//             }
+//         } catch (e) {
+//             res.writeHead(500);
+//             res.end();
+//         }
+//         if (urlParsed.pathname == '/subscribe') {
+//             leechserver.onSubscribe(req, res);
+//             return;
+//         }
 
-        if (urlParsed.pathname == '/getStats') {
-            if (urlParsed.query.username === undefined) {
-                res.writeHead(400);
-                res.end(`{"error":"Missing username"}`);
-                return;
-            }
-            try {
-                var stats = await getStats(urlParsed.query.username);
-                let skill = 0;
-                for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
-                    skill += stats.hyplayer.player.achievements["skyblock_" + name];
-                }
-                skill /= 8;
-                if (skill === NaN) skill = 0;
-                let slayer = 0;
-                for (profile of Object.keys(stats.stats)) {
-                    if (stats.stats[profile].skills > skill) skill = stats.stats[profile].skills;
-                    if (stats.stats[profile].slayer !== undefined && stats.stats[profile].slayer.xp > slayer) slayer = stats.stats[profile].slayer.xp;
-                }
-                response = {
-                    skill,
-                    slayer
-                };
-            } catch (e) {
-                console.error(e);
-                console.error(urlParsed.query.username);
-                res.writeHead(500);
-                res.end();
-                return;
-            }
+//         if (urlParsed.pathname == '/getStats') {
+//             if (urlParsed.query.username === undefined) {
+//                 res.writeHead(400);
+//                 res.end(`{"error":"Missing username"}`);
+//                 return;
+//             }
+//             try {
+//                 var stats = await getStats(urlParsed.query.username);
+//                 let skill = 0;
+//                 for (let name of ["combat", "angler", "gatherer", "excavator", "harvester", "augmentation", "concoctor", "domesticator"]) {
+//                     skill += stats.hyplayer.player.achievements["skyblock_" + name];
+//                 }
+//                 skill /= 8;
+//                 if (skill === NaN) skill = 0;
+//                 let slayer = 0;
+//                 for (profile of Object.keys(stats.stats)) {
+//                     if (stats.stats[profile].skills > skill) skill = stats.stats[profile].skills;
+//                     if (stats.stats[profile].slayer !== undefined && stats.stats[profile].slayer.xp > slayer) slayer = stats.stats[profile].slayer.xp;
+//                 }
+//                 response = {
+//                     skill,
+//                     slayer
+//                 };
+//             } catch (e) {
+//                 console.error(e);
+//                 console.error(urlParsed.query.username);
+//                 res.writeHead(500);
+//                 res.end();
+//                 return;
+//             }
 
-            res.end(JSON.stringify(response));
-            return;
-        }
+//             res.end(JSON.stringify(response));
+//             return;
+//         }
 
 
-        res.end(`What you are looking for is not here, please don't DDoS me`);
-    } catch (e) {
-        console.error(e);
-        res.writeHead(500);
-        res.end();
-    }
-}
+//         res.end(`What you are looking for is not here, please don't DDoS me`);
+//     } catch (e) {
+//         console.error(e);
+//         res.writeHead(500);
+//         res.end();
+//     }
+// }
 
-class Spammer{
-    constructor(bot,bot2){
-        this.doSpam = false;
-        this.bot = bot;
-        this.bot2 = bot2;
-        this.bot.registerCommand("spam", function(msg){
-            if (!["366719661267484672", "314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
-            this.doSpam = !this.doSpam;
-            if(this.doSpam){ //Not perfect, but works for now
-                this.loop();
-            }
-            return this.doSpam;
+// class Spammer{
+//     constructor(bot,bot2){
+//         this.doSpam = false;
+//         this.bot = bot;
+//         this.bot2 = bot2;
+//         this.bot.registerCommand("spam", function(msg){
+//             if (!["366719661267484672", "314197872209821699", "213612539483914240", "260470661732892672"].includes(msg.author.id)) return "I am afraid you don't have the permession to do that.";
+//             this.doSpam = !this.doSpam;
+//             if(this.doSpam){ //Not perfect, but works for now
+//                 this.loop();
+//             }
+//             return this.doSpam;
             
-        }.bind(this), {
-            description: "",
-            argsRequired: false        
-        });
+//         }.bind(this), {
+//             description: "",
+//             argsRequired: false        
+//         });
         
-    }
+//     }
     
-    async loop(){
-        while(this.doSpam){
-            this.bot.createMessage("756687524402823228","<@!314197872209821699> https://cdn.discordapp.com/attachments/656853907611320330/692785688806162502/OVERFLUX.png");
-            this.bot2.createMessage("756687524402823228","<@!314197872209821699> https://cdn.discordapp.com/attachments/656853907611320330/692785688806162502/OVERFLUX.png");
-            await new Promise(r => setTimeout(r, 2000));
-        }
-    }
-}
-try{
-    let spambot = new Spammer(bot,eggsi);
-}catch(e){
-    console.log(e);
-}
+//     async loop(){
+//         while(this.doSpam){
+//             this.bot.createMessage("756687524402823228","<@!314197872209821699> https://cdn.discordapp.com/attachments/656853907611320330/692785688806162502/OVERFLUX.png");
+//             this.bot2.createMessage("756687524402823228","<@!314197872209821699> https://cdn.discordapp.com/attachments/656853907611320330/692785688806162502/OVERFLUX.png");
+//             await new Promise(r => setTimeout(r, 2000));
+//         }
+//     }
+// }
+// try{
+//     let spambot = new Spammer(bot,eggsi);
+// }catch(e){
+//     console.log(e);
+// }
 
 
 async function updateLeaderboardsCheck(msg) {
@@ -226,46 +226,46 @@ async function updateLeaderboardsCheck(msg) {
     bot.createMessage(msg.channel.id, `@${msg.author.username} Updated leaderboards`);
 }
 
-async function genAPIKey(msg, args) {
-    bot.sendChannelTyping(msg.channel.id);
-    let player = null,
-        hyplayer = null,
-        sbp = null;
-    guild = null;
-    try {
-        player = await api.getPlayer(args[0]);
-        hyplayer = await api.gethypixelPlayer(player.id);
-        guild = await api.getGuildByUserID(player.id);
-        sbp = hyplayer.player;
-    } catch (err) {
-        console.log(err);
-        return "Invalid username!";
-    }
-    let whitelist = db.getData("/modWhitelist");
-    if ((guild === null || guild._id !== vals.guildID) && !whitelist.includes(player.id)) return ("You are not whitelisted or a member of the guild");
-    if (hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return ("Please connect your Hypixel account to discord.")
-    try {
-        if (!args.includes("new") && Object.keys(db.getData("/apikeys")).includes(player.id)) {
-            return ("You seem to already have a key, try `~api <username> new` if you want a new key, remember your old key will be invalidated")
-        }
-    } catch (e) {
+// async function genAPIKey(msg, args) {
+//     bot.sendChannelTyping(msg.channel.id);
+//     let player = null,
+//         hyplayer = null,
+//         sbp = null;
+//     guild = null;
+//     try {
+//         player = await api.getPlayer(args[0]);
+//         hyplayer = await api.gethypixelPlayer(player.id);
+//         guild = await api.getGuildByUserID(player.id);
+//         sbp = hyplayer.player;
+//     } catch (err) {
+//         console.log(err);
+//         return "Invalid username!";
+//     }
+//     let whitelist = db.getData("/modWhitelist");
+//     if ((guild === null || guild._id !== vals.guildID) && !whitelist.includes(player.id)) return ("You are not whitelisted or a member of the guild");
+//     if (hyplayer.player.socialMedia.links == undefined || hyplayer.player.socialMedia.links.DISCORD.toLowerCase().replace(" ", "_") !== `${msg.author.username.toLowerCase().replace(" ","_")}#${msg.author.discriminator}`) return ("Please connect your Hypixel account to discord.")
+//     try {
+//         if (!args.includes("new") && Object.keys(db.getData("/apikeys")).includes(player.id)) {
+//             return ("You seem to already have a key, try `~api <username> new` if you want a new key, remember your old key will be invalidated")
+//         }
+//     } catch (e) {
 
-    }
-
-
-    const apiKey = utils.genuuid();
-    db.push(`/apikeys/${player.id}`, apiKey); // TEST
-    (await bot.getDMChannel(msg.author.id)).createMessage("Here is your API key, Remember to keep it safe and do not share it with anyone.\n```\n" + apiKey + "```");
-
-    return ("Your api key has been Direct Messaged to you");
-}
+//     }
 
 
-bot.registerCommand("api", genAPIKey, {
-    description: "Genenrate Api key for upsimod",
-    argsRequired: true,
-    usage: "<username>"
-});
+//     const apiKey = utils.genuuid();
+//     db.push(`/apikeys/${player.id}`, apiKey); // TEST
+//     (await bot.getDMChannel(msg.author.id)).createMessage("Here is your API key, Remember to keep it safe and do not share it with anyone.\n```\n" + apiKey + "```");
+
+//     return ("Your api key has been Direct Messaged to you");
+// }
+
+
+// bot.registerCommand("api", genAPIKey, {
+//     description: "Genenrate Api key for upsimod",
+//     argsRequired: true,
+//     usage: "<username>"
+// });
 
 
 
@@ -574,66 +574,66 @@ bot.registerCommand("say", say, {
 });
 
 
-bot.registerCommand("addleech", addleech, {
-    description: "Add Leech Channel",
-    fullDescription: "Add a server to leech bot",
-    argsRequired: true,
-    usage: "<channelid> <server invite>"
-});
+// bot.registerCommand("addleech", addleech, {
+//     description: "Add Leech Channel",
+//     fullDescription: "Add a server to leech bot",
+//     argsRequired: true,
+//     usage: "<channelid> <server invite>"
+// });
 
 
-bot.registerCommand("removeleech", removeleech, {
-    description: "Remove a Leech Channel",
-    argsRequired: true,
-    usage: "<channelid>"
-});
+// bot.registerCommand("removeleech", removeleech, {
+//     description: "Remove a Leech Channel",
+//     argsRequired: true,
+//     usage: "<channelid>"
+// });
 
-async function removeleech(msg,arg){
-    if(!["213612539483914240","314197872209821699","260470661732892672"].includes(msg.author.id)) return "You're not allowed to do that";
-    if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
-    try{
-        db.delete("/splashSendChannels[" + db.getIndex("/splashSendChannels", arg[0]) + "]");
-        splashHandler.refreshList();
-        return("YEETED!");
-    }catch(e){
-        return("That channel is not in the list");
-    }
-}
+// async function removeleech(msg,arg){
+//     if(!["213612539483914240","314197872209821699","260470661732892672"].includes(msg.author.id)) return "You're not allowed to do that";
+//     if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
+//     try{
+//         db.delete("/splashSendChannels[" + db.getIndex("/splashSendChannels", arg[0]) + "]");
+//         splashHandler.refreshList();
+//         return("YEETED!");
+//     }catch(e){
+//         return("That channel is not in the list");
+//     }
+// }
 
 
-async function addleech(msg,arg){
-    if(!["213612539483914240","314197872209821699","260470661732892672","366719661267484672"].includes(msg.author.id)) return "You're not allowed to do that";
-    if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
-    if(splashHandler.splashSendChannels.includes(arg[0])) return("Channel Already in Splash Leech")
-    if(arg[1]!==undefined){
-        let match = arg[1].match(/^(https?\:\/\/)?(.*\/)?([a-z0-9-]{2,32})$/i);
-        if(match ===null || match[3] === undefined) return "Invalid Invite";
-        let request = await c(`https://discord.com/api/v8/invites/${match[3]}`, 'POST').header({
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0',
-            'Authorization': tokens.scraper,
-            'Origin': 'https://discord.com',
-            'Connection': 'keep-alive',
-            'Accept':'*/*'
-        }).body({}).send();
-        if([403,404].includes(request.statusCode)){
-            const message = (await request.json()).message;
-            return message;
-        } 
-        else if(request.statusCode !== 200) return "Some Unknown Error Occoured";
-        await msg.channel.createMessage(`Joined ${(await request.json()).guild.name}`)
-    }
-    db.push("/splashSendChannels[]",arg[0]);
-    splashHandler.splashSendChannels.push(arg[0]);
-    try{
-        let channel = await scraperbot.getChannel(arg[0]);
-        if(channel===undefined) return "That channel doesn't exist";
-    }catch(e){
-        console.log(e);
-        return "Some unknown error occured";
-    }
-    return "Successfully Added Server to list";
+// async function addleech(msg,arg){
+//     if(!["213612539483914240","314197872209821699","260470661732892672","366719661267484672"].includes(msg.author.id)) return "You're not allowed to do that";
+//     if(arg[0].match(/^[0-9]{18}$/)===null) return "Invalid Channel ID";
+//     if(splashHandler.splashSendChannels.includes(arg[0])) return("Channel Already in Splash Leech")
+//     if(arg[1]!==undefined){
+//         let match = arg[1].match(/^(https?\:\/\/)?(.*\/)?([a-z0-9-]{2,32})$/i);
+//         if(match ===null || match[3] === undefined) return "Invalid Invite";
+//         let request = await c(`https://discord.com/api/v8/invites/${match[3]}`, 'POST').header({
+//             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0',
+//             'Authorization': tokens.scraper,
+//             'Origin': 'https://discord.com',
+//             'Connection': 'keep-alive',
+//             'Accept':'*/*'
+//         }).body({}).send();
+//         if([403,404].includes(request.statusCode)){
+//             const message = (await request.json()).message;
+//             return message;
+//         } 
+//         else if(request.statusCode !== 200) return "Some Unknown Error Occoured";
+//         await msg.channel.createMessage(`Joined ${(await request.json()).guild.name}`)
+//     }
+//     db.push("/splashSendChannels[]",arg[0]);
+//     splashHandler.splashSendChannels.push(arg[0]);
+//     try{
+//         let channel = await scraperbot.getChannel(arg[0]);
+//         if(channel===undefined) return "That channel doesn't exist";
+//     }catch(e){
+//         console.log(e);
+//         return "Some unknown error occured";
+//     }
+//     return "Successfully Added Server to list";
     
-}
+// }
 
 bot.registerCommand("score", (msg,args) => {
 
@@ -664,190 +664,190 @@ function say(msg) {
     return (msg.cleanContent.replace(msg.prefix + msg.command.label, ""));
 }
 
-class splashNotifier {
-    constructor() {
-        this.pastMessages = {};
-        this.duplicate = Object.create(null);
-        try{
-            this.splashSendChannels = db.getData("/splashSendChannels");
-            this.splashReceiveChannels = db.getData("/splashReceiveChannels");
-        }catch(e){
-            this.splashSendChannels = [];
-            this.splashReceiveChannels = [];
-        }
-    }
-    refreshList(){
-        try{
-            this.splashSendChannels = db.getData("/splashSendChannels");
-            this.splashReceiveChannels = db.getData("/splashReceiveChannels");
-        }catch(e){
-            this.splashSendChannels = [];
-            this.splashReceiveChannels = [];
-        }
-    }
-    sendSplashNotification(msgList) {
-        // const totalmsg = msgList.reduce((total, now) => {
-        //     if(now.embeds.length>0) 
-        //     return now.cleanContent + "\n" + total;
-        // }, "");
-        let totalmsg = "";
-        let embed = bot.createEmbed();
-        let hasEmbed = null;
-        for (let msg of msgList) {
-            if (msg.embeds.length > 0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv") {
-                hasEmbed = msg.embeds[0];
-                totalmsg += msg.cleanContent + (msg.embeds[0].description || "");
-            } else if (msg.embeds.length > 0 && msg.embeds[0].type === "image") {
-                totalmsg = msg.cleanContent + "\n" + totalmsg;
-                embed.image(msg.embeds[0].url);
-            } else {
-                totalmsg = msg.cleanContent + "\n" + totalmsg;
-            }
-        }
-        if (hasEmbed !== null) {
-            hasEmbed.author = {
-                name: msgList[0].author.username,
-                icon_url: `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`
-            };
-            hasEmbed.footer = {
-                text: `This Message was sent in ${msgList[0].channel.guild.name}`
-            };
-            hasEmbed.timestamp = new Date();
-            hasEmbed.color = 0x00ffff;
-            hasEmbed.description = totalmsg;
-            let isDemi = false;
-            if (hasEmbed.fields !== undefined) {
-                for (let field of hasEmbed.fields) {
-                    let title = (field.name + " " + field.value).match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
-                    isDemi = isDemi || (field.name + " " + field.value).toLowerCase().includes("demi");
-                    if (title !== null) {
-                        hasEmbed.title = title[0];
-                    }
-                }
-            }
+// class splashNotifier {
+//     constructor() {
+//         this.pastMessages = {};
+//         this.duplicate = Object.create(null);
+//         try{
+//             this.splashSendChannels = db.getData("/splashSendChannels");
+//             this.splashReceiveChannels = db.getData("/splashReceiveChannels");
+//         }catch(e){
+//             this.splashSendChannels = [];
+//             this.splashReceiveChannels = [];
+//         }
+//     }
+//     refreshList(){
+//         try{
+//             this.splashSendChannels = db.getData("/splashSendChannels");
+//             this.splashReceiveChannels = db.getData("/splashReceiveChannels");
+//         }catch(e){
+//             this.splashSendChannels = [];
+//             this.splashReceiveChannels = [];
+//         }
+//     }
+//     sendSplashNotification(msgList) {
+//         // const totalmsg = msgList.reduce((total, now) => {
+//         //     if(now.embeds.length>0) 
+//         //     return now.cleanContent + "\n" + total;
+//         // }, "");
+//         let totalmsg = "";
+//         let embed = bot.createEmbed();
+//         let hasEmbed = null;
+//         for (let msg of msgList) {
+//             if (msg.embeds.length > 0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv") {
+//                 hasEmbed = msg.embeds[0];
+//                 totalmsg += msg.cleanContent + (msg.embeds[0].description || "");
+//             } else if (msg.embeds.length > 0 && msg.embeds[0].type === "image") {
+//                 totalmsg = msg.cleanContent + "\n" + totalmsg;
+//                 embed.image(msg.embeds[0].url);
+//             } else {
+//                 totalmsg = msg.cleanContent + "\n" + totalmsg;
+//             }
+//         }
+//         if (hasEmbed !== null) {
+//             hasEmbed.author = {
+//                 name: msgList[0].author.username,
+//                 icon_url: `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`
+//             };
+//             hasEmbed.footer = {
+//                 text: `This Message was sent in ${msgList[0].channel.guild.name}`
+//             };
+//             hasEmbed.timestamp = new Date();
+//             hasEmbed.color = 0x00ffff;
+//             hasEmbed.description = totalmsg;
+//             let isDemi = false;
+//             if (hasEmbed.fields !== undefined) {
+//                 for (let field of hasEmbed.fields) {
+//                     let title = (field.name + " " + field.value).match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
+//                     isDemi = isDemi || (field.name + " " + field.value).toLowerCase().includes("demi");
+//                     if (title !== null) {
+//                         hasEmbed.title = title[0];
+//                     }
+//                 }
+//             }
 
-            let title = hasEmbed.description.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
-            if (title !== null) {
-                hasEmbed.title = title[0];
-            }
-            isDemi = isDemi || hasEmbed.description.toLowerCase().includes("demi");
-            hasEmbed.title += (isDemi ? " - DEMI" : "");
-            //if(isDemi) hasEmbed.color = 0xC0C0C0;
-            if (isDemi) return;
-            if (hasEmbed.title.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i) !== null && !Object.keys(this.duplicate).includes(hasEmbed.title)) {
-                this.duplicate[hasEmbed.title] = true;
-                setTimeout(function(){
-                    delete this.duplicate[hasEmbed.title];
-                    console.log(`Deleted ${hasEmbed.title}`);
-                }.bind(this),90000)
-                leechserver.publish({
-                    type: (hasEmbed.title.match(/(party|p) join \w+/i) ? "party" : "hub"),
-                    place: hasEmbed.title,
-                    message: hasEmbed.description + (hasEmbed.fields ? hasEmbed.fields.map(function (obj) {
-                        return (`${obj.name}:${obj.value}`);
-                    }).join("\n") : "") 
-                });
-            } else {
-                return;
-            }
-
-
-            if(msgList[0].channel.id === "675381164990529546") return;
-            for (let splashReceiveChannel of this.splashReceiveChannels) {
-                bot.createMessage(splashReceiveChannel, {
-                    embed: hasEmbed
-                });
-            }
-            return;
-        }
-
-        if (totalmsg.match(/\d+\s?K/i) !== null) return;
-        const isDemi = totalmsg.toLowerCase().includes("demi");
-        if (isDemi) return; //SOFT-REMOVED DEMI
-        const title = totalmsg.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
-        if (title !== null && !Object.keys(this.duplicate).includes(title[0])) {
-            this.duplicate[title[0]] = true;
-                setTimeout(function(){
-                    delete this.duplicate[title[0]];
-                    console.log(`Deleted ${title[0]}`);
-                }.bind(this),30000)
-            embed.title(title[0] + (isDemi ? " - DEMI" : ""));
-            leechserver.publish({
-                type: (totalmsg.match(/(party|p) join \w+/i) ? "party" : "hub"),
-                place: title[0],
-                message: totalmsg
-            });
-        } else
-            return;
-        // embed.title((isDemi ? "DEMI " : "") + "Splash");
-        if(msgList[0].channel.id === "675381164990529546") return;
-        embed.description(totalmsg);
-        embed.color(isDemi ? "#C0C0C0" : "#00FFFF");
-        embed.timestamp(new Date());
-        embed.author(msgList[0].author.username, `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
-        embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}`);
-        for (let splashReceiveChannel of this.splashReceiveChannels) {
-            embed.send(bot, splashReceiveChannel).catch(error => console.log(error));
-        }
-    }
-
-    async scrapeHandler(msg) {
-        if (this.splashSendChannels.includes(msg.channel.id)) {
-            if (msg.roleMentions.length > 0 || msg.mentionEveryone || msg.embeds.length > 0 || (msg.cleanContent.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i) && (msg.cleanContent.toLowerCase().includes("god") || msg.cleanContent.toLowerCase().includes("splash")))) {
-                let msgList;
-                if (msg.embeds.length > 0)
-                    msgList = [msg]
-                else
-                    msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
-                this.sendSplashNotification(msgList);
-                this.pastMessages[msg.author.id] = msg.id;
-                setTimeout((that, id) => {
-                    delete that.pastMessages[id];
-                }, 1000 * 300, this, msg.author.id);
-            } else if (Object.keys(this.pastMessages).includes(msg.author.id)) {
-                for (let splashReceiveChannel of this.splashReceiveChannels) {
-                    let msgtoEdit = (await bot.getMessages(splashReceiveChannel)).filter((arr) => {
-                        if (arr.embeds.length > 0 && arr.embeds[0].author !== undefined)
-                            return arr.embeds[0].author.name === msg.author.username;
-                    })[0];
-                    if(!msgtoEdit) return;
-                    if (msg.embeds.length > 0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv") {
-                        msg.embeds[0].description = msgtoEdit.embeds[0].description;
-                        msgtoEdit.embeds[0] = msg.embeds[0];
-                    } else if (msg.embeds.length > 0 && msg.embeds[0].type === "image") {
-                        msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
-                        msgtoEdit.embeds[0].image = {
-                            url: msg.embeds[0].url
-                        };
-                        const title = msg.cleanContent.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
-                        if (title !== null) msgtoEdit.embeds[0].title = title[0];
-                    } else {
-                        msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
-                        const title = msg.cleanContent.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
-                        if (title !== null) msgtoEdit.embeds[0].title = title[0];
-                    }
+//             let title = hasEmbed.description.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
+//             if (title !== null) {
+//                 hasEmbed.title = title[0];
+//             }
+//             isDemi = isDemi || hasEmbed.description.toLowerCase().includes("demi");
+//             hasEmbed.title += (isDemi ? " - DEMI" : "");
+//             //if(isDemi) hasEmbed.color = 0xC0C0C0;
+//             if (isDemi) return;
+//             if (hasEmbed.title.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i) !== null && !Object.keys(this.duplicate).includes(hasEmbed.title)) {
+//                 this.duplicate[hasEmbed.title] = true;
+//                 setTimeout(function(){
+//                     delete this.duplicate[hasEmbed.title];
+//                     console.log(`Deleted ${hasEmbed.title}`);
+//                 }.bind(this),90000)
+//                 leechserver.publish({
+//                     type: (hasEmbed.title.match(/(party|p) join \w+/i) ? "party" : "hub"),
+//                     place: hasEmbed.title,
+//                     message: hasEmbed.description + (hasEmbed.fields ? hasEmbed.fields.map(function (obj) {
+//                         return (`${obj.name}:${obj.value}`);
+//                     }).join("\n") : "") 
+//                 });
+//             } else {
+//                 return;
+//             }
 
 
+//             if(msgList[0].channel.id === "675381164990529546") return;
+//             for (let splashReceiveChannel of this.splashReceiveChannels) {
+//                 bot.createMessage(splashReceiveChannel, {
+//                     embed: hasEmbed
+//                 });
+//             }
+//             return;
+//         }
 
-                    try {
-                        await bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, {
-                            embed: msgtoEdit.embeds[0]
-                        });
-                    } catch (e) {
-                        console.error(e);
-                    }
-                }
-            } else {
-                // So you don't do the bit after every time
-                return;
-            }
+//         if (totalmsg.match(/\d+\s?K/i) !== null) return;
+//         const isDemi = totalmsg.toLowerCase().includes("demi");
+//         if (isDemi) return; //SOFT-REMOVED DEMI
+//         const title = totalmsg.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
+//         if (title !== null && !Object.keys(this.duplicate).includes(title[0])) {
+//             this.duplicate[title[0]] = true;
+//                 setTimeout(function(){
+//                     delete this.duplicate[title[0]];
+//                     console.log(`Deleted ${title[0]}`);
+//                 }.bind(this),30000)
+//             embed.title(title[0] + (isDemi ? " - DEMI" : ""));
+//             leechserver.publish({
+//                 type: (totalmsg.match(/(party|p) join \w+/i) ? "party" : "hub"),
+//                 place: title[0],
+//                 message: totalmsg
+//             });
+//         } else
+//             return;
+//         // embed.title((isDemi ? "DEMI " : "") + "Splash");
+//         if(msgList[0].channel.id === "675381164990529546") return;
+//         embed.description(totalmsg);
+//         embed.color(isDemi ? "#C0C0C0" : "#00FFFF");
+//         embed.timestamp(new Date());
+//         embed.author(msgList[0].author.username, `https://cdn.discordapp.com/avatars/${msgList[0].author.id}/${msgList[0].author.avatar}.png`);
+//         embed.footer(`This Message was sent in ${msgList[0].channel.guild.name}`);
+//         for (let splashReceiveChannel of this.splashReceiveChannels) {
+//             embed.send(bot, splashReceiveChannel).catch(error => console.log(error));
+//         }
+//     }
 
-        }
-    }
-}
+//     async scrapeHandler(msg) {
+//         if (this.splashSendChannels.includes(msg.channel.id)) {
+//             if (msg.roleMentions.length > 0 || msg.mentionEveryone || msg.embeds.length > 0 || (msg.cleanContent.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i) && (msg.cleanContent.toLowerCase().includes("god") || msg.cleanContent.toLowerCase().includes("splash")))) {
+//                 let msgList;
+//                 if (msg.embeds.length > 0)
+//                     msgList = [msg]
+//                 else
+//                     msgList = (await scraperbot.getMessages(msg.channel.id, 10)).filter((obj) => (obj.timestamp > msg.timestamp - 180000) && obj.author === msg.author);
+//                 this.sendSplashNotification(msgList);
+//                 this.pastMessages[msg.author.id] = msg.id;
+//                 setTimeout((that, id) => {
+//                     delete that.pastMessages[id];
+//                 }, 1000 * 300, this, msg.author.id);
+//             } else if (Object.keys(this.pastMessages).includes(msg.author.id)) {
+//                 for (let splashReceiveChannel of this.splashReceiveChannels) {
+//                     let msgtoEdit = (await bot.getMessages(splashReceiveChannel)).filter((arr) => {
+//                         if (arr.embeds.length > 0 && arr.embeds[0].author !== undefined)
+//                             return arr.embeds[0].author.name === msg.author.username;
+//                     })[0];
+//                     if(!msgtoEdit) return;
+//                     if (msg.embeds.length > 0 && msg.embeds[0].type !== "image" && msg.embeds[0].type !== "gifv") {
+//                         msg.embeds[0].description = msgtoEdit.embeds[0].description;
+//                         msgtoEdit.embeds[0] = msg.embeds[0];
+//                     } else if (msg.embeds.length > 0 && msg.embeds[0].type === "image") {
+//                         msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
+//                         msgtoEdit.embeds[0].image = {
+//                             url: msg.embeds[0].url
+//                         };
+//                         const title = msg.cleanContent.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
+//                         if (title !== null) msgtoEdit.embeds[0].title = title[0];
+//                     } else {
+//                         msgtoEdit.embeds[0].description = msgtoEdit.embeds[0].description + "\n" + msg.cleanContent;
+//                         const title = msg.cleanContent.match(/((party|p) join \w+|(dungeon|d|dung|dun)?\s?HUB\s?\d+)/i);
+//                         if (title !== null) msgtoEdit.embeds[0].title = title[0];
+//                     }
 
-let splashHandler = new splashNotifier();
-scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
+
+
+//                     try {
+//                         await bot.editMessage(msgtoEdit.channel.id, msgtoEdit.id, {
+//                             embed: msgtoEdit.embeds[0]
+//                         });
+//                     } catch (e) {
+//                         console.error(e);
+//                     }
+//                 }
+//             } else {
+//                 // So you don't do the bit after every time
+//                 return;
+//             }
+
+//         }
+//     }
+// }
+
+// let splashHandler = new splashNotifier();
+// scraperbot.on("messageCreate", splashHandler.scrapeHandler.bind(splashHandler));
 // scraperbot.on("messageCreate", (msg) => {
 //     if (["720642093181042690", "720602273461567509", "736220160616038471", "728287548321038346"].includes(msg.channel.id)) {
 //         bot.createMessage("736211540772126780", {
@@ -862,13 +862,13 @@ bot.on("messageCreate", (msg) => {
         bot.createMessage(msg.channel.id, "Please for the love of life its a `~` (tilde), [Usually look in left-upper corner key below escape for it] ")
 });
 
-//SAD You will be missed
-// bot.on("messageCreate", (msg) => {
-//     if (msg.author.bot) return;
-//     let content = msg.cleanContent.match(/\b(I'm|I am|I\s?m)\s(.*)/i);
-//     if (content !== null) bot.createMessage(msg.channel.id, `Hi ${content[2]}, I am ᴉsd∩`);
+//SAD You will be missed, nvm I am bringing it back
+bot.on("messageCreate", (msg) => {
+    if (msg.author.bot) return;
+    let content = msg.cleanContent.match(/\b(I'm|I am|I\s?m)\s(.*)/i);
+    if (content !== null) bot.createMessage(msg.channel.id, `Hi ${content[2]}, I am ᴉsd∩`);
 
-// });
+});
 
 bot.registerCommand("ping", "Pong!", { // Make a ping command
     // Responds with "Pong!" when someone says "!ping"
