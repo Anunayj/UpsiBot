@@ -862,13 +862,13 @@ bot.on("messageCreate", (msg) => {
         bot.createMessage(msg.channel.id, "Please for the love of life its a `~` (tilde), [Usually look in left-upper corner key below escape for it] ")
 });
 
-//SAD You will be missed, nvm I am bringing it back
-bot.on("messageCreate", (msg) => {
-    if (msg.author.bot) return;
-    let content = msg.cleanContent.match(/\b(I'm|I am|I\s?m)\s(.*)/i);
-    if (content !== null) bot.createMessage(msg.channel.id, `Hi ${content[2]}, I am ᴉsd∩`);
+//SAD You will be missed, nvm I am bringing it back, No stay the way you are
+// bot.on("messageCreate", (msg) => {
+//     if (msg.author.bot) return;
+//     let content = msg.cleanContent.match(/\b(I'm|I am|I\s?m)\s(.*)/i);
+//     if (content !== null) bot.createMessage(msg.channel.id, `Hi ${content[2]}, I am ᴉsd∩`);
 
-});
+// });
 
 bot.registerCommand("ping", "Pong!", { // Make a ping command
     // Responds with "Pong!" when someone says "!ping"
