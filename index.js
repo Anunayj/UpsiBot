@@ -661,7 +661,7 @@ bot.registerCommand("score", (msg,args) => {
 function say(msg) {
     if (msg.author.bot === true) return;
     // replace(/<(:\w+:)[0-9]+>/g, "$1")
-    return (msg.cleanContent.replace(msg.prefix + msg.command.label, ""));
+    return (msg.content.replace(msg.prefix + msg.command.label, ""));
 }
 
 // class splashNotifier {
